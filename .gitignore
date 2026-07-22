@@ -45,6 +45,13 @@ Thumbs.db
 *.swp
 *.swo
 
+# Local agent/workspace instructions
+AGENTS.md
+CLAUDE.md
+.agent.md
+.prompt.md
+.instructions.md
+
 # Local database dumps / backups
 *.sql.bak
 *.bak
