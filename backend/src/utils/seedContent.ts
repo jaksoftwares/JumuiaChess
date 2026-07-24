@@ -32,8 +32,8 @@ export async function seedContent() {
       log('Inserting default site_settings row...');
       const { error } = await supabase.from('site_settings').insert({
         id: 1,
-        org_email: 'info@giftofchess.org',
-        org_phone: '+254700000000',
+        org_email: 'iykekonzolaw21@gmail.com',
+        org_phone: '0722274720',
         mpesa_paybill: '174379',
         instagram_url: 'https://instagram.com/giftofchess',
         facebook_url: 'https://facebook.com/giftofchess',
@@ -141,22 +141,55 @@ export async function seedContent() {
       log('Inserting default blog posts...');
       const { error } = await supabase.from('blog_posts').insert([
         {
+          title: 'Celebrating Minds of All Kinds: Infinite Chess Project in Kenya',
+          slug: 'celebrating-minds-of-all-kinds-infinite-chess-kenya',
+          featured_image_url: 'https://infinitechess.fide.com/wp-content/uploads/2026/04/Снимок-экрана-2026-04-22-123532-1536x856.png',
+          excerpt: 'In partnership with FIDE, The Gift of Chess, and Kindness on the Board Foundation, structured chess mentorship is empowering neurodiverse children at Autism School International in Thika.',
+          body: `This April, as the chess world recognizes Autism Awareness Month under the banner #CelebrateMindsOfAllKinds, the Kenya Infinite Chess Program is reporting meaningful progress in its work with children on the autism spectrum.
+
+Run by FIDE in partnership with The Gift of Chess and supported by Kindness on the Board Foundation, the program was launched in January 2025 at Autism School International in Thika. It uses chess as a structured yet flexible tool to support children with autism, helping them develop skills in a safe and supportive environment.
+
+Throughout this month, the program has centered its activities on creating inclusive spaces where children can learn, interact, and express themselves. The team has also focused on raising awareness about the importance of tailored learning approaches and inclusion.
+
+According to program coordinator in Kenya Phylis Ngigi, the children participating in the weekly sessions have shown encouraging progress in several key areas. These include improved focus, better communication, increased patience, and growing confidence.
+
+Phylis Ngigi explained that the structured nature of chess, combined with the flexibility to let each child learn at their own pace, has contributed to these positive changes. She noted that the benefits go beyond chess skills, pointing to the joy and meaningful engagement that the children now experience.
+
+The Kenya Infinite Chess program is supported by a dedicated team. Lead Coach Claude Peter guides the chess sessions with patience and attention to the unique needs of each learner. His commitment has been essential to the progress seen so far.
+
+The program also works closely with Autism School International in Thika. The school's director, Tr. Winnie, along with the support staff and teachers, joins the sessions and helps create a nurturing and enabling environment for the children.`,
+          published: true,
+          published_at: new Date('2026-04-22T10:00:00Z').toISOString(),
+        },
+        {
+          title: "Nathan's Triumph: From Quiet Observer to Tournament Medalist",
+          slug: 'nathans-triumph-quiet-observer-to-chess-champion',
+          featured_image_url: 'https://infinitechess.fide.com/wp-content/uploads/2026/04/Снимок-экрана-2026-04-22-115432-1.png',
+          excerpt: 'Meet Nathan. In January, he was a quiet observer on the sidelines. Today, he helps other children and earned 3rd place competing among players with disabilities.',
+          body: `Look who’s playing now! As part of the #CelebrateMindsOfAllKinds initiative, the Infinite Chess project in Kenya is showing us what inclusion looks like in action.
+
+Meet Nathan. In January 2025, Nathan was a quiet observer sitting on the sidelines during chess sessions at Autism School International in Thika. Today? He is actively helping other children learn, competing in local tournaments, and recently earned 3rd place among players with disabilities.
+
+His mother, Naomi Nyambura, shared her observations about the transformations she has seen in her son since joining the program:
+• Improved focus and concentration
+• A more thoughtful, deliberate approach to problem solving
+• Greater engagement and communication at home
+• Growing patience and self-confidence
+
+"Seeing the children grow in confidence, connection, and joy has been one of the most rewarding parts of my role," says Infinite Chess Coordinator Phylis Ngigi.
+
+Coach Claude Peter leads each session with patience, meeting every learner where they are. This is what happens when we create spaces where every mind can thrive.`,
+          published: true,
+          published_at: new Date('2026-04-22T14:30:00Z').toISOString(),
+        },
+        {
           title: '1,000 Chess Boards Arrive in Kakuma Refugee Camp',
           slug: 'kakuma-boards-distribution',
           featured_image_url: '/images/kids.jpg',
-          excerpt: 'In partnership with FIDE and UNHCR coordinators, we have distributed 1,000 chess sets to schools and youth clubs.',
+          excerpt: 'In partnership with FIDE and UNHCR coordinators, we have distributed 1,000 chess sets to schools and youth clubs across Kenya.',
           body: 'We are thrilled to announce that 1,000 high-quality chess boards have successfully arrived and been distributed within the Kakuma Refugee Camp in Kenya. Over the course of three weeks, community volunteers conducted introductory training sessions for over 500 children.',
           published: true,
-          published_at: new Date().toISOString(),
-        },
-        {
-          title: 'Expanding Our Autism Chess Program Globally',
-          slug: 'expanding-autism-chess-program',
-          featured_image_url: '/images/kids2.jpg',
-          excerpt: 'Following successful pilots, we are introducing structured chess mentorship curricula specifically tailored for neurodiverse children.',
-          body: 'Our Infinite Chess program has shown remarkable success in aiding concentration and logical sequencing in children diagnosed with autism spectrum disorder.',
-          published: true,
-          published_at: new Date().toISOString(),
+          published_at: new Date('2026-03-15T09:00:00Z').toISOString(),
         },
       ]);
       if (error) {

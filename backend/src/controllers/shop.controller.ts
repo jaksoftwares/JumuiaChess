@@ -1,16 +1,24 @@
 import { Request, Response, NextFunction } from 'express';
 import { supabase } from '../config/supabase';
 import { initiateStkPush } from '../services/mpesa.service';
+import cache from '../utils/cache';
+
+const PRODUCTS_TTL = 60_000; // 60s — products rarely change
+const ORDERS_TTL = 15_000;   // 15s — orders update more frequently
 
 // GET /api/shop/products
 export const getProducts = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const cached = cache.get<any[]>('shop:products');
+    if (cached) return res.json({ success: true, data: cached, _cached: true });
+
     const { data, error } = await supabase
       .from('products')
       .select('*')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
+    cache.set('shop:products', data || [], PRODUCTS_TTL);
     res.json({ success: true, data });
   } catch (err) {
     next(err);
@@ -28,6 +36,7 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
       .single();
 
     if (error) throw error;
+    cache.invalidate('shop:products');
     res.status(201).json({ success: true, data });
   } catch (err) {
     next(err);
@@ -47,6 +56,7 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
       .single();
 
     if (error) throw error;
+    cache.invalidate('shop:products');
     res.json({ success: true, data });
   } catch (err) {
     next(err);
@@ -57,12 +67,9 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
 export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    const { error } = await supabase
-      .from('products')
-      .delete()
-      .eq('id', id);
-
+    const { error } = await supabase.from('products').delete().eq('id', id);
     if (error) throw error;
+    cache.invalidate('shop:products');
     res.json({ success: true, message: 'Product deleted successfully' });
   } catch (err) {
     next(err);
@@ -78,7 +85,6 @@ export const checkout = async (req: Request, res: Response, next: NextFunction) 
       return res.status(400).json({ error: 'Missing checkout requirements' });
     }
 
-    // 1. Create a pending shop order
     const { data: order, error: orderError } = await supabase
       .from('shop_orders')
       .insert([{
@@ -86,14 +92,13 @@ export const checkout = async (req: Request, res: Response, next: NextFunction) 
         phone_number: phoneNumber,
         items,
         amount: parseFloat(amount),
-        payment_status: 'pending'
+        payment_status: 'pending',
       }])
       .select()
       .single();
 
     if (orderError) throw orderError;
 
-    // 2. Trigger M-Pesa STK Push
     try {
       const stkResult = await initiateStkPush(
         phoneNumber,
@@ -102,16 +107,18 @@ export const checkout = async (req: Request, res: Response, next: NextFunction) 
         `Chess Store Order`
       );
 
-      // Update order with checkoutRequestId
       await supabase
         .from('shop_orders')
         .update({ checkout_request_id: stkResult.checkoutRequestId })
         .eq('id', order.id);
 
+      // Bust orders cache so admin sees the new order quickly
+      cache.invalidate('shop:orders');
+
       res.json({
         success: true,
         message: 'Checkout STK push initiated successfully.',
-        checkoutRequestId: stkResult.checkoutRequestId
+        checkoutRequestId: stkResult.checkoutRequestId,
       });
     } catch (stkError: any) {
       console.error('Checkout M-Pesa STK Push failed:', stkError.message);
@@ -122,7 +129,7 @@ export const checkout = async (req: Request, res: Response, next: NextFunction) 
 
       res.status(400).json({
         success: false,
-        error: stkError.message || 'Failed to trigger payment STK Push. Order marked as failed.'
+        error: stkError.message || 'Failed to trigger payment STK Push. Order marked as failed.',
       });
     }
   } catch (err) {
@@ -133,12 +140,16 @@ export const checkout = async (req: Request, res: Response, next: NextFunction) 
 // GET /api/shop/orders (Admin only)
 export const getOrders = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const cached = cache.get<any[]>('shop:orders');
+    if (cached) return res.json({ success: true, data: cached, _cached: true });
+
     const { data, error } = await supabase
       .from('shop_orders')
       .select('*')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
+    cache.set('shop:orders', data || [], ORDERS_TTL);
     res.json({ success: true, data });
   } catch (err) {
     next(err);

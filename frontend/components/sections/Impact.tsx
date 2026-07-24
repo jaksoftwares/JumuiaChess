@@ -40,7 +40,7 @@ const PROGRAMS = [
 
 export default function Impact() {
   return (
-    <section id="impact" className="py-24 px-6 bg-stone/10 relative">
+    <section id="impact" className="py-24 px-6 bg-stone/10 relative scroll-mt-24 lg:scroll-mt-28">
       <div className="max-w-7xl mx-auto space-y-16">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto space-y-4">
@@ -59,24 +59,38 @@ export default function Impact() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {PROGRAMS.map((program, index) => {
             const isLast = index === PROGRAMS.length - 1;
-            const isDarkStart = index % 2 !== 0 || isLast;
+            const isOdd = index % 2 !== 0;
+
+            // Pattern logic:
+            // For items 0..5: odd items are dark, even items are light.
+            // For last item (index 6):
+            // - On Mobile/Tablet (< lg): Light mode to maintain Light-Dark alternating pattern after item 5 (Dark).
+            // - On Desktop (lg): Dark mode (brownish #4A433D) to maintain the desktop pattern & centered highlight.
+            
+            const isDark = isOdd && !isLast;
 
             return (
               <div
                 key={program.title}
                 className={`p-8 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 group flex flex-col justify-between ${
-                  isDarkStart
+                  isLast
+                    ? 'bg-white text-charcoal border border-[#C8B195]/40 hover:border-wood/80 lg:bg-[#4A433D] lg:text-white lg:border-transparent lg:hover:border-white/30 lg:col-start-2'
+                    : isDark
                     ? 'bg-[#4A433D] text-white border border-transparent hover:border-white/30'
                     : 'bg-white text-charcoal border border-[#C8B195]/40 hover:border-wood/80'
-                } ${isLast ? 'lg:col-start-2' : ''}`}
+                }`}
               >
                 <div>
                   {/* Circle Image Wrapper */}
-                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-6 overflow-hidden transition-all duration-300 ${
-                    isDarkStart
-                      ? 'bg-white/10 border border-white/20'
-                      : 'bg-stone/5 border border-stone/20'
-                  }`}>
+                  <div
+                    className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-6 overflow-hidden transition-all duration-300 ${
+                      isLast
+                        ? 'bg-stone/5 border border-stone/20 lg:bg-white/10 lg:border-white/20'
+                        : isDark
+                        ? 'bg-white/10 border border-white/20'
+                        : 'bg-stone/5 border border-stone/20'
+                    }`}
+                  >
                     <div className="relative w-10 h-10 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
                       <Image
                         src={program.image}
@@ -87,15 +101,27 @@ export default function Impact() {
                       />
                     </div>
                   </div>
-                  
-                  <h3 className={`font-serif text-xl font-bold mb-3 ${
-                    isDarkStart ? 'text-white' : 'text-charcoal'
-                  }`}>
+
+                  <h3
+                    className={`font-serif text-xl font-bold mb-3 ${
+                      isLast
+                        ? 'text-charcoal lg:text-white'
+                        : isDark
+                        ? 'text-white'
+                        : 'text-charcoal'
+                    }`}
+                  >
                     {program.title}
                   </h3>
-                  <p className={`font-sans text-sm leading-relaxed ${
-                    isDarkStart ? 'text-white/80' : 'text-charcoal/70'
-                  }`}>
+                  <p
+                    className={`font-sans text-sm leading-relaxed ${
+                      isLast
+                        ? 'text-charcoal/70 lg:text-white/80'
+                        : isDark
+                        ? 'text-white/80'
+                        : 'text-charcoal/70'
+                    }`}
+                  >
                     {program.description}
                   </p>
                 </div>
@@ -107,4 +133,3 @@ export default function Impact() {
     </section>
   );
 }
-

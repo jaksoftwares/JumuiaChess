@@ -19,15 +19,17 @@ export default function Footer() {
               Jumuiya <span className="text-sage">Chess</span>
             </span>
           </div>
-          <p className="font-sans text-xs text-stone/60 max-w-sm">
-            Using chess as a tool to expand opportunities, enhance cognitive development, and build community worldwide.
+          <p className="font-sans text-xs text-stone/70 max-w-md">
+            Jumuiya Chess powered by The Gift of Chess Africa, Kenyan Chapter. Using chess as a tool to expand opportunities, enhance cognitive development, and build community worldwide.
           </p>
         </div>
 
         {/* Right Side: Links & Administration Access */}
         <div className="flex flex-col items-center md:items-end space-y-4">
-          <div className="flex space-x-6 text-xs text-stone/80">
-            <span className="font-sans">© {new Date().getFullYear()} Jumuiya Chess. All rights reserved.</span>
+          <div className="flex space-x-6 text-xs text-stone/80 text-center md:text-right">
+            <span className="font-sans">
+              © {new Date().getFullYear()} Jumuiya Chess powered by The Gift of Chess Africa, Kenyan Chapter. All rights reserved.
+            </span>
           </div>
           
           {/* Quiet Admin Login */}

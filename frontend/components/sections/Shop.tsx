@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { apiRequest } from '@/lib/api';
 import { Product } from '@/types';
-import { Loader2, Sparkles, CreditCard, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, CreditCard, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const BROWN_SHADES = [
   'bg-[#2A170F]', // Espresso
@@ -36,13 +36,19 @@ export default function Shop() {
 
   useEffect(() => {
     async function loadProducts() {
-      const res = await apiRequest<Product[]>('/shop/products');
-      if (res.success && res.data) {
-        setProducts(res.data.filter((p) => p.in_stock));
-      } else {
+      try {
+        const res = await apiRequest<Product[]>('/shop/products');
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          setProducts(res.data.filter((p) => p.in_stock));
+        } else {
+          setProducts([]);
+        }
+      } catch (err) {
+        console.error('[Shop Section] Error loading store products:', err);
         setProducts([]);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     loadProducts();
   }, []);
@@ -90,20 +96,10 @@ export default function Shop() {
     }
   };
 
-  const toggleFavorite = (id: string) => {
-    setFavorites((prev) =>
-      prev.includes(id) ? prev.filter((favId) => favId !== id) : [...prev, id]
-    );
-  };
-
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    setScrollLeft(e.currentTarget.scrollLeft);
-  };
-
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
-      const { scrollLeft, clientWidth } = scrollContainerRef.current;
-      const cardWidth = 380; // approximate card width
+      const { scrollLeft } = scrollContainerRef.current;
+      const cardWidth = 380;
       const step = direction === 'left' ? -cardWidth : cardWidth;
       scrollContainerRef.current.scrollTo({
         left: scrollLeft + step,
@@ -113,18 +109,23 @@ export default function Shop() {
   };
 
   return (
-    <section id="shop" className="py-24 px-6 bg-[#FAF7F2] relative overflow-hidden">
-      <div className="max-w-7xl mx-auto space-y-12">
+    <section id="shop" className="py-10 md:py-14 px-6 bg-gradient-to-b from-white via-[#FAF7F2] to-[#F6F4EF] relative overflow-hidden scroll-mt-24 lg:scroll-mt-28">
+      {/* Top & Bottom Ambient Gradient Blends */}
+      <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-white to-transparent pointer-events-none" />
+      <div className="absolute top-1/2 left-[-100px] w-[450px] h-[450px] bg-[#C8B195]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 right-[-100px] w-[400px] h-[400px] bg-amber-900/5 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="relative max-w-7xl mx-auto space-y-6 sm:space-y-8">
         {/* Section Header with Carousel Navigation */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-4 max-w-2xl">
+          <div className="space-y-3 max-w-2xl">
             <span className="font-sans text-xs font-semibold tracking-widest text-wood uppercase">
               Support Our Work
             </span>
-            <h2 className="font-serif text-4xl md:text-5xl font-bold text-charcoal">
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-charcoal">
               The Charity Store
             </h2>
-            <p className="font-sans text-charcoal/70">
+            <p className="font-sans text-xs md:text-sm text-charcoal/70 leading-relaxed">
               Purchase premium boards and apparel. 100% of store profits directly fund our local outreach and board logistics operations.
             </p>
           </div>
@@ -133,23 +134,23 @@ export default function Shop() {
           <div className="flex items-center space-x-3 self-start md:self-auto">
             <button
               onClick={() => scroll('left')}
-              className="w-12 h-12 rounded-full border border-stone/30 flex items-center justify-center text-charcoal hover:bg-wood hover:text-white transition-colors duration-300 shadow-sm"
+              className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm border border-stone-200/80 flex items-center justify-center text-charcoal hover:bg-wood hover:text-white transition-colors duration-300 shadow-sm"
               aria-label="Scroll left"
             >
-              <ChevronLeft className="h-5 w-5" />
+              <ChevronLeft className="h-4 w-4" />
             </button>
             <button
               onClick={() => scroll('right')}
-              className="w-12 h-12 rounded-full border border-stone/30 flex items-center justify-center text-charcoal hover:bg-wood hover:text-white transition-colors duration-300 shadow-sm"
+              className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm border border-stone-200/80 flex items-center justify-center text-charcoal hover:bg-wood hover:text-white transition-colors duration-300 shadow-sm"
               aria-label="Scroll right"
             >
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="h-4 w-4" />
             </button>
           </div>
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center py-12">
+          <div className="flex justify-center items-center py-10">
             <Loader2 className="h-8 w-8 animate-spin text-wood" />
           </div>
         ) : products.length === 0 ? (
@@ -160,70 +161,64 @@ export default function Shop() {
           /* Horizontal Snap Carousel */
           <div
             ref={scrollContainerRef}
-            onScroll={handleScroll}
-            className="flex overflow-x-auto space-x-6 pb-12 pt-6 px-2 snap-x snap-mandatory no-scrollbar scroll-smooth"
+            onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}
+            className="flex overflow-x-auto space-x-6 pb-6 pt-2 px-2 snap-x snap-mandatory no-scrollbar scroll-smooth"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {products.map((p, index) => {
               const bgClass = BROWN_SHADES[index % BROWN_SHADES.length];
-              
-              // Calculate Scroll Parallax Offset
-              const cardWidth = 380;
-              const gap = 24;
-              const step = cardWidth + gap;
-              const relativeScroll = scrollLeft - (index * step);
-              // Image shifts slightly horizontally depending on scroll position
-              const xOffset = Math.max(-28, Math.min(28, relativeScroll * 0.08));
+              const productImage = p.image_url || CHESS_PIECE_IMAGES[index % CHESS_PIECE_IMAGES.length];
 
               return (
                 <div
                   key={p.id}
                   onClick={() => setSelectedProduct(p)}
-                  className={`relative min-w-[300px] sm:min-w-[340px] md:min-w-[380px] h-[350px] rounded-[32px] p-8 flex flex-col justify-between overflow-visible group snap-start border border-white/10 shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 ${bgClass}`}
+                  className={`relative min-w-[290px] sm:min-w-[330px] md:min-w-[360px] h-[340px] rounded-[32px] p-7 flex flex-col justify-between overflow-hidden group snap-start shadow-xl shadow-stone-900/10 cursor-pointer hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 ${bgClass}`}
                 >
-                  {/* Top Metadata Section */}
-                  <div className="z-20 space-y-4">
-                    <div className="flex items-center justify-between">
+                  {/* Product Image — bottom right */}
+                  <div
+                    className="absolute right-0 bottom-0 z-10 pointer-events-none"
+                    style={{ width: '55%', height: '70%' }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Image
+                      src={productImage}
+                      alt={p.name}
+                      fill
+                      unoptimized
+                      sizes="240px"
+                      className="object-contain group-hover:scale-105 transition-all duration-500 drop-shadow-[0_10px_20px_rgba(0,0,0,0.4)]"
+                    />
+                  </div>
+
+                  {/* Gradient overlay so text stays readable over images */}
+                  <div className="absolute inset-0 z-15 bg-gradient-to-r from-black/70 via-black/40 to-transparent pointer-events-none rounded-[32px]" />
+
+                  {/* Top Metadata Section — always on top */}
+                  <div className="relative z-20 space-y-4">
+                    <div>
                       <span className="text-[10px] font-bold tracking-[0.2em] text-[#C8B195] uppercase">
-                        {index === 0 ? 'BOARDS' : index === 1 ? 'PIECES' : index === 2 ? 'CLOCKS' : 'APPAREL'}
+                        Store Item
                       </span>
-                      <div className="flex items-center space-x-1.5 text-white/80 text-[10px] bg-white/5 border border-white/10 px-2.5 py-1 rounded-full">
-                        <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                        <span>Available</span>
-                      </div>
                     </div>
 
                     <div className="space-y-1">
-                      <h3 className="font-serif text-2xl md:text-3xl font-bold text-white leading-tight max-w-[180px] md:max-w-[210px] tracking-tight">
+                      <h3 className="font-serif text-2xl md:text-3xl font-bold text-white leading-tight max-w-[200px] tracking-tight drop-shadow-md">
                         {p.name}
                       </h3>
-                      <span className="font-sans text-lg font-bold text-white/90 block">
+                      <span className="font-sans text-lg font-bold text-white/90 block drop-shadow-sm">
                         KES {p.price.toLocaleString()}
                       </span>
                     </div>
                   </div>
 
-                  {/* 3D Overlapping Image - Positioned Outwards to the Right */}
-                  <div
-                    className="absolute right-[-80px] md:right-[-110px] bottom-6 w-56 h-56 md:w-64 md:h-64 z-10 pointer-events-none"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Image
-                      src={CHESS_PIECE_IMAGES[index % CHESS_PIECE_IMAGES.length]}
-                      alt={p.name}
-                      fill
-                      sizes="260px"
-                      className="object-contain group-hover:scale-110 group-hover:rotate-3 transition-all duration-500"
-                    />
-                  </div>
-
-                  <div className="flex items-center z-20">
+                  <div className="flex items-center relative z-20">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedProduct(p);
                       }}
-                      className="px-8 py-3 bg-white text-charcoal hover:bg-white/20 hover:text-white hover:border-white/20 font-sans text-xs md:text-sm font-bold rounded-full border border-transparent hover:-translate-y-0.5 hover:scale-[1.03] active:translate-y-0 active:scale-[0.98] transition-all duration-300 shadow-sm"
+                      className="px-8 py-3 bg-white text-charcoal hover:bg-white/20 hover:text-white hover:border-white/20 font-sans text-xs md:text-sm font-bold rounded-full border border-transparent transition-all duration-300 shadow-sm"
                     >
                       Buy Now
                     </button>
@@ -263,7 +258,6 @@ export default function Shop() {
                   statusMessage.type === 'success' ? 'bg-[#C8B195]/10 border border-[#C8B195]/30 text-charcoal' : 'bg-red-50 border border-red-200 text-red-700'
                 }`}>
                   <div className="flex items-center space-x-2 mb-2">
-                    {statusMessage.type === 'success' && <Sparkles className="h-5 w-5 text-wood" />}
                     <span className="font-serif font-bold text-sm">
                       {statusMessage.type === 'success' ? 'Prompt Sent' : 'Checkout Failed'}
                     </span>

@@ -4,10 +4,12 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
+import { clearAuthTokenCache } from '@/lib/api';
 import {
   LayoutDashboard,
   Trophy,
   Users,
+  UserCheck,
   Image as ImageIcon,
   BookOpen,
   ShoppingBag,
@@ -15,19 +17,37 @@ import {
   LogOut,
   Menu,
   X,
-  Handshake
+  Handshake,
+  ExternalLink,
+  ChevronRight,
+  ShieldCheck
 } from 'lucide-react';
-import Image from 'next/image';
 
-const MENU_ITEMS = [
-  { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
-  { name: 'Tournaments', href: '/admin/dashboard/tournaments', icon: Trophy },
-  { name: 'Registrations & Payments', href: '/admin/dashboard/registrations', icon: Users },
-  { name: 'Partners', href: '/admin/dashboard/partners', icon: Handshake },
-  { name: 'Gallery', href: '/admin/dashboard/gallery', icon: ImageIcon },
-  { name: 'Blog', href: '/admin/dashboard/blog', icon: BookOpen },
-  { name: 'Shop', href: '/admin/dashboard/shop', icon: ShoppingBag },
-  { name: 'Settings', href: '/admin/dashboard/settings', icon: SettingsIcon },
+const MENU_GROUPS = [
+  {
+    title: 'Overview',
+    items: [
+      { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
+      { name: 'Registrations & M-Pesa', href: '/admin/dashboard/registrations', icon: Users },
+    ]
+  },
+  {
+    title: 'Content & Media',
+    items: [
+      { name: 'Meet the Team', href: '/admin/dashboard/team', icon: UserCheck },
+      { name: 'Media Gallery', href: '/admin/dashboard/gallery', icon: ImageIcon },
+      { name: 'Blog & News', href: '/admin/dashboard/blog', icon: BookOpen },
+    ]
+  },
+  {
+    title: 'Management',
+    items: [
+      { name: 'Tournaments', href: '/admin/dashboard/tournaments', icon: Trophy },
+      { name: 'Charity Shop', href: '/admin/dashboard/shop', icon: ShoppingBag },
+      { name: 'Partners & Sponsors', href: '/admin/dashboard/partners', icon: Handshake },
+      { name: 'Site Settings', href: '/admin/dashboard/settings', icon: SettingsIcon },
+    ]
+  }
 ];
 
 export default function DashboardLayout({
@@ -40,91 +60,128 @@ export default function DashboardLayout({
   const pathname = usePathname();
 
   const handleSignOut = async () => {
+    clearAuthTokenCache();
     await supabase.auth.signOut();
-    // Delete dev cookie session
     document.cookie = 'admin-session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
     router.push('/admin/login');
   };
 
   return (
-    <div className="min-h-screen bg-stone/10 flex flex-col md:flex-row">
-      {/* Mobile Top bar */}
-      <div className="md:hidden bg-charcoal text-offwhite flex justify-between items-center px-6 py-4 shadow-md">
-        <div className="flex items-center space-x-2">
-          <Image
-            src="/images/chess_logo.png"
-            alt="Jumuiya Chess Logo"
-            width={20}
-            height={20}
-            className="h-5 w-5 object-contain"
-          />
-          <span className="font-serif font-bold text-sm tracking-wide">Jumuiya Chess Admin</span>
+    <div className="min-h-screen bg-[#FAF7F2] text-[#2C2A29] flex flex-col md:flex-row font-sans">
+      {/* Mobile Top Bar */}
+      <div className="md:hidden sticky top-0 z-40 bg-white border-b border-stone-200 px-5 py-3.5 flex justify-between items-center shadow-sm">
+        <div className="flex items-center space-x-2.5">
+          <div className="w-8 h-8 rounded-lg bg-[#6B4A34] text-[#F3ECE2] flex items-center justify-center font-bold font-serif text-sm">
+            JC
+          </div>
+          <div>
+            <span className="font-serif font-bold text-base text-charcoal tracking-tight block">
+              Jumuiya Admin
+            </span>
+          </div>
         </div>
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="text-stone hover:text-offwhite focus:outline-none"
+          className="p-2 text-stone-600 hover:text-stone-900 rounded-lg bg-stone-100"
         >
-          {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
-      {/* Sidebar navigation */}
+      {/* Sidebar Navigation */}
       <aside
         className={`${
           sidebarOpen ? 'block' : 'hidden'
-        } md:block bg-charcoal text-offwhite w-full md:w-64 shrink-0 border-r border-stone/20 flex flex-col justify-between p-6 transition-all duration-300 z-30`}
+        } md:block bg-[#1E1C1B] text-[#F3ECE2] w-full md:w-64 shrink-0 border-r border-stone-800 flex flex-col justify-between p-5 transition-all duration-300 z-30 sticky top-0 h-screen overflow-y-auto`}
       >
-        <div className="space-y-8">
-          {/* Logo */}
-          <div className="hidden md:flex items-center space-x-2 text-stone border-b border-stone/10 pb-4">
-            <Image
-              src="/images/chess_logo.png"
-              alt="Jumuiya Chess Logo"
-              width={24}
-              height={24}
-              className="h-6 w-6 object-contain"
-            />
-            <span className="font-serif text-lg font-bold tracking-tight">
-              Jumuiya <span className="text-sage">Admin</span>
-            </span>
+        <div className="space-y-6">
+          {/* Header Brand */}
+          <div className="hidden md:flex items-center justify-between border-b border-stone-800 pb-5">
+            <div className="flex items-center space-x-3">
+              <div className="w-9 h-9 rounded-xl bg-[#6B4A34] text-[#F3ECE2] border border-[#C8B195]/40 flex items-center justify-center font-bold font-serif shadow-md">
+                JC
+              </div>
+              <div>
+                <span className="font-serif text-lg font-bold tracking-tight text-white block">
+                  Jumuiya <span className="text-[#EADBC8]">Admin</span>
+                </span>
+                <span className="text-[10px] text-[#C8B195] font-mono block font-semibold">Control Center</span>
+              </div>
+            </div>
           </div>
 
-          {/* Navigation Menu */}
-          <nav className="flex flex-col space-y-1">
-            {MENU_ITEMS.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded text-sm font-sans font-medium transition-colors ${
-                    isActive
-                      ? 'bg-wood text-offwhite'
-                      : 'text-stone/75 hover:bg-stone/10 hover:text-offwhite'
-                  }`}
-                >
-                  <Icon className="h-4 w-4 shrink-0" />
-                  <span>{item.name}</span>
-                </Link>
-              );
-            })}
+          {/* Quick Preview Link */}
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 border border-stone-800 text-xs text-[#EADBC8] font-semibold transition-all"
+          >
+            <div className="flex items-center gap-2">
+              <ExternalLink className="w-3.5 h-3.5 text-[#C8B195]" />
+              <span>Preview Website</span>
+            </div>
+            <ChevronRight className="w-3.5 h-3.5 text-[#C8B195] group-hover:translate-x-0.5 transition-transform" />
+          </a>
+
+          {/* Navigation Groups */}
+          <nav className="space-y-5">
+            {MENU_GROUPS.map((group) => (
+              <div key={group.title} className="space-y-1.5">
+                <h4 className="text-[10px] uppercase tracking-wider font-bold text-[#C8B195] px-3">
+                  {group.title}
+                </h4>
+                <div className="space-y-1">
+                  {group.items.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = pathname === item.href;
+                    return (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        onClick={() => setSidebarOpen(false)}
+                        className={`flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                          isActive
+                            ? 'bg-[#6B4A34] text-[#F3ECE2] border-l-4 border-[#C8B195] shadow-md'
+                            : 'text-white hover:bg-stone-800 hover:text-[#F3ECE2]'
+                        }`}
+                      >
+                        <Icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-[#F3ECE2]' : 'text-[#C8B195]'}`} />
+                        <span>{item.name}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </nav>
         </div>
 
-        {/* Sign Out Button */}
-        <button
-          onClick={handleSignOut}
-          className="mt-8 flex items-center space-x-3 px-4 py-3 rounded text-sm font-sans font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors w-full border-t border-stone/10 pt-4"
-        >
-          <LogOut className="h-4 w-4 shrink-0" />
-          <span>Sign Out</span>
-        </button>
+        {/* User Footer & Logout */}
+        <div className="pt-5 border-t border-stone-800 space-y-3">
+          <div className="flex items-center space-x-3 px-3 py-2 rounded-xl bg-stone-900 border border-stone-800">
+            <div className="w-7 h-7 rounded-full bg-[#6B4A34] text-[#F3ECE2] border border-[#C8B195]/40 flex items-center justify-center font-bold text-xs">
+              A
+            </div>
+            <div className="overflow-hidden flex-1">
+              <p className="text-xs font-bold text-white truncate flex items-center gap-1">
+                Admin Panel <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 inline" />
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={handleSignOut}
+            className="flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-bold text-rose-300 hover:bg-rose-950/40 border border-transparent transition-all w-full"
+          >
+            <LogOut className="h-4 w-4 shrink-0" />
+            <span>Sign Out</span>
+          </button>
+        </div>
       </aside>
 
-      {/* Main Content Area */}
-      <main className="flex-grow p-6 md:p-10 max-w-7xl mx-auto w-full overflow-y-auto">
+      {/* Main Content Area (Light Mode) */}
+      <main className="flex-grow p-6 md:p-10 max-w-7xl mx-auto w-full overflow-y-auto bg-[#FAF7F2]">
         {children}
       </main>
     </div>

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { apiRequest } from '@/lib/api';
 import { Tournament } from '@/types';
-import { Calendar, MapPin, Award, Loader2, Sparkles } from 'lucide-react';
+import { Calendar, MapPin, Award, Loader2 } from 'lucide-react';
 
 const TOURNAMENT_CONFIGS = [
   { image: '/images/kids.jpg', isDark: false },
@@ -29,13 +29,19 @@ export default function Tournaments() {
 
   useEffect(() => {
     async function loadTournaments() {
-      const res = await apiRequest<Tournament[]>('/tournaments');
-      if (res.success && res.data) {
-        setTournaments(res.data.slice(0, 3));
-      } else {
+      try {
+        const res = await apiRequest<Tournament[]>('/tournaments');
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          setTournaments(res.data);
+        } else {
+          setTournaments([]);
+        }
+      } catch (err) {
+        console.error('[Tournaments Section] Error loading tournaments:', err);
         setTournaments([]);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     loadTournaments();
   }, []);
@@ -70,7 +76,6 @@ export default function Tournaments() {
         type: 'success',
         text: 'STK Push sent! Please enter your M-Pesa PIN on your phone to complete registration.',
       });
-      // Clear form inputs
       setPlayerName('');
       setEmail('');
       setAge('');
@@ -86,7 +91,7 @@ export default function Tournaments() {
   };
 
   return (
-    <section id="tournaments" className="py-24 px-6 bg-white relative">
+    <section id="tournaments" className="py-24 px-6 bg-white relative scroll-mt-24 lg:scroll-mt-28">
       <div className="max-w-7xl mx-auto space-y-16">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto space-y-4">
@@ -113,9 +118,7 @@ export default function Tournaments() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {tournaments.map((t, index) => {
               const config = TOURNAMENT_CONFIGS[index % TOURNAMENT_CONFIGS.length];
-              const isDark = config.isDark;
-              const iconMap = [Award, Sparkles, Calendar];
-              const BadgeIcon = iconMap[index % iconMap.length];
+              const posterImage = t.poster_url || config.image;
 
               return (
                 <div
@@ -126,13 +129,14 @@ export default function Tournaments() {
                   {/* Full-Bleed Background Image */}
                   <div className="absolute inset-0 z-0 overflow-hidden">
                     <Image
-                      src={config.image}
+                      src={posterImage}
                       alt={t.name}
                       fill
+                      unoptimized
                       sizes="(max-w-7xl) 100vw, 33vw"
                       className="object-cover group-hover:scale-105 transition-all duration-700"
                     />
-                    {/* Vignette / Gradient bottom overlay */}
+                    {/* Gradient bottom overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-charcoal/30 to-transparent" />
                   </div>
 
@@ -213,7 +217,6 @@ export default function Tournaments() {
                   statusMessage.type === 'success' ? 'bg-sage/10 border border-sage/30 text-charcoal' : 'bg-red-50 border border-red-200 text-red-700'
                 }`}>
                   <div className="flex items-center space-x-2 mb-2">
-                    {statusMessage.type === 'success' && <Sparkles className="h-5 w-5 text-sage" />}
                     <span className="font-serif font-bold text-sm">
                       {statusMessage.type === 'success' ? 'Request Initiated' : 'Transaction Failed'}
                     </span>
@@ -277,7 +280,7 @@ export default function Tournaments() {
                         className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood"
                       >
                         <option value="">Select Category</option>
-                        {selectedTournament.categories.map((cat) => (
+                        {Array.isArray(selectedTournament.categories) && selectedTournament.categories.map((cat) => (
                           <option key={cat} value={cat}>{cat}</option>
                         ))}
                       </select>

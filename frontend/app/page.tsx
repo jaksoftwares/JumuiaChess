@@ -4,7 +4,9 @@ import Footer from '@/components/layout/Footer';
 // Sections
 import Hero from '@/components/sections/Hero';
 import OurStory from '@/components/sections/OurStory';
+import MeetTheTeam from '@/components/sections/MeetTheTeam';
 import Impact from '@/components/sections/Impact';
+import Gallery from '@/components/sections/Gallery';
 import PromoBanner from '@/components/sections/PromoBanner';
 import Tournaments from '@/components/sections/Tournaments';
 import Shop from '@/components/sections/Shop';
@@ -20,9 +22,11 @@ export default function Home() {
         {/* Sections ordered corresponding to anchor requirements */}
         <Hero />
         <OurStory />
+        <MeetTheTeam />
         <Impact />
-        <PromoBanner />
+        <Gallery />
         <Tournaments />
+        <PromoBanner />
         <Shop />
         <BlogNews />
         <Partners />

@@ -4,7 +4,35 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { apiRequest } from '@/lib/api';
 import { BlogPost } from '@/types';
-import { Calendar, Loader2, ArrowRight } from 'lucide-react';
+import { Calendar, Loader2, ArrowRight, ArrowLeft, ExternalLink, X } from 'lucide-react';
+
+interface VideoItem {
+  id: string;
+  title: string;
+  youtubeId: string;
+  description: string;
+}
+
+const FEATURED_VIDEOS: VideoItem[] = [
+  {
+    id: 'video-1',
+    title: 'Empowering Youth Through Chess',
+    youtubeId: 'dHQGNQwtgyA',
+    description: 'Watch how Jumuiya Chess brings board games, structured learning, and mentorship to schools and neurodiverse programs across Kenya.',
+  },
+  {
+    id: 'video-2',
+    title: 'The Gift of Chess Mission',
+    youtubeId: '9yAMCRHL0og',
+    description: 'Explore the global journey of distributing 1 million chess sets to unlock opportunity, strategic thinking, and hope worldwide.',
+  },
+];
+
+const DEFAULT_SOURCE_URLS: Record<string, string> = {
+  'celebrating-minds-of-all-kinds-infinite-chess-kenya': 'https://infinitechess.fide.com/2026/04/22/celebrating-minds-of-all-kinds-infinite-chess-project-in-kenya/',
+  'nathans-triumph-quiet-observer-to-chess-champion': 'https://www.instagram.com/p/DXbgsdCjdl7/',
+  'kakuma-boards-distribution': 'https://infinitechess.fide.com/',
+};
 
 export default function BlogNews() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -13,155 +41,248 @@ export default function BlogNews() {
 
   useEffect(() => {
     async function loadPosts() {
-      const res = await apiRequest<BlogPost[]>('/blog');
-      if (res.success && res.data) {
-        setPosts(res.data);
-      } else {
+      try {
+        const res = await apiRequest<BlogPost[]>('/blog');
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          setPosts(res.data);
+        } else {
+          setPosts([]);
+        }
+      } catch (err) {
+        console.error('[BlogNews Section] Error loading posts:', err);
         setPosts([]);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     loadPosts();
   }, []);
 
+  const getSourceUrl = (post: BlogPost): string => {
+    if (post.source_url) return post.source_url;
+    if (DEFAULT_SOURCE_URLS[post.slug]) return DEFAULT_SOURCE_URLS[post.slug];
+    if (post.title.toLowerCase().includes('nathan')) return 'https://www.instagram.com/p/DXbgsdCjdl7/';
+    return 'https://infinitechess.fide.com/2026/04/22/celebrating-minds-of-all-kinds-infinite-chess-project-in-kenya/';
+  };
+
   return (
-    <section id="news" className="py-24 px-6 bg-stone/10">
-      <div className="max-w-6xl mx-auto space-y-16">
-        {/* Header */}
-        <div className="text-center max-w-2xl mx-auto space-y-4">
-          <span className="font-sans text-xs font-semibold tracking-widest text-wood uppercase">
-            Stay Updated
+    <section id="news" className="py-10 md:py-14 px-6 bg-gradient-to-b from-[#F6F4EF] via-[#FAF7F2] to-white text-charcoal relative overflow-hidden scroll-mt-24 lg:scroll-mt-28">
+      {/* Ambient Gradient Overlays */}
+      <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#F6F4EF] to-transparent pointer-events-none" />
+      <div className="absolute top-1/3 left-[-120px] w-[500px] h-[500px] bg-[#C8B195]/12 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 right-[-100px] w-[450px] h-[450px] bg-amber-900/5 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="relative max-w-7xl mx-auto space-y-8 sm:space-y-10">
+        {/* Section Header */}
+        <div className="text-center max-w-3xl mx-auto space-y-2">
+          <span className="font-sans text-xs font-semibold tracking-widest text-[#6B4A34] uppercase">
+            STAY UPDATED
           </span>
-          <h2 className="font-serif text-4xl md:text-5xl font-bold text-charcoal">
+          <h2 className="font-serif text-3xl md:text-5xl font-bold text-[#2A2421] leading-tight">
             Blogs & News
           </h2>
-          <p className="font-sans text-charcoal/70">
-            Read updates, stories of impact, and reports about our distributions and tournaments across the world.
+          <p className="font-sans text-stone-600 text-xs md:text-sm leading-relaxed max-w-2xl mx-auto">
+            Discover impact stories from our autism mentorship programs, refugee distribution drives, and community competitions.
           </p>
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-wood" />
-          </div>
-        ) : posts.length === 0 ? (
-          <div className="rounded-2xl border border-stone/20 bg-white/70 p-8 text-center text-sm text-charcoal/70">
-            No published articles are available yet. New posts from the admin panel will appear here automatically.
+          <div className="flex justify-center items-center py-16">
+            <Loader2 className="h-8 w-8 animate-spin text-[#6B4A34]" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Left Column: YouTube Video Showcase Player (5 cols on lg) */}
-            <div className="lg:col-span-5 bg-white border border-[#C8B195]/40 rounded-3xl p-6 shadow-sm space-y-4">
-              <span className="font-sans text-[10px] font-bold uppercase tracking-wider text-wood">
-                Featured Video
-              </span>
-              <h3 className="font-serif text-xl font-bold text-charcoal leading-tight">
-                Empowering Youth Through Chess
-              </h3>
-              <div className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-inner border border-stone/10 bg-black">
-                <iframe
-                  src="https://www.youtube.com/embed/8KkHw5-u0m4"
-                  title="Jumuiya Chess Documentary"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="absolute inset-0 w-full h-full border-0"
-                />
-              </div>
-              <p className="font-sans text-xs text-charcoal/70 leading-relaxed">
-                Watch how Jumuiya Chess brings board games, learning material, and structured training sessions to schools and refugee camps across Kenya.
-              </p>
-            </div>
-
-            {/* Right Column: Blogs / Articles vertical list (7 cols on lg) */}
-            <div className="lg:col-span-7 space-y-6 max-h-[500px] overflow-y-auto pr-2 no-scrollbar">
-              {posts.map((post) => (
-                <div
-                  key={post.id}
-                  className="flex flex-col sm:flex-row bg-white border border-[#C8B195]/30 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group cursor-pointer"
-                  onClick={() => setReadingPost(post)}
-                >
-                  {/* Cover Image */}
-                  <div className="relative w-full sm:w-40 h-40 sm:h-auto min-h-[140px] overflow-hidden flex-shrink-0 bg-stone/5">
-                    <Image
-                      src={post.featured_image_url || '/images/kids.jpg'}
-                      alt={post.title}
-                      fill
-                      sizes="(max-w-md) 100vw, 160px"
-                      className="object-cover group-hover:scale-105 transition-all duration-500"
-                    />
-                  </div>
-                  {/* Content details */}
-                  <div className="p-6 flex flex-col justify-between flex-grow">
-                    <div className="space-y-2">
-                      <div className="flex items-center text-[10px] text-charcoal/50 font-bold uppercase tracking-wider">
-                        <Calendar className="h-3 w-3 mr-1.5 text-wood" />
-                        <span>{post.published_at ? new Date(post.published_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Draft'}</span>
-                      </div>
-                      <h4 className="font-serif text-lg font-bold text-charcoal leading-snug group-hover:text-wood transition-colors duration-300">
-                        {post.title}
-                      </h4>
-                      <p className="font-sans text-xs text-charcoal/65 line-clamp-2 leading-relaxed">
-                        {post.excerpt}
-                      </p>
-                    </div>
-                    <div className="flex items-center text-xs font-bold text-wood group-hover:text-wood/80 mt-4">
-                      <span>Read Article</span>
-                      <ArrowRight className="h-3 w-3 ml-1.5 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Read Full Post Modal */}
-        {readingPost && (
-          <div className="fixed inset-0 bg-charcoal/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-offwhite rounded-lg border border-stone/30 shadow-xl max-w-2xl w-full p-8 max-h-[85vh] overflow-y-auto relative animate-scale-in">
-              <button
-                onClick={() => setReadingPost(null)}
-                className="absolute top-4 right-4 text-charcoal/60 hover:text-charcoal font-bold text-xl"
-              >
-                ✕
-              </button>
-
-              <div className="space-y-4 mb-6">
-                <div className="flex items-center text-xs text-charcoal/50">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  <span>{readingPost.published_at ? new Date(readingPost.published_at).toLocaleDateString() : 'Draft'}</span>
-                </div>
-                <h3 className="font-serif text-3xl font-bold text-charcoal leading-tight">
-                  {readingPost.title}
+          /* Split Layout: Left Videos Feed / Right Articles List */
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+            {/* Left Column: Rectangular Videos Stack (No Background or Border) */}
+            <div className="lg:col-span-6 space-y-6">
+              <div className="border-b border-stone-200/80 pb-2">
+                <h3 className="font-sans text-xs font-bold tracking-widest text-[#6B4A34] uppercase">
+                  Featured Videos
                 </h3>
               </div>
 
+              <div className="space-y-6">
+                {FEATURED_VIDEOS.map((video) => (
+                  <div
+                    key={video.id}
+                    className="bg-transparent border-0 p-0 space-y-2.5"
+                  >
+                    {/* Clean Rectangular Iframe Video Container */}
+                    <div className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-md bg-stone-900">
+                      <iframe
+                        src={`https://www.youtube.com/embed/${video.youtubeId}?autoplay=0&rel=0&modestbranding=1`}
+                        title={video.title}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="absolute inset-0 w-full h-full border-0 rounded-2xl"
+                      />
+                    </div>
+
+                    {/* Short Info Underneath */}
+                    <div className="space-y-1 pt-0.5">
+                      <h4 className="font-serif text-lg font-bold text-[#2A2421] leading-snug">
+                        {video.title}
+                      </h4>
+                      <p className="font-sans text-xs text-stone-600 leading-relaxed">
+                        {video.description}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right Column: Articles Vertical List View */}
+            <div className="lg:col-span-6 space-y-6">
+              <div className="border-b border-stone-200/80 pb-2 flex items-center justify-between">
+                <h3 className="font-sans text-xs font-bold tracking-widest text-[#6B4A34] uppercase">
+                  Latest Articles & Reports
+                </h3>
+                <span className="text-xs font-sans text-stone-400">
+                  {posts.length} Posts
+                </span>
+              </div>
+
+              {posts.length === 0 ? (
+                <div className="rounded-2xl bg-white p-8 text-center text-sm text-stone-500 shadow-md">
+                  No published articles are available yet. Check back soon for new field reports.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {posts.map((post) => (
+                    <div
+                      key={post.id}
+                      onClick={() => setReadingPost(post)}
+                      className="group bg-white rounded-2xl p-4 sm:p-5 shadow-md shadow-stone-900/5 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 cursor-pointer flex flex-col sm:flex-row gap-4 items-start"
+                    >
+                      {/* Image Thumbnail */}
+                      <div className="relative w-full sm:w-36 h-36 sm:h-28 rounded-xl overflow-hidden bg-stone-100 flex-shrink-0">
+                        <Image
+                          src={post.featured_image_url || '/images/kids.jpg'}
+                          alt={post.title}
+                          fill
+                          sizes="(max-width: 640px) 100vw, 160px"
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      </div>
+
+                      {/* Content Details */}
+                      <div className="flex-1 space-y-2 flex flex-col justify-between h-full">
+                        <div className="space-y-1.5">
+                          <div className="flex items-center gap-2 text-[11px] text-stone-400 font-sans">
+                            <Calendar className="w-3.5 h-3.5 text-[#6B4A34]" />
+                            <span>
+                              {post.published_at
+                                ? new Date(post.published_at).toLocaleDateString(undefined, {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    year: 'numeric',
+                                  })
+                                : 'Recent'}
+                            </span>
+                          </div>
+
+                          <h4 className="font-serif text-base sm:text-lg font-bold text-[#2A2421] leading-snug group-hover:text-[#6B4A34] transition-colors duration-300 line-clamp-2">
+                            {post.title}
+                          </h4>
+
+                          <p className="font-sans text-xs text-stone-600 line-clamp-2 leading-relaxed">
+                            {post.excerpt}
+                          </p>
+                        </div>
+
+                        <div className="inline-flex items-center gap-1 text-xs font-bold text-[#6B4A34] group-hover:text-[#4A3222] transition-colors pt-1">
+                          <span>Read Article</span>
+                          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform duration-300" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* FLOATING MAGAZINE ARTICLE READER MODAL */}
+      {readingPost && (
+        <div
+          onClick={() => setReadingPost(null)}
+          className="fixed inset-0 z-50 bg-stone-950/75 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-fade-in"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="max-w-2xl w-full bg-[#FAF8F5] rounded-3xl overflow-hidden shadow-2xl max-h-[88vh] flex flex-col relative z-50 animate-scale-in border border-stone-200/60"
+          >
+            {/* Scrollable Magazine Editorial Body */}
+            <div className="p-6 sm:p-8 overflow-y-auto space-y-6 flex-1">
+              {/* Magazine Editorial Title & Date Header */}
+              <div className="space-y-2 border-b border-stone-200/80 pb-4">
+                <span className="font-serif italic text-xs text-[#6B4A34] font-medium tracking-wide">
+                  Field Report • {readingPost.published_at
+                    ? new Date(readingPost.published_at).toLocaleDateString(undefined, {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })
+                    : 'Recent'}
+                </span>
+                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#2A2421] leading-snug tracking-tight">
+                  {readingPost.title}
+                </h2>
+              </div>
+
+              {/* Cover Photo */}
               {readingPost.featured_image_url && (
-                <div className="relative w-full h-64 rounded-xl overflow-hidden mb-6 border border-stone/10 bg-stone/5">
+                <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden bg-stone-200 shadow-md">
                   <Image
                     src={readingPost.featured_image_url}
                     alt={readingPost.title}
                     fill
+                    priority
+                    sizes="(max-width: 800px) 100vw, 700px"
                     className="object-cover"
                   />
                 </div>
               )}
 
-              <div className="prose prose-stone max-w-none text-sm text-charcoal/80 leading-relaxed space-y-4 border-t border-stone/20 pt-6">
-                <p className="font-sans font-semibold text-charcoal">{readingPost.excerpt}</p>
-                <p className="font-sans whitespace-pre-wrap">{readingPost.body}</p>
-              </div>
+              {/* Editorial Lead Excerpt */}
+              <blockquote className="font-serif italic text-sm sm:text-base text-stone-800 border-l-2 border-[#6B4A34] pl-4 py-1 leading-relaxed bg-white/60 p-4 rounded-r-xl">
+                {readingPost.excerpt}
+              </blockquote>
 
+              {/* Article Content */}
+              <div className="font-sans text-stone-700 text-sm sm:text-base leading-relaxed whitespace-pre-wrap space-y-4 pt-1">
+                {readingPost.body}
+              </div>
+            </div>
+
+            {/* Bottom Action Bar: ONLY TWO BUTTONS (Back & Visit Site) */}
+            <div className="p-4 sm:p-5 bg-white border-t border-stone-200/80 flex items-center justify-between gap-4 shrink-0">
+              {/* Button 1: Go Back */}
               <button
                 onClick={() => setReadingPost(null)}
-                className="mt-8 px-6 py-2.5 bg-wood text-offwhite font-sans text-xs font-semibold rounded hover:bg-wood/90"
+                className="px-5 py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-[#2A2421] text-xs font-bold font-sans transition-colors flex items-center gap-1.5"
               >
-                Close Article
+                <ArrowLeft className="w-4 h-4" />
+                <span>Back</span>
               </button>
+
+              {/* Button 2: Visit Site */}
+              <a
+                href={getSourceUrl(readingPost)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-2.5 rounded-xl bg-[#6B4A34] hover:bg-[#523826] text-white text-xs font-bold font-sans transition-colors shadow-sm flex items-center gap-1.5"
+              >
+                <span>Visit Site</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </section>
   );
 }

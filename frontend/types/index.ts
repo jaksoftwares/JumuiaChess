@@ -49,6 +49,7 @@ export interface BlogPost {
   body: string;
   published: boolean;
   published_at?: string;
+  source_url?: string;
   created_at?: string;
 }
 
@@ -57,6 +58,16 @@ export interface GalleryImage {
   image_url: string;
   caption: string;
   category: string;
+  created_at?: string;
+}
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  bio: string;
+  image_url: string;
+  sort_order?: number;
   created_at?: string;
 }
 

@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { apiRequest } from '@/lib/api';
 import { Partner } from '@/types';
-import { Loader2, Plus, Users, Trash, Globe } from 'lucide-react';
+import { Loader2, Plus, Trash2, Globe, Sparkles, Handshake } from 'lucide-react';
+import { ImageUploadInput } from '@/components/admin/ImageUploadInput';
 
 export default function AdminPartners() {
   const [partners, setPartners] = useState<Partner[]>([]);
@@ -15,16 +16,13 @@ export default function AdminPartners() {
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [apiError, setApiError] = useState<string | null>(null);
 
   const loadPartners = async () => {
     setLoading(true);
-    setApiError(null);
     const res = await apiRequest<Partner[]>('/partners');
     if (res.success && Array.isArray(res.data)) {
       setPartners(res.data);
     } else {
-      setApiError(res.error || 'Unable to load partners from the database.');
       setPartners([]);
     }
     setLoading(false);
@@ -64,7 +62,7 @@ export default function AdminPartners() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this partner/sponsor?')) return;
+    if (!confirm('Are you sure you want to delete this partner?')) return;
 
     const res = await apiRequest(`/partners/${id}`, {
       method: 'DELETE',
@@ -78,142 +76,137 @@ export default function AdminPartners() {
   };
 
   return (
-    <div className="space-y-10">
-      {/* Title */}
-      <div>
-        <h1 className="font-serif text-3xl font-bold text-charcoal">Manage Partners & Sponsors</h1>
-        <p className="font-sans text-xs text-charcoal/50">
-          Add or remove organization logos displayed in the sponsors section of the landing page.
+    <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Brown Banner Card */}
+      <div className="bg-[#6B4A34] text-white p-6 md:p-8 rounded-2xl shadow-md border border-[#573b29] relative overflow-hidden space-y-2">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-[#FAF7F2] text-[11px] font-mono font-bold tracking-wide backdrop-blur-sm">
+          <Handshake className="w-3.5 h-3.5 text-[#C8B195]" />
+          <span>Partners & Sponsors</span>
+        </div>
+        <h1 className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-white">
+          Partners & Sponsors
+        </h1>
+        <p className="text-xs md:text-sm text-[#FAF7F2]/90 leading-relaxed font-sans max-w-3xl">
+          Upload organization logos directly from your device to display in the sponsor showcase on the landing page.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        {/* Form: Add Partner */}
-        <div className="bg-offwhite border border-stone/30 p-6 rounded-lg shadow-sm space-y-6 h-fit">
-          <h2 className="font-serif text-lg font-bold text-wood flex items-center space-x-2">
-            <Plus className="h-5 w-5" />
-            <span>Add Partner</span>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Editor Form Card */}
+        <div className="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm space-y-4 h-fit">
+          <h2 className="font-serif text-base font-bold text-[#6B4A34] flex items-center gap-2 border-b border-stone-100 pb-3">
+            <Plus className="w-4 h-4 text-[#6B4A34]" />
+            <span>Add Partner / Sponsor</span>
           </h2>
 
           {message && (
-            <div className={`p-3 rounded text-xs ${
-              message.type === 'success' ? 'bg-sage/10 text-charcoal border border-sage/30' : 'bg-red-50 text-red-700 border border-red-200'
+            <div className={`p-3.5 rounded-xl text-xs font-medium ${
+              message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-800 border border-red-200'
             }`}>
               {message.text}
-            </div>
-          )}
-          {apiError && (
-            <div className="p-3 rounded text-xs bg-red-50 text-red-700 border border-red-200">
-              {apiError}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Organization Name</label>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">Organization Name *</label>
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="FIDE (International Chess Federation)"
-                className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood"
+                className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
               />
             </div>
 
-            <div>
-              <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Logo Image URL</label>
-              <input
-                type="url"
-                required
-                value={logoUrl}
-                onChange={(e) => setLogoUrl(e.target.value)}
-                placeholder="https://example.com/logo.png"
-                className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood"
-              />
-              <span className="font-sans text-[10px] text-charcoal/40">You can use internal placeholders like /images/king.png or external links.</span>
-            </div>
+            <ImageUploadInput
+              label="Partner Logo (Upload from Device)"
+              value={logoUrl}
+              onChange={(url) => setLogoUrl(url)}
+            />
 
             <div>
-              <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Website URL (Optional)</label>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">Website URL (Optional)</label>
               <input
                 type="url"
                 value={websiteUrl}
                 onChange={(e) => setWebsiteUrl(e.target.value)}
                 placeholder="https://fide.com"
-                className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood"
+                className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
               />
             </div>
 
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full mt-4 py-3 bg-wood text-offwhite font-sans text-sm font-semibold rounded hover:bg-wood/90 transition-colors flex items-center justify-center space-x-2"
+              className="w-full mt-4 py-3 bg-[#6B4A34] hover:bg-[#573b29] text-white font-bold text-xs rounded-xl transition-colors shadow-sm flex items-center justify-center space-x-2"
             >
               {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <span>Add Partner</span>}
             </button>
           </form>
         </div>
 
-        {/* Table: Partners list */}
-        <div className="lg:col-span-2 bg-offwhite border border-stone/30 p-6 rounded-lg shadow-sm overflow-x-auto">
-          <h2 className="font-serif text-lg font-bold text-charcoal mb-6 flex items-center space-x-2">
-            <Users className="h-5 w-5 text-wood" />
-            <span>Active Partners & Sponsors</span>
-          </h2>
+        {/* Partners Table Card */}
+        <div className="lg:col-span-2 bg-white border border-stone-200 p-6 rounded-2xl shadow-sm overflow-x-auto">
+          <div className="flex items-center justify-between border-b border-stone-100 pb-4 mb-4">
+            <h2 className="font-serif text-base font-bold text-charcoal flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[#6B4A34]" /> Active Partners ({partners.length})
+            </h2>
+            <span className="text-[11px] font-mono text-stone-400">Synced to Database</span>
+          </div>
 
           {loading ? (
-            <div className="flex justify-center items-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-wood" />
+            <div className="flex justify-center items-center py-16">
+              <Loader2 className="h-8 w-8 animate-spin text-[#6B4A34]" />
             </div>
           ) : partners.length === 0 ? (
-            <div className="text-center py-12 text-charcoal/40 text-sm font-sans">
-              No partners found in the database yet. Add one using the form on the left.
+            <div className="text-center py-16 text-stone-400 text-xs font-sans bg-[#FAF7F2] border border-stone-200 rounded-xl">
+              No active partners found. Add one using the form on the left.
             </div>
           ) : (
-            <table className="w-full text-left border-collapse font-sans text-sm">
+            <table className="w-full text-left border-collapse font-sans text-xs">
               <thead>
-                <tr className="border-b border-stone/30 text-charcoal/60 font-semibold text-xs uppercase">
+                <tr className="border-b border-stone-200 text-stone-500 font-bold uppercase tracking-wider">
                   <th className="pb-3 w-16">Logo</th>
                   <th className="pb-3">Name</th>
                   <th className="pb-3">Website</th>
                   <th className="pb-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-stone/10">
+              <tbody className="divide-y divide-stone-100">
                 {partners.map((partner) => (
-                  <tr key={partner.id} className="text-charcoal/80 hover:bg-stone/5">
-                    <td className="py-4">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <tr key={partner.id} className="text-charcoal hover:bg-[#FAF7F2]/60 transition-colors">
+                    <td className="py-3">
                       <img
                         src={partner.logo_url}
                         alt={partner.name}
-                        className="h-10 w-10 object-contain bg-stone/20 p-1.5 rounded"
+                        className="h-10 w-10 object-contain bg-stone-100 p-1.5 rounded-lg border border-stone-200"
                       />
                     </td>
-                    <td className="py-4 font-semibold">{partner.name}</td>
-                    <td className="py-4 truncate max-w-[180px]">
+                    <td className="py-3 font-bold">{partner.name}</td>
+                    <td className="py-3 truncate max-w-[180px]">
                       {partner.website_url ? (
                         <a
                           href={partner.website_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-wood hover:underline inline-flex items-center space-x-1"
+                          className="text-[#6B4A34] hover:underline font-semibold inline-flex items-center gap-1"
                         >
-                          <Globe className="h-3.5 w-3.5 mr-1" />
+                          <Globe className="h-3.5 w-3.5" />
                           <span>Link</span>
                         </a>
                       ) : (
-                        <span className="text-charcoal/40">—</span>
+                        <span className="text-stone-400">—</span>
                       )}
                     </td>
-                    <td className="py-4 text-right">
+                    <td className="py-3 text-right">
                       <button
                         onClick={() => handleDelete(partner.id)}
-                        className="text-red-500 hover:text-red-700 p-1.5 rounded hover:bg-red-50 transition-colors"
+                        className="p-1.5 text-stone-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         title="Delete Partner"
                       >
-                        <Trash className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     </td>
                   </tr>

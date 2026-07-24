@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { apiRequest } from '@/lib/api';
 import { Tournament } from '@/types';
-import { Loader2, Plus, Trash, Pencil } from 'lucide-react';
+import { Loader2, Plus, Trash2, Edit2, Trophy, Sparkles } from 'lucide-react';
+import { ImageUploadInput } from '@/components/admin/ImageUploadInput';
 
 export default function AdminTournaments() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
@@ -20,16 +21,13 @@ export default function AdminTournaments() {
   const [posterUrl, setPosterUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [apiError, setApiError] = useState<string | null>(null);
 
   const loadTournaments = async () => {
     setLoading(true);
-    setApiError(null);
     const res = await apiRequest<Tournament[]>('/tournaments');
     if (res.success && Array.isArray(res.data)) {
       setTournaments(res.data);
     } else {
-      setApiError(res.error || 'Unable to load tournaments from the database.');
       setTournaments([]);
     }
     setLoading(false);
@@ -75,7 +73,6 @@ export default function AdminTournaments() {
     if (res.success) {
       setMessage({ type: 'success', text: editingId ? 'Tournament updated successfully!' : 'Tournament added successfully!' });
       setEditingId(null);
-      // Reset fields
       setName('');
       setEventDate('');
       setVenue('');
@@ -85,19 +82,19 @@ export default function AdminTournaments() {
       setPosterUrl('');
       loadTournaments();
     } else {
-      setMessage({ type: 'error', text: res.error || 'Failed to create tournament' });
+      setMessage({ type: 'error', text: res.error || 'Failed to save tournament' });
     }
   };
 
-  const handleEditClick = (tournament: Tournament) => {
-    setEditingId(tournament.id);
-    setName(tournament.name);
-    setEventDate(new Date(tournament.event_date).toISOString().slice(0, 16));
-    setVenue(tournament.venue);
-    setEntryFee(tournament.entry_fee.toString());
-    setCategories(tournament.categories.join(', '));
-    setDescription(tournament.description);
-    setPosterUrl(tournament.poster_url || '');
+  const handleEditClick = (t: Tournament) => {
+    setEditingId(t.id);
+    setName(t.name);
+    setEventDate(new Date(t.event_date).toISOString().slice(0, 16));
+    setVenue(t.venue);
+    setEntryFee(t.entry_fee.toString());
+    setCategories(t.categories.join(', '));
+    setDescription(t.description);
+    setPosterUrl(t.poster_url || '');
   };
 
   const handleDelete = async (id: string) => {
@@ -115,121 +112,117 @@ export default function AdminTournaments() {
   };
 
   return (
-    <div className="space-y-10">
-      {/* Title */}
-      <div>
-        <h1 className="font-serif text-3xl font-bold text-charcoal">Manage Tournaments</h1>
-        <p className="font-sans text-xs text-charcoal/50">
-          Create, update, and delete active tournament postings.
+    <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Brown Banner Card */}
+      <div className="bg-[#6B4A34] text-white p-6 md:p-8 rounded-2xl shadow-md border border-[#573b29] relative overflow-hidden space-y-2">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-[#FAF7F2] text-[11px] font-mono font-bold tracking-wide backdrop-blur-sm">
+          <Trophy className="w-3.5 h-3.5 text-[#C8B195]" />
+          <span>Tournament Management</span>
+        </div>
+        <h1 className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-white">
+          Manage Tournaments
+        </h1>
+        <p className="text-xs md:text-sm text-[#FAF7F2]/90 leading-relaxed font-sans max-w-3xl">
+          Create and edit upcoming chess tournaments, set entry fees (KES), categories, venue locations, and poster images.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        {/* Form: Add Tournament */}
-        <div className="bg-offwhite border border-stone/30 p-6 rounded-lg shadow-sm space-y-6 h-fit">
-          <h2 className="font-serif text-lg font-bold text-wood flex items-center space-x-2">
-            <Plus className="h-5 w-5" />
-            <span>{editingId ? 'Edit Tournament' : 'Add Tournament'}</span>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Editor Form Card */}
+        <div className="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm space-y-4 h-fit">
+          <h2 className="font-serif text-base font-bold text-[#6B4A34] flex items-center gap-2 border-b border-stone-100 pb-3">
+            <Plus className="w-4 h-4 text-[#6B4A34]" />
+            <span>{editingId ? 'Edit Tournament' : 'Add New Tournament'}</span>
           </h2>
 
           {message && (
-            <div className={`p-3 rounded text-xs ${
-              message.type === 'success' ? 'bg-sage/10 text-charcoal border border-sage/30' : 'bg-red-50 text-red-700 border border-red-200'
+            <div className={`p-3.5 rounded-xl text-xs font-medium ${
+              message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-800 border border-red-200'
             }`}>
               {message.text}
-            </div>
-          )}
-          {apiError && (
-            <div className="p-3 rounded text-xs bg-red-50 text-red-700 border border-red-200">
-              {apiError}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Tournament Name</label>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">Tournament Name *</label>
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Nairobi Youth Cup"
-                className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood"
+                placeholder="Nairobi Youth Chess Cup"
+                className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Event Date</label>
+                <label className="block text-xs font-semibold text-stone-700 mb-1">Event Date *</label>
                 <input
                   type="datetime-local"
                   required
                   value={eventDate}
                   onChange={(e) => setEventDate(e.target.value)}
-                  className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood"
+                  className="w-full bg-white border border-stone-300 p-2 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
                 />
               </div>
               <div>
-                <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Entry Fee (KES)</label>
+                <label className="block text-xs font-semibold text-stone-700 mb-1">Entry Fee (KES) *</label>
                 <input
                   type="number"
                   required
                   value={entryFee}
                   onChange={(e) => setEntryFee(e.target.value)}
                   placeholder="500"
-                  className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood"
+                  className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Venue</label>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">Venue Location *</label>
               <input
                 type="text"
                 required
                 value={venue}
                 onChange={(e) => setVenue(e.target.value)}
-                placeholder="Kibera Community Hall"
-                className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood"
+                placeholder="Kibera Community Center"
+                className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
               />
             </div>
 
             <div>
-              <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Categories (comma-separated)</label>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">Categories (comma-separated)</label>
               <input
                 type="text"
                 required
                 value={categories}
                 onChange={(e) => setCategories(e.target.value)}
                 placeholder="Under 12, Under 18, Open"
-                className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood"
+                className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
               />
             </div>
 
-            <div>
-              <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Poster Image URL (Optional)</label>
-              <input
-                type="url"
-                value={posterUrl}
-                onChange={(e) => setPosterUrl(e.target.value)}
-                placeholder="https://example.com/poster.jpg"
-                className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood"
-              />
-            </div>
+            <ImageUploadInput
+              label="Poster Image (Upload from Device)"
+              value={posterUrl}
+              onChange={(url) => setPosterUrl(url)}
+            />
 
             <div>
-              <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Description</label>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">Description *</label>
               <textarea
                 required
                 rows={3}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Details about structure and prizes..."
-                className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood resize-none"
+                placeholder="Details on tournament format, prizes, and schedule..."
+                className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34] resize-none"
               />
             </div>
 
-            <div className="flex space-x-3 pt-2">
+            <div className="flex space-x-2 pt-2">
               {editingId && (
                 <button
                   type="button"
@@ -243,7 +236,7 @@ export default function AdminTournaments() {
                     setDescription('');
                     setPosterUrl('');
                   }}
-                  className="w-1/2 py-3 border border-stone/30 font-sans text-sm font-semibold rounded hover:bg-stone/10 text-charcoal/70 transition-colors"
+                  className="w-1/2 py-2.5 border border-stone-300 font-semibold text-xs rounded-xl hover:bg-stone-100 text-stone-600 transition-colors"
                 >
                   Cancel
                 </button>
@@ -251,30 +244,35 @@ export default function AdminTournaments() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`${editingId ? 'w-1/2' : 'w-full'} mt-4 py-3 bg-wood text-offwhite font-sans text-sm font-semibold rounded hover:bg-wood/90 transition-colors flex items-center justify-center space-x-2`}
+                className={`${editingId ? 'w-1/2' : 'w-full'} py-2.5 bg-[#6B4A34] hover:bg-[#573b29] text-white font-bold text-xs rounded-xl transition-colors shadow-sm flex items-center justify-center space-x-2`}
               >
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <span>{editingId ? 'Update Tournament' : 'Create Tournament'}</span>}
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <span>{editingId ? 'Update Event' : 'Create Event'}</span>}
               </button>
             </div>
           </form>
         </div>
 
-        {/* Table: Tournaments list */}
-        <div className="lg:col-span-2 bg-offwhite border border-stone/30 p-6 rounded-lg shadow-sm overflow-x-auto">
-          <h2 className="font-serif text-lg font-bold text-charcoal mb-6">Current Tournaments</h2>
+        {/* Tournaments List Table Card */}
+        <div className="lg:col-span-2 bg-white border border-stone-200 p-6 rounded-2xl shadow-sm overflow-x-auto">
+          <div className="flex items-center justify-between border-b border-stone-100 pb-4 mb-4">
+            <h2 className="font-serif text-base font-bold text-charcoal flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[#6B4A34]" /> Active Tournaments ({tournaments.length})
+            </h2>
+            <span className="text-[11px] font-mono text-stone-400">Synced to Database</span>
+          </div>
 
           {loading ? (
-            <div className="flex justify-center items-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-wood" />
+            <div className="flex justify-center items-center py-16">
+              <Loader2 className="h-8 w-8 animate-spin text-[#6B4A34]" />
             </div>
           ) : tournaments.length === 0 ? (
-            <div className="text-center py-12 text-charcoal/40 text-sm font-sans">
-              No tournaments found in the database yet. Create one using the form on the left.
+            <div className="text-center py-16 text-stone-400 text-xs font-sans bg-[#FAF7F2] border border-stone-200 rounded-xl">
+              No active tournaments found. Post one using the form on the left.
             </div>
           ) : (
-            <table className="w-full text-left border-collapse font-sans text-sm">
+            <table className="w-full text-left border-collapse font-sans text-xs">
               <thead>
-                <tr className="border-b border-stone/30 text-charcoal/60 font-semibold text-xs uppercase">
+                <tr className="border-b border-stone-200 text-stone-500 font-bold uppercase tracking-wider">
                   <th className="pb-3">Name</th>
                   <th className="pb-3">Date</th>
                   <th className="pb-3">Venue</th>
@@ -282,27 +280,27 @@ export default function AdminTournaments() {
                   <th className="pb-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-stone/10">
+              <tbody className="divide-y divide-stone-100">
                 {tournaments.map((t) => (
-                  <tr key={t.id} className="text-charcoal/80 hover:bg-stone/5">
-                    <td className="py-4 font-semibold">{t.name}</td>
-                    <td className="py-4">{new Date(t.event_date).toLocaleDateString()}</td>
-                    <td className="py-4 max-w-[150px] truncate">{t.venue}</td>
-                    <td className="py-4 font-bold text-wood">KES {t.entry_fee}</td>
-                    <td className="py-4 text-right">
+                  <tr key={t.id} className="text-charcoal hover:bg-[#FAF7F2]/60 transition-colors">
+                    <td className="py-3.5 font-bold max-w-[180px] truncate">{t.name}</td>
+                    <td className="py-3.5 text-stone-600">{new Date(t.event_date).toLocaleDateString()}</td>
+                    <td className="py-3.5 max-w-[140px] truncate text-stone-600">{t.venue}</td>
+                    <td className="py-3.5 font-bold text-[#6B4A34]">KES {t.entry_fee}</td>
+                    <td className="py-3.5 text-right space-x-1">
                       <button
                         onClick={() => handleEditClick(t)}
-                        className="text-wood hover:text-wood/80 p-1.5 rounded hover:bg-stone/10 transition-colors"
+                        className="p-1.5 text-stone-600 hover:text-[#6B4A34] hover:bg-stone-100 rounded-lg transition-colors"
                         title="Edit Tournament"
                       >
-                        <Pencil className="h-4 w-4" />
+                        <Edit2 className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(t.id)}
-                        className="text-red-500 hover:text-red-700 p-1.5 rounded hover:bg-red-50 transition-colors"
+                        className="p-1.5 text-stone-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         title="Delete Tournament"
                       >
-                        <Trash className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     </td>
                   </tr>

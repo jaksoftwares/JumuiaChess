@@ -57,6 +57,23 @@ CREATE POLICY "Allow public select for gallery images"
     ON gallery_images FOR SELECT 
     USING (true);
 
+-- team_members
+CREATE TABLE IF NOT EXISTS team_members (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL,
+    role TEXT NOT NULL,
+    bio TEXT NOT NULL,
+    image_url TEXT NOT NULL,
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE team_members ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public select for team members"
+    ON team_members FOR SELECT
+    USING (true);
+
 -- products
 CREATE TABLE IF NOT EXISTS products (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

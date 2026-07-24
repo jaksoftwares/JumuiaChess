@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { apiRequest } from '@/lib/api';
 import { Product } from '@/types';
-import { Loader2, Plus, ShoppingBag, Trash, Edit, AlertCircle } from 'lucide-react';
+import { Loader2, Plus, ShoppingBag, Trash2, Edit2, Sparkles, CheckCircle2, XCircle } from 'lucide-react';
+import { ImageUploadInput } from '@/components/admin/ImageUploadInput';
 
 export default function AdminShop() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -18,16 +19,13 @@ export default function AdminShop() {
   const [inStock, setInStock] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [apiError, setApiError] = useState<string | null>(null);
 
   const loadProducts = async () => {
     setLoading(true);
-    setApiError(null);
     const res = await apiRequest<Product[]>('/shop/products');
     if (res.success && Array.isArray(res.data)) {
       setProducts(res.data);
     } else {
-      setApiError(res.error || 'Unable to load products from the database.');
       setProducts([]);
     }
     setLoading(false);
@@ -70,7 +68,6 @@ export default function AdminShop() {
         type: 'success',
         text: editingId ? 'Product updated successfully!' : 'Product created successfully!',
       });
-      // Clear fields
       setEditingId(null);
       setName('');
       setImageUrl('');
@@ -107,99 +104,94 @@ export default function AdminShop() {
   };
 
   return (
-    <div className="space-y-10">
-      {/* Title */}
-      <div>
-        <h1 className="font-serif text-3xl font-bold text-charcoal">Charity Shop Catalog</h1>
-        <p className="font-sans text-xs text-charcoal/50">
-          Manage products available in the public charity store.
+    <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Brown Banner Card */}
+      <div className="bg-[#6B4A34] text-white p-6 md:p-8 rounded-2xl shadow-md border border-[#573b29] relative overflow-hidden space-y-2">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-[#FAF7F2] text-[11px] font-mono font-bold tracking-wide backdrop-blur-sm">
+          <ShoppingBag className="w-3.5 h-3.5 text-[#C8B195]" />
+          <span>Charity Store Catalog</span>
+        </div>
+        <h1 className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-white">
+          Charity Shop
+        </h1>
+        <p className="text-xs md:text-sm text-[#FAF7F2]/90 leading-relaxed font-sans max-w-3xl">
+          Manage merchandise items, pricing, inventory stock status, and product photos.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        {/* Form: Add/Edit Product */}
-        <div className="bg-offwhite border border-stone/30 p-6 rounded-lg shadow-sm space-y-6 h-fit">
-          <h2 className="font-serif text-lg font-bold text-wood flex items-center space-x-2">
-            <Plus className="h-5 w-5" />
-            <span>{editingId ? 'Edit Product' : 'Add Product'}</span>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Editor Form Card */}
+        <div className="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm space-y-4 h-fit">
+          <h2 className="font-serif text-base font-bold text-[#6B4A34] flex items-center gap-2 border-b border-stone-100 pb-3">
+            <Plus className="w-4 h-4 text-[#6B4A34]" />
+            <span>{editingId ? 'Edit Store Product' : 'Add Store Product'}</span>
           </h2>
 
           {message && (
-            <div className={`p-3 rounded text-xs ${
-              message.type === 'success' ? 'bg-sage/10 text-charcoal border border-sage/30' : 'bg-red-50 text-red-700 border border-red-200'
+            <div className={`p-3.5 rounded-xl text-xs font-medium ${
+              message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-800 border border-red-200'
             }`}>
               {message.text}
-            </div>
-          )}
-          {apiError && (
-            <div className="p-3 rounded text-xs bg-red-50 text-red-700 border border-red-200">
-              {apiError}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Product Name</label>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">Product Name *</label>
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Official T-Shirt"
-                className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood"
+                placeholder="Official T-Shirt / Chess Set"
+                className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
               />
             </div>
 
             <div>
-              <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Price (KES)</label>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">Price (KES) *</label>
               <input
                 type="number"
                 required
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="1500"
-                className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood"
+                className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
               />
             </div>
 
-            <div>
-              <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Image URL</label>
-              <input
-                type="url"
-                required
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="https://images.unsplash.com/..."
-                className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood"
-              />
-            </div>
+            <ImageUploadInput
+              label="Product Image (Upload from Device)"
+              value={imageUrl}
+              onChange={(url) => setImageUrl(url)}
+            />
 
             <div>
-              <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Description</label>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">Description *</label>
               <textarea
                 required
                 rows={3}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe product details and size options..."
-                className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood resize-none"
+                placeholder="Describe product materials, sizing, and details..."
+                className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34] resize-none"
               />
             </div>
 
-            <div className="flex items-center space-x-2 pt-2">
+            <div className="flex items-center space-x-2 pt-1">
               <input
                 type="checkbox"
                 id="inStock"
                 checked={inStock}
                 onChange={(e) => setInStock(e.target.checked)}
-                className="rounded border-stone/30 text-wood focus:ring-wood"
+                className="rounded border-stone-300 text-[#6B4A34] focus:ring-[#6B4A34]"
               />
-              <label htmlFor="inStock" className="font-sans text-xs font-semibold text-charcoal/70 cursor-pointer">
-                Product is In Stock (Visible publicly)
+              <label htmlFor="inStock" className="text-xs font-semibold text-stone-700 cursor-pointer">
+                In Stock (Visible publicly)
               </label>
             </div>
 
-            <div className="flex space-x-3 pt-2">
+            <div className="flex space-x-2 pt-2">
               {editingId && (
                 <button
                   type="button"
@@ -211,77 +203,79 @@ export default function AdminShop() {
                     setDescription('');
                     setInStock(true);
                   }}
-                  className="w-1/2 py-2.5 border border-stone/30 font-sans text-xs font-semibold rounded hover:bg-stone/10 text-charcoal/70 transition-colors"
+                  className="w-1/2 py-2.5 border border-stone-300 font-semibold text-xs rounded-xl hover:bg-stone-100 text-stone-600 transition-colors"
                 >
-                  Cancel Edit
+                  Cancel
                 </button>
               )}
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`${editingId ? 'w-1/2' : 'w-full'} py-2.5 bg-wood text-offwhite font-sans text-xs font-semibold rounded hover:bg-wood/90 transition-colors flex items-center justify-center space-x-2`}
+                className={`${editingId ? 'w-1/2' : 'w-full'} py-2.5 bg-[#6B4A34] hover:bg-[#573b29] text-white font-bold text-xs rounded-xl transition-colors shadow-sm flex items-center justify-center space-x-2`}
               >
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <span>{editingId ? 'Update' : 'Create'}</span>}
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <span>{editingId ? 'Update Product' : 'Create Product'}</span>}
               </button>
             </div>
           </form>
         </div>
 
-        {/* Table: Products list */}
-        <div className="lg:col-span-2 bg-offwhite border border-stone/30 p-6 rounded-lg shadow-sm overflow-x-auto">
-          <h2 className="font-serif text-lg font-bold text-charcoal mb-6 flex items-center space-x-2">
-            <ShoppingBag className="h-5 w-5 text-wood" />
-            <span>Store Products</span>
-          </h2>
+        {/* Products Table Card */}
+        <div className="lg:col-span-2 bg-white border border-stone-200 p-6 rounded-2xl shadow-sm overflow-x-auto">
+          <div className="flex items-center justify-between border-b border-stone-100 pb-4 mb-4">
+            <h2 className="font-serif text-base font-bold text-charcoal flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[#6B4A34]" /> Store Inventory ({products.length})
+            </h2>
+            <span className="text-[11px] font-mono text-stone-400">Synced to Database</span>
+          </div>
 
           {loading ? (
-            <div className="flex justify-center items-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-wood" />
+            <div className="flex justify-center items-center py-16">
+              <Loader2 className="h-8 w-8 animate-spin text-[#6B4A34]" />
             </div>
           ) : products.length === 0 ? (
-            <div className="text-center py-12 text-charcoal/40 text-sm font-sans">
-              No products found in the database yet.
+            <div className="text-center py-16 text-stone-400 text-xs font-sans bg-[#FAF7F2] border border-stone-200 rounded-xl">
+              No products found in database yet. Add one using the form on the left.
             </div>
           ) : (
             <table className="w-full text-left border-collapse font-sans text-xs">
               <thead>
-                <tr className="border-b border-stone/30 text-charcoal/60 font-semibold uppercase">
-                  <th className="pb-3">Name</th>
+                <tr className="border-b border-stone-200 text-stone-500 font-bold uppercase tracking-wider">
+                  <th className="pb-3">Product Name</th>
                   <th className="pb-3">Price</th>
                   <th className="pb-3">Stock Status</th>
                   <th className="pb-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-stone/10">
+              <tbody className="divide-y divide-stone-100">
                 {products.map((p) => (
-                  <tr key={p.id} className="text-charcoal/80 hover:bg-stone/5">
-                    <td className="py-4 font-semibold">{p.name}</td>
-                    <td className="py-4 font-bold text-wood">KES {p.price}</td>
-                    <td className="py-4">
+                  <tr key={p.id} className="text-charcoal hover:bg-[#FAF7F2]/60 transition-colors">
+                    <td className="py-3.5 font-bold">{p.name}</td>
+                    <td className="py-3.5 font-bold text-[#6B4A34]">KES {p.price}</td>
+                    <td className="py-3.5">
                       {p.in_stock ? (
-                        <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                          In Stock
+                        <span className="text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-bold inline-flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" /> In Stock
                         </span>
                       ) : (
-                        <span className="text-red-700 bg-red-50 px-2 py-0.5 rounded border border-red-200">
-                          Out of Stock
+                        <span className="text-red-800 bg-red-50 px-2 py-0.5 rounded border border-red-200 font-bold inline-flex items-center gap-1">
+                          <XCircle className="w-3 h-3 text-red-600" /> Out of Stock
                         </span>
                       )}
                     </td>
-                    <td className="py-4 text-right space-x-2">
+                    <td className="py-3.5 text-right space-x-1">
                       <button
                         onClick={() => handleEditClick(p)}
-                        className="text-wood hover:text-wood/80 p-1.5 rounded hover:bg-stone/10 transition-colors"
+                        className="p-1.5 text-stone-600 hover:text-[#6B4A34] hover:bg-stone-100 rounded-lg transition-colors"
                         title="Edit Product"
                       >
-                        <Edit className="h-4 w-4" />
+                        <Edit2 className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(p.id)}
-                        className="text-red-500 hover:text-red-700 p-1.5 rounded hover:bg-red-50 transition-colors"
+                        className="p-1.5 text-stone-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         title="Delete Product"
                       >
-                        <Trash className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     </td>
                   </tr>

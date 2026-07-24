@@ -2,7 +2,7 @@ import Image from 'next/image';
 
 export default function OurStory() {
   return (
-    <section id="our-story" className="relative py-24 px-6 md:px-12 lg:px-16 xl:px-24 bg-white overflow-hidden">
+    <section id="our-story" className="relative py-24 px-6 md:px-12 lg:px-16 xl:px-24 bg-white overflow-hidden scroll-mt-24 lg:scroll-mt-28">
       {/* Background Image with opacity for clean overlay effect */}
       <div className="absolute inset-0 z-0">
         <Image

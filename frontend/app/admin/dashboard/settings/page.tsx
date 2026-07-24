@@ -9,7 +9,6 @@ export default function AdminSettings() {
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [apiError, setApiError] = useState<string | null>(null);
 
   // Form State
   const [email, setEmail] = useState('');
@@ -22,7 +21,6 @@ export default function AdminSettings() {
 
   useEffect(() => {
     async function loadSettings() {
-      setApiError(null);
       const res = await apiRequest<SiteSettings>('/settings');
       if (res.success && res.data) {
         setEmail(res.data.org_email || '');
@@ -33,7 +31,6 @@ export default function AdminSettings() {
         setYoutube(res.data.youtube_url || '');
         setShopEnabled(res.data.shop_enabled ?? true);
       } else {
-        setApiError(res.error || 'Unable to load site settings from the database.');
         setEmail('info@giftofchess.org');
         setPhone('+254700000000');
         setPaybill('174379');
@@ -78,64 +75,66 @@ export default function AdminSettings() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-wood" />
+      <div className="flex flex-col justify-center items-center h-[50vh] space-y-3">
+        <Loader2 className="h-8 w-8 animate-spin text-[#6B4A34]" />
+        <p className="text-xs font-semibold text-stone-500">Loading settings...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 max-w-2xl">
-      {/* Title */}
-      <div>
-        <h1 className="font-serif text-3xl font-bold text-charcoal">Site Settings</h1>
-        <p className="font-sans text-xs text-charcoal/50">
-          Configure organization information, payments, and social linkages.
+    <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Brown Banner Card */}
+      <div className="bg-[#6B4A34] text-white p-6 md:p-8 rounded-2xl shadow-md border border-[#573b29] relative overflow-hidden space-y-2">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-[#FAF7F2] text-[11px] font-mono font-bold tracking-wide backdrop-blur-sm">
+          <SettingsIcon className="w-3.5 h-3.5 text-[#C8B195]" />
+          <span>System Configuration</span>
+        </div>
+        <h1 className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-white">
+          Site Settings
+        </h1>
+        <p className="text-xs md:text-sm text-[#FAF7F2]/90 leading-relaxed font-sans max-w-3xl">
+          Configure organization contact details, M-Pesa Paybill shortcode, and social media handles.
         </p>
       </div>
 
-      <div className="bg-offwhite border border-stone/30 p-8 rounded-lg shadow-sm">
+      <div className="bg-white border border-stone-200 p-8 rounded-2xl shadow-sm max-w-4xl">
         {message && (
-          <div className={`p-4 rounded text-xs mb-6 ${
-            message.type === 'success' ? 'bg-sage/10 text-charcoal border border-sage/30' : 'bg-red-50 text-red-700 border border-red-200'
+          <div className={`p-4 rounded-xl text-xs font-medium mb-6 ${
+            message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-800 border border-red-200'
           }`}>
             {message.text}
-          </div>
-        )}
-        {apiError && (
-          <div className="p-4 rounded text-xs mb-6 bg-red-50 text-red-700 border border-red-200">
-            {apiError}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Section: Organization Details */}
           <div className="space-y-4">
-            <h3 className="font-serif font-bold text-charcoal border-b border-stone/20 pb-2 text-sm uppercase tracking-wider text-wood">
+            <h3 className="font-serif font-bold text-charcoal border-b border-stone-100 pb-2 text-xs uppercase tracking-wider text-[#6B4A34]">
               Organization Contact
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Contact Email</label>
+                <label className="block text-xs font-semibold text-stone-700 mb-1">Contact Email *</label>
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="info@giftofchess.org"
-                  className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood"
+                  className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
                 />
               </div>
               <div>
-                <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Contact Phone</label>
+                <label className="block text-xs font-semibold text-stone-700 mb-1">Contact Phone *</label>
                 <input
                   type="text"
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+254700000000"
-                  className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood"
+                  className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
                 />
               </div>
             </div>
@@ -143,56 +142,56 @@ export default function AdminSettings() {
 
           {/* Section: M-Pesa Details */}
           <div className="space-y-4 pt-2">
-            <h3 className="font-serif font-bold text-charcoal border-b border-stone/20 pb-2 text-sm uppercase tracking-wider text-wood">
+            <h3 className="font-serif font-bold text-charcoal border-b border-stone-100 pb-2 text-xs uppercase tracking-wider text-[#6B4A34]">
               M-Pesa Gateway Config
             </h3>
             <div>
-              <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">M-Pesa Shortcode (Paybill/Till)</label>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">M-Pesa Paybill / Till Number *</label>
               <input
                 type="text"
                 required
                 value={paybill}
                 onChange={(e) => setPaybill(e.target.value)}
                 placeholder="174379"
-                className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood"
+                className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
               />
             </div>
           </div>
 
           {/* Section: Social Links */}
           <div className="space-y-4 pt-2">
-            <h3 className="font-serif font-bold text-charcoal border-b border-stone/20 pb-2 text-sm uppercase tracking-wider text-wood">
+            <h3 className="font-serif font-bold text-charcoal border-b border-stone-100 pb-2 text-xs uppercase tracking-wider text-[#6B4A34]">
               Social Media Accounts
             </h3>
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Instagram URL</label>
+                <label className="block text-xs font-semibold text-stone-700 mb-1">Instagram URL</label>
                 <input
                   type="url"
                   value={instagram}
                   onChange={(e) => setInstagram(e.target.value)}
                   placeholder="https://instagram.com/giftofchess"
-                  className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood"
+                  className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
                 />
               </div>
               <div>
-                <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Facebook URL</label>
+                <label className="block text-xs font-semibold text-stone-700 mb-1">Facebook URL</label>
                 <input
                   type="url"
                   value={facebook}
                   onChange={(e) => setFacebook(e.target.value)}
                   placeholder="https://facebook.com/giftofchess"
-                  className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood"
+                  className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
                 />
               </div>
               <div>
-                <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">YouTube URL</label>
+                <label className="block text-xs font-semibold text-stone-700 mb-1">YouTube URL</label>
                 <input
                   type="url"
                   value={youtube}
                   onChange={(e) => setYoutube(e.target.value)}
                   placeholder="https://youtube.com/giftofchess"
-                  className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood"
+                  className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
                 />
               </div>
             </div>
@@ -200,7 +199,7 @@ export default function AdminSettings() {
 
           {/* Section: Toggle Shop */}
           <div className="space-y-4 pt-2">
-            <h3 className="font-serif font-bold text-charcoal border-b border-stone/20 pb-2 text-sm uppercase tracking-wider text-wood">
+            <h3 className="font-serif font-bold text-charcoal border-b border-stone-100 pb-2 text-xs uppercase tracking-wider text-[#6B4A34]">
               Store Feature Controls
             </h3>
             <div className="flex items-center space-x-3">
@@ -209,9 +208,9 @@ export default function AdminSettings() {
                 id="shopToggle"
                 checked={shopEnabled}
                 onChange={(e) => setShopEnabled(e.target.checked)}
-                className="rounded border-stone/30 text-wood focus:ring-wood"
+                className="rounded border-stone-300 text-[#6B4A34] focus:ring-[#6B4A34]"
               />
-              <label htmlFor="shopToggle" className="font-sans text-xs font-semibold text-charcoal/70 cursor-pointer">
+              <label htmlFor="shopToggle" className="text-xs font-semibold text-stone-700 cursor-pointer">
                 Enable Charity Store for public site visitors
               </label>
             </div>
@@ -221,7 +220,7 @@ export default function AdminSettings() {
           <button
             type="submit"
             disabled={isSaving}
-            className="w-full mt-6 py-3 bg-wood text-offwhite font-sans text-sm font-semibold rounded hover:bg-wood/90 transition-colors flex items-center justify-center space-x-2 shadow-sm"
+            className="w-full mt-6 py-3 bg-[#6B4A34] hover:bg-[#573b29] text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center space-x-2 shadow-sm"
           >
             {isSaving ? (
               <>
@@ -231,7 +230,7 @@ export default function AdminSettings() {
             ) : (
               <>
                 <Save className="h-4 w-4" />
-                <span>Save Changes</span>
+                <span>Save Site Settings</span>
               </>
             )}
           </button>

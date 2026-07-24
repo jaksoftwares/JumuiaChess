@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { apiRequest } from '@/lib/api';
 import { BlogPost } from '@/types';
-import { Loader2, Plus, BookOpen, Trash, Pencil } from 'lucide-react';
+import { Loader2, Plus, BookOpen, Trash2, Edit2, Sparkles, CheckCircle2 } from 'lucide-react';
+import { ImageUploadInput } from '@/components/admin/ImageUploadInput';
 
 export default function AdminBlog() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -19,16 +20,13 @@ export default function AdminBlog() {
   const [published, setPublished] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [apiError, setApiError] = useState<string | null>(null);
 
   const loadPosts = async () => {
     setLoading(true);
-    setApiError(null);
     const res = await apiRequest<BlogPost[]>('/blog/all');
     if (res.success && Array.isArray(res.data)) {
       setPosts(res.data);
     } else {
-      setApiError(res.error || 'Unable to load blog posts from the database.');
       setPosts([]);
     }
     setLoading(false);
@@ -40,7 +38,6 @@ export default function AdminBlog() {
 
   const handleTitleChange = (val: string) => {
     setTitle(val);
-    // Generate a simple slug matching title
     setSlug(
       val
         .toLowerCase()
@@ -79,7 +76,7 @@ export default function AdminBlog() {
     setIsSubmitting(false);
 
     if (res.success) {
-      setMessage({ type: 'success', text: editingId ? 'Blog post updated successfully!' : 'Blog post created successfully!' });
+      setMessage({ type: 'success', text: editingId ? 'Blog post updated successfully!' : 'Blog post published successfully!' });
       setEditingId(null);
       setTitle('');
       setSlug('');
@@ -89,7 +86,7 @@ export default function AdminBlog() {
       setPublished(true);
       loadPosts();
     } else {
-      setMessage({ type: 'error', text: res.error || 'Failed to create blog post.' });
+      setMessage({ type: 'error', text: res.error || 'Failed to publish blog post.' });
     }
   };
 
@@ -118,111 +115,106 @@ export default function AdminBlog() {
   };
 
   return (
-    <div className="space-y-10">
-      {/* Title */}
-      <div>
-        <h1 className="font-serif text-3xl font-bold text-charcoal">Manage Blog & News</h1>
-        <p className="font-sans text-xs text-charcoal/50">
-          Publish press releases, news reports, and stories of community impact.
+    <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Brown Banner Card */}
+      <div className="bg-[#6B4A34] text-white p-6 md:p-8 rounded-2xl shadow-md border border-[#573b29] relative overflow-hidden space-y-2">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-[#FAF7F2] text-[11px] font-mono font-bold tracking-wide backdrop-blur-sm">
+          <BookOpen className="w-3.5 h-3.5 text-[#C8B195]" />
+          <span>News & Press Releases</span>
+        </div>
+        <h1 className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-white">
+          Blog & Articles
+        </h1>
+        <p className="text-xs md:text-sm text-[#FAF7F2]/90 leading-relaxed font-sans max-w-3xl">
+          Publish press releases, news reports, and community impact stories with device image uploads.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        {/* Editor Form */}
-        <div className="bg-offwhite border border-stone/30 p-6 rounded-lg shadow-sm space-y-6 h-fit">
-          <h2 className="font-serif text-lg font-bold text-wood flex items-center space-x-2">
-            <Plus className="h-5 w-5" />
-            <span>{editingId ? 'Edit Article' : 'Create Article'}</span>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Editor Form Card */}
+        <div className="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm space-y-4 h-fit">
+          <h2 className="font-serif text-base font-bold text-[#6B4A34] flex items-center gap-2 border-b border-stone-100 pb-3">
+            <Plus className="w-4 h-4 text-[#6B4A34]" />
+            <span>{editingId ? 'Edit Article' : 'Compose New Article'}</span>
           </h2>
 
           {message && (
-            <div className={`p-3 rounded text-xs ${
-              message.type === 'success' ? 'bg-sage/10 text-charcoal border border-sage/30' : 'bg-red-50 text-red-700 border border-red-200'
+            <div className={`p-3.5 rounded-xl text-xs font-medium ${
+              message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-800 border border-red-200'
             }`}>
               {message.text}
-            </div>
-          )}
-          {apiError && (
-            <div className="p-3 rounded text-xs bg-red-50 text-red-700 border border-red-200">
-              {apiError}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Article Title</label>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">Article Title *</label>
               <input
                 type="text"
                 required
                 value={title}
                 onChange={(e) => handleTitleChange(e.target.value)}
                 placeholder="Tournament Success in Kibera"
-                className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood"
+                className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
               />
             </div>
 
             <div>
-              <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Slug URL</label>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">Slug URL *</label>
               <input
                 type="text"
                 required
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
                 placeholder="tournament-success-in-kibera"
-                className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood"
+                className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
               />
             </div>
 
-            <div>
-              <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Featured Image URL (Optional)</label>
-              <input
-                type="url"
-                value={featuredImageUrl}
-                onChange={(e) => setFeaturedImageUrl(e.target.value)}
-                placeholder="https://example.com/blog-img.jpg"
-                className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood"
-              />
-            </div>
+            <ImageUploadInput
+              label="Featured Image (Upload from Device)"
+              value={featuredImageUrl}
+              onChange={(url) => setFeaturedImageUrl(url)}
+            />
 
             <div>
-              <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Excerpt Summary</label>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">Excerpt Summary *</label>
               <textarea
                 required
                 rows={2}
                 value={excerpt}
                 onChange={(e) => setExcerpt(e.target.value)}
-                placeholder="A short one-sentence summary displayed in the news grid..."
-                className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood resize-none"
+                placeholder="A short summary sentence displayed on the home page news grid..."
+                className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34] resize-none"
               />
             </div>
 
-            {/* Rich Text Editor Form Area */}
             <div>
-              <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Article Content (Markdown / Text)</label>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">Article Content (Text / Markdown) *</label>
               <textarea
                 required
                 rows={6}
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
-                placeholder="Write the full body content here..."
-                className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood resize-none font-sans"
+                placeholder="Write full article body text here..."
+                className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34] font-sans resize-none"
               />
             </div>
 
-            <div className="flex items-center space-x-2 pt-2">
+            <div className="flex items-center space-x-2 pt-1">
               <input
                 type="checkbox"
                 id="published"
                 checked={published}
                 onChange={(e) => setPublished(e.target.checked)}
-                className="rounded border-stone/30 text-wood focus:ring-wood"
+                className="rounded border-stone-300 text-[#6B4A34] focus:ring-[#6B4A34]"
               />
-              <label htmlFor="published" className="font-sans text-xs font-semibold text-charcoal/70 cursor-pointer">
+              <label htmlFor="published" className="text-xs font-semibold text-stone-700 cursor-pointer">
                 Publish Immediately (Visible to Public)
               </label>
             </div>
 
-            <div className="flex space-x-3 pt-2">
+            <div className="flex space-x-2 pt-2">
               {editingId && (
                 <button
                   type="button"
@@ -235,7 +227,7 @@ export default function AdminBlog() {
                     setBody('');
                     setPublished(true);
                   }}
-                  className="w-1/2 py-3 border border-stone/30 font-sans text-sm font-semibold rounded hover:bg-stone/10 text-charcoal/70 transition-colors"
+                  className="w-1/2 py-2.5 border border-stone-300 font-semibold text-xs rounded-xl hover:bg-stone-100 text-stone-600 transition-colors"
                 >
                   Cancel
                 </button>
@@ -243,7 +235,7 @@ export default function AdminBlog() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`${editingId ? 'w-1/2' : 'w-full'} mt-4 py-3 bg-wood text-offwhite font-sans text-sm font-semibold rounded hover:bg-wood/90 transition-colors flex items-center justify-center space-x-2`}
+                className={`${editingId ? 'w-1/2' : 'w-full'} py-2.5 bg-[#6B4A34] hover:bg-[#573b29] text-white font-bold text-xs rounded-xl transition-colors shadow-sm flex items-center justify-center space-x-2`}
               >
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <span>{editingId ? 'Update Post' : 'Publish Post'}</span>}
               </button>
@@ -251,65 +243,65 @@ export default function AdminBlog() {
           </form>
         </div>
 
-        {/* Post List */}
-        <div className="lg:col-span-2 bg-offwhite border border-stone/30 p-6 rounded-lg shadow-sm overflow-x-auto">
-          <h2 className="font-serif text-lg font-bold text-charcoal mb-6 flex items-center space-x-2">
-            <BookOpen className="h-5 w-5 text-wood" />
-            <span>Articles</span>
-          </h2>
+        {/* Blog Table Card */}
+        <div className="lg:col-span-2 bg-white border border-stone-200 p-6 rounded-2xl shadow-sm overflow-x-auto">
+          <div className="flex items-center justify-between border-b border-stone-100 pb-4 mb-4">
+            <h2 className="font-serif text-base font-bold text-charcoal flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[#6B4A34]" /> Articles & News Reports ({posts.length})
+            </h2>
+            <span className="text-[11px] font-mono text-stone-400">Synced to Database</span>
+          </div>
 
           {loading ? (
-            <div className="flex justify-center items-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-wood" />
+            <div className="flex justify-center items-center py-16">
+              <Loader2 className="h-8 w-8 animate-spin text-[#6B4A34]" />
             </div>
           ) : posts.length === 0 ? (
-            <div className="text-center py-12 text-charcoal/40 text-sm font-sans">
-              No blog posts found in the database yet. Compose one using the editor form on the left.
+            <div className="text-center py-16 text-stone-400 text-xs font-sans bg-[#FAF7F2] border border-stone-200 rounded-xl">
+              No blog posts found in database. Compose one using the left editor panel.
             </div>
           ) : (
             <table className="w-full text-left border-collapse font-sans text-xs">
               <thead>
-                <tr className="border-b border-stone/30 text-charcoal/60 font-semibold uppercase">
+                <tr className="border-b border-stone-200 text-stone-500 font-bold uppercase tracking-wider">
                   <th className="pb-3">Title</th>
-                  <th className="pb-3">Slug</th>
                   <th className="pb-3">Status</th>
-                  <th className="pb-3">Published Date</th>
+                  <th className="pb-3">Date</th>
                   <th className="pb-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-stone/10">
+              <tbody className="divide-y divide-stone-100">
                 {posts.map((post) => (
-                  <tr key={post.id} className="text-charcoal/80 hover:bg-stone/5">
-                    <td className="py-4 font-semibold max-w-[200px] truncate">{post.title}</td>
-                    <td className="py-4 max-w-[150px] truncate">{post.slug}</td>
-                    <td className="py-4">
+                  <tr key={post.id} className="text-charcoal hover:bg-[#FAF7F2]/60 transition-colors">
+                    <td className="py-3.5 font-bold max-w-[220px] truncate">{post.title}</td>
+                    <td className="py-3.5">
                       {post.published ? (
-                        <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                          Published
+                        <span className="text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-bold inline-flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Published
                         </span>
                       ) : (
-                        <span className="text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                        <span className="text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 font-bold">
                           Draft
                         </span>
                       )}
                     </td>
-                    <td className="py-4 text-charcoal/50">
+                    <td className="py-3.5 text-stone-500">
                       {post.published_at ? new Date(post.published_at).toLocaleDateString() : '—'}
                     </td>
-                    <td className="py-4 text-right">
+                    <td className="py-3.5 text-right space-x-1">
                       <button
                         onClick={() => handleEditClick(post)}
-                        className="text-wood hover:text-wood/80 p-1.5 rounded hover:bg-stone/10 transition-colors"
-                        title="Edit Post"
+                        className="p-1.5 text-stone-600 hover:text-[#6B4A34] hover:bg-stone-100 rounded-lg transition-colors"
+                        title="Edit Article"
                       >
-                        <Pencil className="h-4 w-4" />
+                        <Edit2 className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(post.id)}
-                        className="text-red-500 hover:text-red-700 p-1.5 rounded hover:bg-red-50 transition-colors"
-                        title="Delete Post"
+                        className="p-1.5 text-stone-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Delete Article"
                       >
-                        <Trash className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     </td>
                   </tr>
