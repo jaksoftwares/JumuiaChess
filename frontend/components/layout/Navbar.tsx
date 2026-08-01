@@ -90,22 +90,25 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-8">
-            {NAV_LINKS.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                aria-current={activeSection === link.href.slice(1) ? 'page' : undefined}
-                className={`font-sans text-sm font-medium transition-colors ${
-                  activeSection === link.href.slice(1)
-                    ? 'text-wood'
-                    : 'text-charcoal/80 hover:text-wood'
-                }`}
-                onClick={() => handleLinkClick(link.href)}
-              >
-                {link.name}
-              </a>
-            ))}
+          <nav className="hidden lg:flex items-center space-x-2.5">
+            {NAV_LINKS.map((link) => {
+              const isActive = activeSection === link.href.slice(1);
+              return (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`relative px-3.5 py-1.5 rounded-xl font-sans text-xs font-semibold transition-all duration-300 ${
+                    isActive
+                      ? 'bg-[#6B4A34] text-white shadow-sm font-bold scale-[1.02]'
+                      : 'text-charcoal/80 hover:text-[#6B4A34] hover:bg-[#6B4A34]/10 hover:scale-105 active:scale-95'
+                  }`}
+                  onClick={() => handleLinkClick(link.href)}
+                >
+                  {link.name}
+                </a>
+              );
+            })}
           </nav>
 
           {/* Mobile Hamburger Toggle Button (Styled High-Visibility Pill) */}

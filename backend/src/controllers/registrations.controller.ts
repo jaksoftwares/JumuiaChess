@@ -25,3 +25,24 @@ export const getRegistrations = async (req: Request, res: Response, next: NextFu
     next(err);
   }
 };
+
+// DELETE /api/registrations/clear?tournamentId=...
+export const clearRegistrations = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { tournamentId } = req.query;
+
+    let query = supabase.from('registrations').delete();
+    if (tournamentId) {
+      query = query.eq('tournament_id', tournamentId);
+    } else {
+      query = query.neq('id', '00000000-0000-0000-0000-000000000000');
+    }
+
+    const { error } = await query;
+    if (error) throw error;
+
+    res.json({ success: true, message: 'Registrations cleared successfully.' });
+  } catch (err) {
+    next(err);
+  }
+};

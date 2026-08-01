@@ -19,6 +19,12 @@ export default function AdminSettings() {
   const [youtube, setYoutube] = useState('');
   const [shopEnabled, setShopEnabled] = useState(true);
 
+  // Our Story CMS State
+  const [ourStoryTitle, setOurStoryTitle] = useState('Our Story');
+  const [ourStoryHeading, setOurStoryHeading] = useState('Elevating Strategy from the Board to the Community.');
+  const [ourStoryParagraph1, setOurStoryParagraph1] = useState("The Gift of Chess is a nonprofit organization dedicated to using chess as a tool for education, personal development, and social transformation. Since our inception, we have worked with schools, children's homes, prisons, and refugee communities across Kenya to nurture talent, build critical thinking, and provide safe, constructive spaces where children and youth can grow and thrive.");
+  const [ourStoryParagraph2, setOurStoryParagraph2] = useState("In Kenya, we have also integrated an environmental sustainability component into our work. In partnership with Kijiji Solutions, we recycle plastic waste to produce chess sets, turning waste into meaningful tools that expand access to chess while contributing to climate action.");
+
   useEffect(() => {
     async function loadSettings() {
       const res = await apiRequest<SiteSettings>('/settings');
@@ -30,6 +36,10 @@ export default function AdminSettings() {
         setFacebook(res.data.facebook_url || '');
         setYoutube(res.data.youtube_url || '');
         setShopEnabled(res.data.shop_enabled ?? true);
+        if (res.data.our_story_title) setOurStoryTitle(res.data.our_story_title);
+        if (res.data.our_story_heading) setOurStoryHeading(res.data.our_story_heading);
+        if (res.data.our_story_paragraph_1) setOurStoryParagraph1(res.data.our_story_paragraph_1);
+        if (res.data.our_story_paragraph_2) setOurStoryParagraph2(res.data.our_story_paragraph_2);
       } else {
         setEmail('info@giftofchess.org');
         setPhone('+254700000000');
@@ -57,6 +67,10 @@ export default function AdminSettings() {
       facebook_url: facebook || undefined,
       youtube_url: youtube || undefined,
       shop_enabled: shopEnabled,
+      our_story_title: ourStoryTitle,
+      our_story_heading: ourStoryHeading,
+      our_story_paragraph_1: ourStoryParagraph1,
+      our_story_paragraph_2: ourStoryParagraph2,
     };
 
     const res = await apiRequest('/settings', {
@@ -86,10 +100,6 @@ export default function AdminSettings() {
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Brown Banner Card */}
       <div className="bg-[#6B4A34] text-white p-6 md:p-8 rounded-2xl shadow-md border border-[#573b29] relative overflow-hidden space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-[#FAF7F2] text-[11px] font-mono font-bold tracking-wide backdrop-blur-sm">
-          <SettingsIcon className="w-3.5 h-3.5 text-[#C8B195]" />
-          <span>System Configuration</span>
-        </div>
         <h1 className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-white">
           Site Settings
         </h1>
@@ -197,6 +207,59 @@ export default function AdminSettings() {
             </div>
           </div>
 
+          {/* Section: Our Story Content CMS Editor */}
+          <div className="space-y-4 pt-2">
+            <h3 className="font-serif font-bold text-charcoal border-b border-stone-100 pb-2 text-xs uppercase tracking-wider text-[#6B4A34]">
+              Our Story Section Content
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-stone-700 mb-1">Eyebrow Label / Badge Title</label>
+                <input
+                  type="text"
+                  value={ourStoryTitle}
+                  onChange={(e) => setOurStoryTitle(e.target.value)}
+                  placeholder="Our Story"
+                  className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-stone-700 mb-1">Main Heading</label>
+                <input
+                  type="text"
+                  value={ourStoryHeading}
+                  onChange={(e) => setOurStoryHeading(e.target.value)}
+                  placeholder="Elevating Strategy from the Board to the Community."
+                  className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-stone-700 mb-1">Story Paragraph 1</label>
+                <textarea
+                  rows={3}
+                  value={ourStoryParagraph1}
+                  onChange={(e) => setOurStoryParagraph1(e.target.value)}
+                  placeholder="First narrative paragraph..."
+                  className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-stone-700 mb-1">Story Paragraph 2</label>
+                <textarea
+                  rows={3}
+                  value={ourStoryParagraph2}
+                  onChange={(e) => setOurStoryParagraph2(e.target.value)}
+                  placeholder="Second narrative paragraph..."
+                  className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Section: Toggle Shop */}
           <div className="space-y-4 pt-2">
             <h3 className="font-serif font-bold text-charcoal border-b border-stone-100 pb-2 text-xs uppercase tracking-wider text-[#6B4A34]">
@@ -220,7 +283,7 @@ export default function AdminSettings() {
           <button
             type="submit"
             disabled={isSaving}
-            className="w-full mt-6 py-3 bg-[#6B4A34] hover:bg-[#573b29] text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center space-x-2 shadow-sm"
+            className="w-full mt-6 py-3 bg-[#6B4A34] hover:bg-[#573b29] text-white font-bold text-xs rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all duration-200 flex items-center justify-center space-x-2"
           >
             {isSaving ? (
               <>

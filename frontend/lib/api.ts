@@ -63,6 +63,27 @@ export function bustResponseCache(prefix: string) {
     if (key.startsWith(prefix)) _responseCache.delete(key);
   }
 }
+
+/**
+ * Warm up all admin datasets concurrently in background.
+ * Call this when the admin layout mounts so switching subpages is instant (0ms).
+ */
+export function warmupAdminData() {
+  const endpoints = [
+    '/tournaments',
+    '/registrations',
+    '/blog/all',
+    '/gallery',
+    '/shop/products',
+    '/shop/orders',
+    '/team',
+    '/partners',
+    '/settings',
+  ];
+  endpoints.forEach((ep) => {
+    apiRequest(ep).catch(() => {});
+  });
+}
 // ───────────────────────────────────────────────────────────────────────────
 
 export async function apiRequest<T = any>(

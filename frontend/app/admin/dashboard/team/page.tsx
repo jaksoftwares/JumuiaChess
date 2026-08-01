@@ -109,10 +109,6 @@ export default function AdminTeamPage() {
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Brown Banner Card */}
       <div className="bg-[#6B4A34] text-white p-6 md:p-8 rounded-2xl shadow-md border border-[#573b29] relative overflow-hidden space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-[#FAF7F2] text-[11px] font-mono font-bold tracking-wide backdrop-blur-sm">
-          <UserCheck className="w-3.5 h-3.5 text-[#C8B195]" />
-          <span>Team Management Studio</span>
-        </div>
         <h1 className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-white">
           Meet the Team
         </h1>
@@ -130,12 +126,12 @@ export default function AdminTeamPage() {
       {/* Main Grid & Status Bar */}
       <div className="space-y-4">
         <div className="flex items-center justify-between px-1">
-          <span className="text-xs font-bold text-stone-600 uppercase tracking-wider flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-[#6B4A34]" /> Published Team Profiles ({members.length})
+          <span className="text-xs font-bold text-stone-600 uppercase tracking-wider">
+            Published Team Profiles ({members.length})
           </span>
           <button
             onClick={handleOpenCreateModal}
-            className="px-4 py-2 bg-[#6B4A34] hover:bg-[#573b29] text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-sm transition-colors"
+            className="px-4 py-2.5 bg-[#6B4A34] hover:bg-[#573b29] text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-xs hover:shadow-md active:scale-95 transition-all duration-200"
           >
             <Plus className="w-4 h-4" /> Add Team Member
           </button>

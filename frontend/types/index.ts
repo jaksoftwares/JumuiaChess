@@ -88,6 +88,10 @@ export interface SiteSettings {
   facebook_url?: string;
   youtube_url?: string;
   shop_enabled: boolean;
+  our_story_title?: string;
+  our_story_heading?: string;
+  our_story_paragraph_1?: string;
+  our_story_paragraph_2?: string;
   updated_at?: string;
 }
 

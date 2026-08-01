@@ -79,10 +79,6 @@ export default function AdminPartners() {
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Brown Banner Card */}
       <div className="bg-[#6B4A34] text-white p-6 md:p-8 rounded-2xl shadow-md border border-[#573b29] relative overflow-hidden space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-[#FAF7F2] text-[11px] font-mono font-bold tracking-wide backdrop-blur-sm">
-          <Handshake className="w-3.5 h-3.5 text-[#C8B195]" />
-          <span>Partners & Sponsors</span>
-        </div>
         <h1 className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-white">
           Partners & Sponsors
         </h1>
@@ -94,9 +90,8 @@ export default function AdminPartners() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Editor Form Card */}
         <div className="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm space-y-4 h-fit">
-          <h2 className="font-serif text-base font-bold text-[#6B4A34] flex items-center gap-2 border-b border-stone-100 pb-3">
-            <Plus className="w-4 h-4 text-[#6B4A34]" />
-            <span>Add Partner / Sponsor</span>
+          <h2 className="font-serif text-base font-bold text-[#6B4A34] border-b border-stone-100 pb-3">
+            Add Partner / Sponsor
           </h2>
 
           {message && (
@@ -140,7 +135,7 @@ export default function AdminPartners() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full mt-4 py-3 bg-[#6B4A34] hover:bg-[#573b29] text-white font-bold text-xs rounded-xl transition-colors shadow-sm flex items-center justify-center space-x-2"
+              className="w-full mt-4 py-3 bg-[#6B4A34] hover:bg-[#573b29] text-white font-bold text-xs rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all duration-200 flex items-center justify-center space-x-2"
             >
               {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <span>Add Partner</span>}
             </button>
@@ -150,8 +145,8 @@ export default function AdminPartners() {
         {/* Partners Table Card */}
         <div className="lg:col-span-2 bg-white border border-stone-200 p-6 rounded-2xl shadow-sm overflow-x-auto">
           <div className="flex items-center justify-between border-b border-stone-100 pb-4 mb-4">
-            <h2 className="font-serif text-base font-bold text-charcoal flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#6B4A34]" /> Active Partners ({partners.length})
+            <h2 className="font-serif text-base font-bold text-charcoal">
+              Active Partners ({partners.length})
             </h2>
             <span className="text-[11px] font-mono text-stone-400">Synced to Database</span>
           </div>

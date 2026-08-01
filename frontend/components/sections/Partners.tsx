@@ -74,32 +74,38 @@ export default function Partners() {
               No partner organizations published yet. Add partners from the admin dashboard to feature them here.
             </div>
           ) : (
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 items-stretch justify-center w-full">
-              {partners.map((partner) => (
-                <a
-                  key={partner.id}
-                  href={partner.website_url || '#'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="border border-white/20 hover:border-[#C8B195]/60 rounded-2xl p-5 md:p-7 text-center flex flex-col items-center justify-center gap-3 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(0,0,0,0.35)] transition-all duration-300 group"
-                >
-                  {/* Partner logo */}
-                  <div className="relative w-16 h-16 md:w-20 md:h-20 group-hover:scale-110 transition-transform duration-300">
-                    <Image
-                      src={partner.logo_url}
-                      alt={partner.name}
-                      fill
-                      unoptimized
-                      sizes="80px"
-                      className="object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)]"
-                    />
-                  </div>
+            <div className="w-full overflow-hidden relative py-2">
+              {/* Subtle edge fade overlays for smooth scroll transition */}
+              <div className="absolute left-0 top-0 bottom-0 w-10 md:w-20 bg-gradient-to-r from-black/80 to-transparent z-10 pointer-events-none" />
+              <div className="absolute right-0 top-0 bottom-0 w-10 md:w-20 bg-gradient-to-l from-black/80 to-transparent z-10 pointer-events-none" />
 
-                  <span className="font-sans text-xs md:text-sm font-semibold tracking-wide text-white/85 group-hover:text-[#C8B195] transition-colors leading-snug">
-                    {partner.name}
-                  </span>
-                </a>
-              ))}
+              <div className="animate-marquee flex items-center gap-5 md:gap-6">
+                {[...partners, ...partners, ...partners, ...partners].map((partner, idx) => (
+                  <a
+                    key={`${partner.id}-${idx}`}
+                    href={partner.website_url || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-[200px] md:w-[240px] shrink-0 border border-white/20 hover:border-[#C8B195]/80 bg-black/40 backdrop-blur-md rounded-2xl p-5 text-center flex flex-col items-center justify-center gap-3 hover:-translate-y-1.5 hover:bg-black/60 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] transition-all duration-300 group"
+                  >
+                    {/* Partner logo */}
+                    <div className="relative w-16 h-16 md:w-20 md:h-20 group-hover:scale-110 transition-transform duration-300">
+                      <Image
+                        src={partner.logo_url}
+                        alt={partner.name}
+                        fill
+                        unoptimized
+                        sizes="80px"
+                        className="object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)]"
+                      />
+                    </div>
+
+                    <span className="font-sans text-xs md:text-sm font-semibold tracking-wide text-white/90 group-hover:text-[#C8B195] transition-colors leading-snug truncate max-w-[180px]">
+                      {partner.name}
+                    </span>
+                  </a>
+                ))}
+              </div>
             </div>
           )}
         </div>

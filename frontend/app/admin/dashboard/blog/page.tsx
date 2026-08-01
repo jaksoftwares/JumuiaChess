@@ -118,10 +118,6 @@ export default function AdminBlog() {
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Brown Banner Card */}
       <div className="bg-[#6B4A34] text-white p-6 md:p-8 rounded-2xl shadow-md border border-[#573b29] relative overflow-hidden space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-[#FAF7F2] text-[11px] font-mono font-bold tracking-wide backdrop-blur-sm">
-          <BookOpen className="w-3.5 h-3.5 text-[#C8B195]" />
-          <span>News & Press Releases</span>
-        </div>
         <h1 className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-white">
           Blog & Articles
         </h1>
@@ -133,9 +129,8 @@ export default function AdminBlog() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Editor Form Card */}
         <div className="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm space-y-4 h-fit">
-          <h2 className="font-serif text-base font-bold text-[#6B4A34] flex items-center gap-2 border-b border-stone-100 pb-3">
-            <Plus className="w-4 h-4 text-[#6B4A34]" />
-            <span>{editingId ? 'Edit Article' : 'Compose New Article'}</span>
+          <h2 className="font-serif text-base font-bold text-[#6B4A34] border-b border-stone-100 pb-3">
+            {editingId ? 'Edit Article' : 'Compose New Article'}
           </h2>
 
           {message && (
@@ -178,30 +173,30 @@ export default function AdminBlog() {
             />
 
             <div>
-              <label className="block text-xs font-semibold text-stone-700 mb-1">Excerpt Summary *</label>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">Excerpt *</label>
               <textarea
                 required
                 rows={2}
                 value={excerpt}
                 onChange={(e) => setExcerpt(e.target.value)}
-                placeholder="A short summary sentence displayed on the home page news grid..."
+                placeholder="Brief summary of the article..."
                 className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34] resize-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-stone-700 mb-1">Article Content (Text / Markdown) *</label>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">Body Content *</label>
               <textarea
                 required
                 rows={6}
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
-                placeholder="Write full article body text here..."
-                className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34] font-sans resize-none"
+                placeholder="Full article content..."
+                className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
               />
             </div>
 
-            <div className="flex items-center space-x-2 pt-1">
+            <div className="flex items-center space-x-2">
               <input
                 type="checkbox"
                 id="published"
@@ -235,7 +230,7 @@ export default function AdminBlog() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`${editingId ? 'w-1/2' : 'w-full'} py-2.5 bg-[#6B4A34] hover:bg-[#573b29] text-white font-bold text-xs rounded-xl transition-colors shadow-sm flex items-center justify-center space-x-2`}
+                className={`${editingId ? 'w-1/2' : 'w-full'} py-2.5 bg-[#6B4A34] hover:bg-[#573b29] text-white font-bold text-xs rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all duration-200 flex items-center justify-center space-x-2`}
               >
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <span>{editingId ? 'Update Post' : 'Publish Post'}</span>}
               </button>
@@ -246,8 +241,8 @@ export default function AdminBlog() {
         {/* Blog Table Card */}
         <div className="lg:col-span-2 bg-white border border-stone-200 p-6 rounded-2xl shadow-sm overflow-x-auto">
           <div className="flex items-center justify-between border-b border-stone-100 pb-4 mb-4">
-            <h2 className="font-serif text-base font-bold text-charcoal flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#6B4A34]" /> Articles & News Reports ({posts.length})
+            <h2 className="font-serif text-base font-bold text-charcoal">
+              Articles & News Reports ({posts.length})
             </h2>
             <span className="text-[11px] font-mono text-stone-400">Synced to Database</span>
           </div>

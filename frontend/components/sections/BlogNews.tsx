@@ -15,16 +15,22 @@ interface VideoItem {
 
 const FEATURED_VIDEOS: VideoItem[] = [
   {
+    id: 'video-dina',
+    title: 'Dina Belenkaya Live at Charlotte Chess Centre',
+    youtubeId: '-XLfXDGkcbE',
+    description: 'Dina Belenkaya live with the Kenya National Team Champions during their one-month chess exchange workshop at Charlotte Chess Centre.',
+  },
+  {
     id: 'video-1',
     title: 'Empowering Youth Through Chess',
     youtubeId: 'dHQGNQwtgyA',
-    description: 'Watch how Jumuiya Chess brings board games, structured learning, and mentorship to schools and neurodiverse programs across Kenya.',
+    description: 'Bringing board games, structured learning, and mentorship across Kenya.',
   },
   {
     id: 'video-2',
     title: 'The Gift of Chess Mission',
     youtubeId: '9yAMCRHL0og',
-    description: 'Explore the global journey of distributing 1 million chess sets to unlock opportunity, strategic thinking, and hope worldwide.',
+    description: 'Distributing 1 million chess sets to unlock strategic thinking worldwide.',
   },
 ];
 
@@ -93,37 +99,58 @@ export default function BlogNews() {
         ) : (
           /* Split Layout: Left Videos Feed / Right Articles List */
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-            {/* Left Column: Rectangular Videos Stack (No Background or Border) */}
-            <div className="lg:col-span-6 space-y-6">
+            {/* Left Column: Stylistic Video Layout (Main Highlight + 2 Sub-grid Cards, NO Scrollbars) */}
+            <div className="lg:col-span-6 space-y-5">
               <div className="border-b border-stone-200/80 pb-2">
                 <h3 className="font-sans text-xs font-bold tracking-widest text-[#6B4A34] uppercase">
-                  Featured Videos
+                  Featured Videos & Live Stream
                 </h3>
               </div>
 
-              <div className="space-y-6">
-                {FEATURED_VIDEOS.map((video) => (
-                  <div
-                    key={video.id}
-                    className="bg-transparent border-0 p-0 space-y-2.5"
-                  >
-                    {/* Clean Rectangular Iframe Video Container */}
-                    <div className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-md bg-stone-900">
+              {/* Main Featured Highlight Video */}
+              {FEATURED_VIDEOS[0] && (
+                <div className="space-y-2.5">
+                  <div className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-lg bg-stone-900 border border-stone-200/60">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${FEATURED_VIDEOS[0].youtubeId}?autoplay=0&rel=0&modestbranding=1`}
+                      title={FEATURED_VIDEOS[0].title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="absolute inset-0 w-full h-full border-0 rounded-2xl"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <span className="font-mono text-[9px] font-bold text-[#6B4A34] uppercase tracking-wider block">
+                      FEATURED LIVE STREAM
+                    </span>
+                    <h4 className="font-serif text-lg font-bold text-[#2A2421] leading-snug">
+                      {FEATURED_VIDEOS[0].title}
+                    </h4>
+                    <p className="font-sans text-xs text-stone-600 leading-relaxed">
+                      {FEATURED_VIDEOS[0].description}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* 2 Supporting Videos (Side-by-Side Sub-Grid, NO Scrollbars) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                {FEATURED_VIDEOS.slice(1).map((video) => (
+                  <div key={video.id} className="space-y-2">
+                    <div className="relative aspect-video w-full rounded-xl overflow-hidden shadow-md bg-stone-900 border border-stone-200/60">
                       <iframe
                         src={`https://www.youtube.com/embed/${video.youtubeId}?autoplay=0&rel=0&modestbranding=1`}
                         title={video.title}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
-                        className="absolute inset-0 w-full h-full border-0 rounded-2xl"
+                        className="absolute inset-0 w-full h-full border-0 rounded-xl"
                       />
                     </div>
-
-                    {/* Short Info Underneath */}
-                    <div className="space-y-1 pt-0.5">
-                      <h4 className="font-serif text-lg font-bold text-[#2A2421] leading-snug">
+                    <div className="space-y-0.5">
+                      <h5 className="font-serif text-sm font-bold text-[#2A2421] leading-tight line-clamp-1">
                         {video.title}
-                      </h4>
-                      <p className="font-sans text-xs text-stone-600 leading-relaxed">
+                      </h5>
+                      <p className="font-sans text-[11px] text-stone-500 line-clamp-2 leading-tight">
                         {video.description}
                       </p>
                     </div>

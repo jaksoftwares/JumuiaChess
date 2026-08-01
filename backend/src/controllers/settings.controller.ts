@@ -27,7 +27,19 @@ export const getSettings = async (req: Request, res: Response, next: NextFunctio
 // PUT /api/settings
 export const updateSettings = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { org_email, org_phone, mpesa_paybill, instagram_url, facebook_url, youtube_url, shop_enabled } = req.body;
+    const { 
+      org_email, 
+      org_phone, 
+      mpesa_paybill, 
+      instagram_url, 
+      facebook_url, 
+      youtube_url, 
+      shop_enabled,
+      our_story_title,
+      our_story_heading,
+      our_story_paragraph_1,
+      our_story_paragraph_2
+    } = req.body;
 
     const { data, error } = await supabase
       .from('site_settings')
@@ -39,6 +51,10 @@ export const updateSettings = async (req: Request, res: Response, next: NextFunc
         facebook_url,
         youtube_url,
         shop_enabled,
+        our_story_title,
+        our_story_heading,
+        our_story_paragraph_1,
+        our_story_paragraph_2,
         updated_at: new Date().toISOString(),
       })
       .eq('id', 1)

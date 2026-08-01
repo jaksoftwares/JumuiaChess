@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
-import { clearAuthTokenCache } from '@/lib/api';
+import { clearAuthTokenCache, warmupAdminData } from '@/lib/api';
 import {
   LayoutDashboard,
   Trophy,
@@ -58,6 +58,11 @@ export default function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+
+  // Background Pre-fetching & Data Warmup for Instant 0ms Tab Switching
+  useEffect(() => {
+    warmupAdminData();
+  }, []);
 
   const handleSignOut = async () => {
     clearAuthTokenCache();

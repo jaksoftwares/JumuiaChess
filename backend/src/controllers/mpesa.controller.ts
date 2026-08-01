@@ -8,23 +8,28 @@ export const registerWithMpesa = async (req: Request, res: Response, next: NextF
   try {
     const { tournamentId, playerName, email, age, school, category, phoneNumber, amount } = req.body;
 
-    if (!tournamentId || !playerName || !age || !category || !phoneNumber || !amount) {
-      return res.status(400).json({ error: 'Missing required registration details' });
+    const parsedAge = age !== undefined && age !== null ? parseInt(age.toString()) : 0;
+    const parsedAmount = amount !== undefined && amount !== null ? parseFloat(amount.toString()) : 0;
+
+    if (!tournamentId || !playerName || !category || !phoneNumber) {
+      return res.status(400).json({ error: 'Missing required registration details: Please ensure all required fields are filled.' });
     }
 
-    // 1. Create a pending registration in the database
+    const isFree = parsedAmount === 0;
+
+    // 1. Create a registration in the database
     const { data: registration, error: regError } = await supabase
       .from('registrations')
       .insert([{
         tournament_id: tournamentId,
         player_name: playerName,
         email,
-        age: parseInt(age),
+        age: parsedAge,
         school,
         category,
         phone_number: phoneNumber,
-        amount: parseFloat(amount),
-        payment_status: 'pending'
+        amount: parsedAmount,
+        payment_status: isFree ? 'completed' : 'pending'
       }])
       .select()
       .single();
@@ -39,11 +44,27 @@ export const registerWithMpesa = async (req: Request, res: Response, next: NextF
       .single();
     const tournamentName = tournament?.name || 'Tournament';
 
-    // 2. Trigger M-Pesa STK Push
+    // If free entry (e.g. PWD/DAP), complete registration without STK push
+    if (isFree) {
+      if (email) {
+        sendRegistrationConfirmation(email, {
+          playerName,
+          tournamentName,
+          amount: 0,
+          category
+        }).catch((err) => console.error('Email error:', err));
+      }
+      return res.json({
+        success: true,
+        message: 'Free registration completed successfully.'
+      });
+    }
+
+    // 2. Trigger M-Pesa STK Push for paid entries
     try {
       const stkResult = await initiateStkPush(
         phoneNumber,
-        parseFloat(amount),
+        parsedAmount,
         `REG-${registration.id.substring(0, 5)}`,
         `Reg: ${tournamentName.substring(0, 15)}`
       );
@@ -61,7 +82,6 @@ export const registerWithMpesa = async (req: Request, res: Response, next: NextF
       });
     } catch (stkError: any) {
       console.error('M-Pesa STK Push initiation failed:', stkError.message);
-      // Mark registration status as failed
       await supabase
         .from('registrations')
         .update({ payment_status: 'failed' })
@@ -152,6 +172,65 @@ export const mpesaCallback = async (req: Request, res: Response, next: NextFunct
 
     console.warn(`No matching transaction found for CheckoutRequestID: ${CheckoutRequestID}`);
     res.json({ success: false, message: 'No matching transaction record found' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// GET /api/mpesa/status/:checkoutRequestId
+export const getMpesaPaymentStatus = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { checkoutRequestId } = req.params;
+
+    if (!checkoutRequestId) {
+      return res.status(400).json({ error: 'Checkout request ID is required' });
+    }
+
+    // 1. Check tournament registration
+    const { data: registration } = await supabase
+      .from('registrations')
+      .select('*, tournaments(name)')
+      .eq('checkout_request_id', checkoutRequestId)
+      .maybeSingle();
+
+    if (registration) {
+      return res.json({
+        success: true,
+        type: 'registration',
+        paymentStatus: registration.payment_status,
+        mpesaReceipt: registration.mpesa_receipt,
+        registration: {
+          playerName: registration.player_name,
+          category: registration.category,
+          fideId: registration.fide_id || '00',
+          tournamentName: registration.tournaments?.name || 'Tournament',
+          amount: registration.amount,
+          id: registration.id.slice(-6)
+        }
+      });
+    }
+
+    // 2. Check shop order
+    const { data: order } = await supabase
+      .from('shop_orders')
+      .select('*')
+      .eq('checkout_request_id', checkoutRequestId)
+      .maybeSingle();
+
+    if (order) {
+      return res.json({
+        success: true,
+        type: 'order',
+        paymentStatus: order.payment_status,
+        mpesaReceipt: order.mpesa_receipt,
+        order
+      });
+    }
+
+    return res.json({
+      success: true,
+      paymentStatus: 'pending'
+    });
   } catch (err) {
     next(err);
   }

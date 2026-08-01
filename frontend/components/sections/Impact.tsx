@@ -32,9 +32,19 @@ const PROGRAMS = [
     image: '/images/king.png',
   },
   {
+    title: 'Her MoveNext Kenyan Chapter',
+    description: 'Dedicated to empowering girls and young women through chess education, leadership workshops, and targeted tournament exposure. This initiative builds confidence, critical thinking, and equal opportunities for girls and children across Kenya.',
+    image: '/images/queen.png',
+  },
+  {
     title: 'Chess Tournaments & Exposure',
     description: 'We organize chess tournaments that attract top players from across East Africa. These events provide valuable exposure for young players from our programs, allowing them to interact with experienced players, improve their skills, and build confidence.',
     image: '/images/Elite Pieces Focal.png',
+  },
+  {
+    title: 'Kenya Elite Chess Players Exchange Programme',
+    description: "Connecting Kenya's top chess prodigies with international grandmasters and elite academies across the globe. Through structured player exchanges, high-level training camps, and international competition, we elevate Kenyan talent onto the world stage.",
+    image: '/images/king.png',
   },
 ];
 
@@ -55,27 +65,16 @@ export default function Impact() {
           </p>
         </div>
 
-        {/* 7 Program Cards Grid */}
+        {/* 9 Program Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {PROGRAMS.map((program, index) => {
-            const isLast = index === PROGRAMS.length - 1;
-            const isOdd = index % 2 !== 0;
-
-            // Pattern logic:
-            // For items 0..5: odd items are dark, even items are light.
-            // For last item (index 6):
-            // - On Mobile/Tablet (< lg): Light mode to maintain Light-Dark alternating pattern after item 5 (Dark).
-            // - On Desktop (lg): Dark mode (brownish #4A433D) to maintain the desktop pattern & centered highlight.
-            
-            const isDark = isOdd && !isLast;
+            const isDark = index % 2 === 1;
 
             return (
               <div
                 key={program.title}
                 className={`p-8 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 group flex flex-col justify-between ${
-                  isLast
-                    ? 'bg-white text-charcoal border border-[#C8B195]/40 hover:border-wood/80 lg:bg-[#4A433D] lg:text-white lg:border-transparent lg:hover:border-white/30 lg:col-start-2'
-                    : isDark
+                  isDark
                     ? 'bg-[#4A433D] text-white border border-transparent hover:border-white/30'
                     : 'bg-white text-charcoal border border-[#C8B195]/40 hover:border-wood/80'
                 }`}
@@ -84,9 +83,7 @@ export default function Impact() {
                   {/* Circle Image Wrapper */}
                   <div
                     className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-6 overflow-hidden transition-all duration-300 ${
-                      isLast
-                        ? 'bg-stone/5 border border-stone/20 lg:bg-white/10 lg:border-white/20'
-                        : isDark
+                      isDark
                         ? 'bg-white/10 border border-white/20'
                         : 'bg-stone/5 border border-stone/20'
                     }`}
@@ -104,22 +101,14 @@ export default function Impact() {
 
                   <h3
                     className={`font-serif text-xl font-bold mb-3 ${
-                      isLast
-                        ? 'text-charcoal lg:text-white'
-                        : isDark
-                        ? 'text-white'
-                        : 'text-charcoal'
+                      isDark ? 'text-white' : 'text-charcoal'
                     }`}
                   >
                     {program.title}
                   </h3>
                   <p
                     className={`font-sans text-sm leading-relaxed ${
-                      isLast
-                        ? 'text-charcoal/70 lg:text-white/80'
-                        : isDark
-                        ? 'text-white/80'
-                        : 'text-charcoal/70'
+                      isDark ? 'text-white/80' : 'text-charcoal/70'
                     }`}
                   >
                     {program.description}

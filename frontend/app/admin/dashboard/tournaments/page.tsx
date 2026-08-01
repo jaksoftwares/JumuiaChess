@@ -115,10 +115,6 @@ export default function AdminTournaments() {
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Brown Banner Card */}
       <div className="bg-[#6B4A34] text-white p-6 md:p-8 rounded-2xl shadow-md border border-[#573b29] relative overflow-hidden space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-[#FAF7F2] text-[11px] font-mono font-bold tracking-wide backdrop-blur-sm">
-          <Trophy className="w-3.5 h-3.5 text-[#C8B195]" />
-          <span>Tournament Management</span>
-        </div>
         <h1 className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-white">
           Manage Tournaments
         </h1>
@@ -130,9 +126,8 @@ export default function AdminTournaments() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Editor Form Card */}
         <div className="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm space-y-4 h-fit">
-          <h2 className="font-serif text-base font-bold text-[#6B4A34] flex items-center gap-2 border-b border-stone-100 pb-3">
-            <Plus className="w-4 h-4 text-[#6B4A34]" />
-            <span>{editingId ? 'Edit Tournament' : 'Add New Tournament'}</span>
+          <h2 className="font-serif text-base font-bold text-[#6B4A34] border-b border-stone-100 pb-3">
+            {editingId ? 'Edit Tournament' : 'Add New Tournament'}
           </h2>
 
           {message && (
@@ -193,13 +188,12 @@ export default function AdminTournaments() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-stone-700 mb-1">Categories (comma-separated)</label>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">Categories (Comma separated)</label>
               <input
                 type="text"
-                required
                 value={categories}
                 onChange={(e) => setCategories(e.target.value)}
-                placeholder="Under 12, Under 18, Open"
+                placeholder="Open, Junior U18, Ladies, PWD"
                 className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
               />
             </div>
@@ -211,9 +205,8 @@ export default function AdminTournaments() {
             />
 
             <div>
-              <label className="block text-xs font-semibold text-stone-700 mb-1">Description *</label>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">Tournament Description</label>
               <textarea
-                required
                 rows={3}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -244,7 +237,7 @@ export default function AdminTournaments() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`${editingId ? 'w-1/2' : 'w-full'} py-2.5 bg-[#6B4A34] hover:bg-[#573b29] text-white font-bold text-xs rounded-xl transition-colors shadow-sm flex items-center justify-center space-x-2`}
+                className={`${editingId ? 'w-1/2' : 'w-full'} py-2.5 bg-[#6B4A34] hover:bg-[#573b29] text-white font-bold text-xs rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all duration-200 flex items-center justify-center space-x-2`}
               >
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <span>{editingId ? 'Update Event' : 'Create Event'}</span>}
               </button>
@@ -255,8 +248,8 @@ export default function AdminTournaments() {
         {/* Tournaments List Table Card */}
         <div className="lg:col-span-2 bg-white border border-stone-200 p-6 rounded-2xl shadow-sm overflow-x-auto">
           <div className="flex items-center justify-between border-b border-stone-100 pb-4 mb-4">
-            <h2 className="font-serif text-base font-bold text-charcoal flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#6B4A34]" /> Active Tournaments ({tournaments.length})
+            <h2 className="font-serif text-base font-bold text-charcoal">
+              Active Tournaments ({tournaments.length})
             </h2>
             <span className="text-[11px] font-mono text-stone-400">Synced to Database</span>
           </div>

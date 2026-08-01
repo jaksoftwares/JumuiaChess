@@ -119,10 +119,6 @@ export default function DashboardHome() {
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Brown Banner Card */}
       <div className="bg-[#6B4A34] text-white p-6 md:p-8 rounded-2xl shadow-md border border-[#573b29] relative overflow-hidden space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-[#FAF7F2] text-[11px] font-mono font-bold tracking-wide backdrop-blur-sm">
-          <Activity className="w-3.5 h-3.5 text-[#C8B195] animate-pulse" />
-          <span>Operational Admin Dashboard</span>
-        </div>
         <h1 className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-white">
           Overview & Management Center
         </h1>
@@ -138,23 +134,13 @@ export default function DashboardHome() {
           href="/admin/dashboard/tournaments"
           className="bg-white border border-stone-200/90 p-5 rounded-2xl shadow-sm hover:shadow-md hover:border-[#6B4A34] transition-all flex flex-col justify-between group"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">
-              Active Tournaments
-            </span>
-            <div className="p-2.5 rounded-xl bg-[#FAF7F2] text-[#6B4A34] border border-stone-200">
-              <Trophy className="w-4 h-4" />
-            </div>
-          </div>
+          <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">
+            Active Tournaments
+          </span>
           <div className="mt-3">
-            <div className="flex items-baseline justify-between">
-              <span className="font-serif text-2xl font-bold text-charcoal">
-                {stats.liveTournaments}
-              </span>
-              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                Ongoing
-              </span>
-            </div>
+            <span className="font-serif text-2xl font-bold text-charcoal block">
+              {stats.liveTournaments}
+            </span>
             <p className="text-[11px] text-stone-400 mt-1">Competitions open for entry</p>
           </div>
         </Link>
@@ -164,23 +150,13 @@ export default function DashboardHome() {
           href="/admin/dashboard/registrations"
           className="bg-white border border-stone-200/90 p-5 rounded-2xl shadow-sm hover:shadow-md hover:border-[#6B4A34] transition-all flex flex-col justify-between group"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">
-              Registrations
-            </span>
-            <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-              <Users className="w-4 h-4" />
-            </div>
-          </div>
+          <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">
+            Registrations
+          </span>
           <div className="mt-3">
-            <div className="flex items-baseline justify-between">
-              <span className="font-serif text-2xl font-bold text-charcoal">
-                {stats.registrationsThisMonth}
-              </span>
-              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 flex items-center gap-0.5">
-                <TrendingUp className="w-3 h-3" /> Logged
-              </span>
-            </div>
+            <span className="font-serif text-2xl font-bold text-charcoal block">
+              {stats.registrationsThisMonth}
+            </span>
             <p className="text-[11px] text-stone-400 mt-1">Player signups received</p>
           </div>
         </Link>
@@ -190,23 +166,13 @@ export default function DashboardHome() {
           href="/admin/dashboard/registrations"
           className="bg-white border border-stone-200/90 p-5 rounded-2xl shadow-sm hover:shadow-md hover:border-[#6B4A34] transition-all flex flex-col justify-between group"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">
-              M-Pesa Collections
-            </span>
-            <div className="p-2.5 rounded-xl bg-blue-50 text-blue-700 border border-blue-200/60">
-              <DollarSign className="w-4 h-4" />
-            </div>
-          </div>
+          <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">
+            M-Pesa Collections
+          </span>
           <div className="mt-3">
-            <div className="flex items-baseline justify-between">
-              <span className="font-serif text-xl font-bold text-charcoal truncate max-w-[140px]">
-                KES {stats.paymentsReceived.toLocaleString()}
-              </span>
-              <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
-                Verified
-              </span>
-            </div>
+            <span className="font-serif text-xl font-bold text-charcoal block truncate">
+              KES {stats.paymentsReceived.toLocaleString()}
+            </span>
             <p className="text-[11px] text-stone-400 mt-1">Completed STK payments</p>
           </div>
         </Link>
@@ -216,14 +182,9 @@ export default function DashboardHome() {
           href="/admin/dashboard/blog"
           className="bg-white border border-stone-200/90 p-5 rounded-2xl shadow-sm hover:shadow-md hover:border-[#6B4A34] transition-all flex flex-col justify-between group"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">
-              Latest News
-            </span>
-            <div className="p-2.5 rounded-xl bg-purple-50 text-purple-700 border border-purple-200/60">
-              <BookOpen className="w-4 h-4" />
-            </div>
-          </div>
+          <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">
+            Latest News
+          </span>
           <div className="mt-3">
             <p className="font-serif text-sm font-bold text-charcoal line-clamp-1">
               {stats.latestPostTitle}
@@ -240,8 +201,8 @@ export default function DashboardHome() {
           {/* Content Management Cards */}
           <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-4">
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-              <h3 className="font-serif text-base font-bold text-charcoal flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#6B4A34]" /> Content Management Hub
+              <h3 className="font-serif text-base font-bold text-charcoal">
+                Content Management Hub
               </h3>
               <span className="text-[11px] text-stone-400 font-mono">Device Upload Ready</span>
             </div>
@@ -253,12 +214,9 @@ export default function DashboardHome() {
                 className="p-4 rounded-xl bg-[#FAF7F2] border border-stone-200/70 hover:border-[#6B4A34] transition-all flex items-start justify-between group"
               >
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <UserCheck className="w-4 h-4 text-[#6B4A34]" />
-                    <span className="text-xs font-bold text-charcoal group-hover:text-[#6B4A34] transition-colors">
-                      Meet the Team
-                    </span>
-                  </div>
+                  <span className="text-xs font-bold text-charcoal group-hover:text-[#6B4A34] transition-colors block">
+                    Meet the Team
+                  </span>
                   <p className="text-[11px] text-stone-500">
                     {stats.teamCount} members active on website
                   </p>
@@ -272,12 +230,9 @@ export default function DashboardHome() {
                 className="p-4 rounded-xl bg-[#FAF7F2] border border-stone-200/70 hover:border-[#6B4A34] transition-all flex items-start justify-between group"
               >
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <ImageIcon className="w-4 h-4 text-[#6B4A34]" />
-                    <span className="text-xs font-bold text-charcoal group-hover:text-[#6B4A34] transition-colors">
-                      Media Gallery
-                    </span>
-                  </div>
+                  <span className="text-xs font-bold text-charcoal group-hover:text-[#6B4A34] transition-colors block">
+                    Media Gallery
+                  </span>
                   <p className="text-[11px] text-stone-500">
                     {stats.galleryCount} impact photos published
                   </p>
@@ -291,12 +246,9 @@ export default function DashboardHome() {
                 className="p-4 rounded-xl bg-[#FAF7F2] border border-stone-200/70 hover:border-[#6B4A34] transition-all flex items-start justify-between group"
               >
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <ShoppingBag className="w-4 h-4 text-[#6B4A34]" />
-                    <span className="text-xs font-bold text-charcoal group-hover:text-[#6B4A34] transition-colors">
-                      Charity Shop Catalog
-                    </span>
-                  </div>
+                  <span className="text-xs font-bold text-charcoal group-hover:text-[#6B4A34] transition-colors block">
+                    Charity Shop Catalog
+                  </span>
                   <p className="text-[11px] text-stone-500">
                     {stats.shopCount} products listed in store
                   </p>
@@ -310,12 +262,9 @@ export default function DashboardHome() {
                 className="p-4 rounded-xl bg-[#FAF7F2] border border-stone-200/70 hover:border-[#6B4A34] transition-all flex items-start justify-between group"
               >
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="w-4 h-4 text-[#6B4A34]" />
-                    <span className="text-xs font-bold text-charcoal group-hover:text-[#6B4A34] transition-colors">
-                      Blog Articles & News
-                    </span>
-                  </div>
+                  <span className="text-xs font-bold text-charcoal group-hover:text-[#6B4A34] transition-colors block">
+                    Blog Articles & News
+                  </span>
                   <p className="text-[11px] text-stone-500">
                     Write press reports & releases
                   </p>
@@ -328,8 +277,8 @@ export default function DashboardHome() {
           {/* Tournament Overview Card */}
           <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-serif text-base font-bold text-charcoal flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-[#6B4A34]" /> Tournament Management
+              <h3 className="font-serif text-base font-bold text-charcoal">
+                Tournament Management
               </h3>
               <Link
                 href="/admin/dashboard/tournaments"
@@ -348,8 +297,8 @@ export default function DashboardHome() {
         <div className="space-y-6">
           {/* System Connection Widget */}
           <div className="bg-white border border-stone-200 rounded-2xl p-5 shadow-sm space-y-4">
-            <h3 className="font-serif text-sm font-bold text-charcoal flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" /> Database & API Status
+            <h3 className="font-serif text-sm font-bold text-charcoal">
+              Database & API Status
             </h3>
             
             <div className="space-y-2.5 text-xs">
@@ -378,8 +327,8 @@ export default function DashboardHome() {
 
           {/* Direct Quick Actions Box */}
           <div className="bg-[#FAF7F2] border border-stone-200/90 rounded-2xl p-5 shadow-sm space-y-3">
-            <h3 className="font-serif text-sm font-bold text-[#6B4A34] flex items-center gap-2">
-              <Zap className="w-4 h-4 text-[#6B4A34]" /> Direct Actions
+            <h3 className="font-serif text-sm font-bold text-[#6B4A34]">
+              Direct Actions
             </h3>
             
             <div className="space-y-2">

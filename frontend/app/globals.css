@@ -54,3 +54,81 @@ h6 {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* ── Continuous Partner Marquee Carousel ── */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 25s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* ── 1-Page Official Player Ticket Print Isolation ── */
+@media print {
+  @page {
+    size: portrait;
+    margin: 0mm !important;
+  }
+
+  html, body {
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  /* Hide all main page content outside the modal container */
+  body > * {
+    visibility: hidden !important;
+  }
+
+  /* Show ONLY the printable ticket element and its children */
+  #printable-ticket,
+  #printable-ticket *,
+  #printable-roster,
+  #printable-roster * {
+    visibility: visible !important;
+  }
+
+  .print-hide {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Center the ticket badge card as a single page document */
+  #printable-ticket {
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 88% !important;
+    max-width: 520px !important;
+    padding: 1.25rem !important;
+    margin: 0 auto !important;
+    box-shadow: none !important;
+    border: 2px solid #6B4A34 !important;
+    background-color: #FAF7F2 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    page-break-after: avoid !important;
+    page-break-before: avoid !important;
+    page-break-inside: avoid !important;
+    break-after: avoid !important;
+    break-inside: avoid !important;
+    z-index: 99999 !important;
+  }
+}
