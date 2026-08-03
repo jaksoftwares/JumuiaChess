@@ -1,3 +1,4 @@
+
 export interface Tournament {
   id: string;
   name: string;
@@ -15,7 +16,16 @@ export interface Registration {
   id: string;
   tournament_id: string;
   player_name: string;
-  age: number;
+  surname?: string;
+  other_names?: string;
+  gender?: string;
+  country?: string;
+  dob?: string;
+  fide_id?: string;
+  accompanying_person?: string;
+  consent_given?: boolean;
+  email?: string;
+  age?: number;
   school?: string;
   category: string;
   phone_number: string;

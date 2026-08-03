@@ -97,3 +97,15 @@ For convenience, you can run both applications concurrently directly from the ro
    ```bash
    npm run dev
    ```
+
+
+
+
+
+
+
+Buy Goods, Till No. 4160809 
+
+The Gift Of Chess Africa Ltd
+
+can this be the information we use for the buy goods till number ?

@@ -9,7 +9,6 @@ import { Loader2, ArrowRight } from 'lucide-react';
 export default function MeetTheTeam() {
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeMember, setActiveMember] = useState<TeamMember | null>(null);
 
   useEffect(() => {
     async function loadTeam() {
@@ -30,6 +29,9 @@ export default function MeetTheTeam() {
 
     loadTeam();
   }, []);
+
+  const firstRowMembers = members.slice(0, 2);
+  const secondRowMembers = members.slice(2, 5);
 
   return (
     <section id="team" className="bg-[#141518] text-white relative overflow-hidden scroll-mt-24 lg:scroll-mt-28 py-20 md:py-28">
@@ -63,7 +65,7 @@ export default function MeetTheTeam() {
             </div>
           </div>
 
-          {/* Right Column: 3x2 Headshot Matrix */}
+          {/* Right Column: Headshots Layout (Row 1: 2 columns, Row 2: 3 columns) */}
           <div className="lg:col-span-7">
             {loading ? (
               <div className="flex justify-center items-center py-20">
@@ -74,70 +76,73 @@ export default function MeetTheTeam() {
                 No team members published yet. Add team members in the admin panel to showcase them here.
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4.5">
-                {members.slice(0, 6).map((member) => (
-                  <div
-                    key={member.id}
-                    onClick={() => setActiveMember(member)}
-                    className="relative aspect-square overflow-hidden bg-stone-900 border border-white/10 rounded-2xl group cursor-pointer shadow-md hover:shadow-2xl transition-all duration-300"
-                  >
-                    <Image
-                      src={member.image_url}
-                      alt={member.name}
-                      fill
-                      unoptimized
-                      sizes="(max-width: 768px) 50vw, 33vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500 filter grayscale group-hover:grayscale-0"
-                    />
+              <div className="space-y-3 md:space-y-4.5">
+                {/* First Row: 2 members */}
+                {firstRowMembers.length > 0 && (
+                  <div className="grid grid-cols-2 gap-3 md:gap-4.5 max-w-[66.666%] mx-auto">
+                    {firstRowMembers.map((member) => (
+                      <div
+                        key={member.id}
+                        className="relative aspect-square overflow-hidden bg-stone-900 border border-white/10 rounded-2xl group shadow-md hover:shadow-2xl transition-all duration-300"
+                      >
+                        <Image
+                          src={member.image_url}
+                          alt={member.name}
+                          fill
+                          unoptimized
+                          sizes="(max-width: 768px) 50vw, 33vw"
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
 
-                    {/* Gradient Overlay & Member Name/Role */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-90 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 text-white">
-                      <h4 className="font-serif text-sm md:text-base font-bold text-white leading-tight">
-                        {member.name}
-                      </h4>
-                      <p className="font-mono text-[10px] text-[#C8B195] uppercase tracking-wider mt-1">
-                        {member.role}
-                      </p>
-                    </div>
+                        {/* Gradient Overlay & Member Name/Role */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-90 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 text-white">
+                          <h4 className="font-serif text-sm md:text-base font-bold text-white leading-tight">
+                            {member.name}
+                          </h4>
+                          <p className="font-mono text-[10px] text-[#C8B195] uppercase tracking-wider mt-1">
+                            {member.role}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
+
+                {/* Second Row: 3 members */}
+                {secondRowMembers.length > 0 && (
+                  <div className="grid grid-cols-3 gap-3 md:gap-4.5">
+                    {secondRowMembers.map((member) => (
+                      <div
+                        key={member.id}
+                        className="relative aspect-square overflow-hidden bg-stone-900 border border-white/10 rounded-2xl group shadow-md hover:shadow-2xl transition-all duration-300"
+                      >
+                        <Image
+                          src={member.image_url}
+                          alt={member.name}
+                          fill
+                          unoptimized
+                          sizes="(max-width: 768px) 50vw, 33vw"
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+
+                        {/* Gradient Overlay & Member Name/Role */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-90 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 text-white">
+                          <h4 className="font-serif text-sm md:text-base font-bold text-white leading-tight">
+                            {member.name}
+                          </h4>
+                          <p className="font-mono text-[10px] text-[#C8B195] uppercase tracking-wider mt-1">
+                            {member.role}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
         </div>
       </div>
-
-      {/* Member Details Modal */}
-      {activeMember && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#1C1D21] border border-white/10 rounded-2xl max-w-md w-full p-6 text-white space-y-4 shadow-2xl relative animate-scale-in">
-            <button
-              onClick={() => setActiveMember(null)}
-              className="absolute top-4 right-4 text-stone-400 hover:text-white font-bold text-lg w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10"
-            >
-              ✕
-            </button>
-
-            <div className="relative h-64 rounded-xl overflow-hidden bg-stone-900 border border-white/10">
-              <Image
-                src={activeMember.image_url}
-                alt={activeMember.name}
-                fill
-                unoptimized
-                className="object-cover"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <h3 className="font-serif text-xl font-bold text-white">{activeMember.name}</h3>
-              <p className="font-mono text-xs text-[#C8B195] uppercase tracking-wider">{activeMember.role}</p>
-              <p className="font-sans text-xs text-stone-300 leading-relaxed pt-2">
-                {activeMember.bio}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 }
