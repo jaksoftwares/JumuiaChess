@@ -1,0 +1,18 @@
+{
+  "/api/registrations/route": "app/api/registrations/route.js",
+  "/api/tournaments/route": "app/api/tournaments/route.js",
+  "/api/team/route": "app/api/team/route.js",
+  "/api/shop/orders/route": "app/api/shop/orders/route.js",
+  "/api/gallery/route": "app/api/gallery/route.js",
+  "/api/blog/[id]/route": "app/api/blog/[id]/route.js",
+  "/api/shop/products/route": "app/api/shop/products/route.js",
+  "/api/partners/route": "app/api/partners/route.js",
+  "/api/settings/route": "app/api/settings/route.js",
+  "/api/team/[id]/route": "app/api/team/[id]/route.js",
+  "/page": "app/page.js",
+  "/admin/login/page": "app/admin/login/page.js",
+  "/admin/dashboard/page": "app/admin/dashboard/page.js",
+  "/admin/dashboard/registrations/page": "app/admin/dashboard/registrations/page.js",
+  "/admin/dashboard/gallery/page": "app/admin/dashboard/gallery/page.js",
+  "/admin/dashboard/team/page": "app/admin/dashboard/team/page.js"
+}

@@ -1,17 +1,32 @@
 {
-  "name": "gift-of-chess-monorepo",
-  "version": "1.0.0",
+  "name": "jumuia-chess",
+  "version": "2.0.0",
   "private": true,
-  "workspaces": [
-    "frontend",
-    "backend"
-  ],
   "scripts": {
-    "dev": "concurrently \"npm run dev -w frontend\" \"npm run dev -w backend\"",
-    "build": "npm run build -w frontend && npm run build -w backend",
-    "install:all": "npm install && npm install -w frontend && npm install -w backend"
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:seed": "ts-node scripts/seedContent.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.43.4",
+    "axios": "^1.7.2",
+    "lucide-react": "^0.379.0",
+    "next": "^15.0.0",
+    "react": "^19.0.0-rc-65a56d0e-20241020",
+    "react-dom": "^19.0.0-rc-65a56d0e-20241020",
+    "resend": "^3.2.0",
+    "sharp": "^0.35.3"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "@types/node": "^20.12.12",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
   }
 }
