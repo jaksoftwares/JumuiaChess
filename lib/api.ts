@@ -72,7 +72,8 @@ export function warmupAdminData() {
   const endpoints = [
     '/tournaments',
     '/registrations',
-    '/blog/all',
+    '/blog',
+    '/videos',
     '/gallery',
     '/shop/products',
     '/shop/orders',

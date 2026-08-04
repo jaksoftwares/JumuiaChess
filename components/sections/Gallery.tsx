@@ -125,7 +125,7 @@ export default function Gallery() {
                   {/* Photo Image */}
                   <Image
                     src={img.image_url}
-                    alt={img.caption || img.category || 'Gallery image'}
+                    alt={img.caption || 'Gallery image'}
                     fill
                     loading={index < 8 ? 'eager' : 'lazy'}
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -137,9 +137,7 @@ export default function Gallery() {
 
                   {/* Dark Vignette Overlay & Caption on Hover */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-90 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3.5 text-white z-10">
-                    <span className="text-[10px] font-sans font-semibold uppercase tracking-wider text-[#C8B195]">
-                      {img.category}
-                    </span>
+
                     <h4 className="font-serif text-xs md:text-sm font-bold leading-tight mt-1 line-clamp-2 text-white">
                       {img.caption}
                     </h4>
@@ -201,9 +199,7 @@ export default function Gallery() {
 
             <div className="p-6 md:p-8 bg-[#141518] text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-t border-white/10">
               <div className="space-y-1">
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#C8B195] uppercase tracking-wider">
-                  <Tag className="w-3.5 h-3.5" /> {images[activeImageIndex].category}
-                </span>
+
                 <h3 className="font-serif text-xl md:text-2xl font-bold text-white">
                   {images[activeImageIndex].caption}
                 </h3>

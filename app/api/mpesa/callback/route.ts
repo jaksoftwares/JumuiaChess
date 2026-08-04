@@ -21,6 +21,8 @@ export async function POST(request: NextRequest) {
       if (receiptItem) {
         mpesaReceipt = receiptItem.Value;
       }
+    } else if (ResultCode === 1032) {
+      console.log(`[M-PESA] Transaction ${CheckoutRequestID} was cancelled by the user.`);
     }
 
     const paymentStatus = ResultCode === 0 ? 'completed' : 'failed';
@@ -32,6 +34,11 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (registration) {
+      if (registration.payment_status === 'completed') {
+        console.log(`[M-PESA] Registration ${registration.id} is already marked as completed. Ignoring duplicate callback.`);
+        return NextResponse.json({ success: true, message: 'Already processed' });
+      }
+
       await supabaseAdmin.from('registrations').update({ payment_status: paymentStatus, mpesa_receipt: mpesaReceipt }).eq('id', registration.id);
 
       if (ResultCode === 0 && registration.email) {
@@ -47,6 +54,11 @@ export async function POST(request: NextRequest) {
 
     const { data: order } = await supabaseAdmin.from('shop_orders').select('*').eq('checkout_request_id', CheckoutRequestID).single();
     if (order) {
+      if (order.payment_status === 'completed') {
+        console.log(`[M-PESA] Shop order ${order.id} is already marked as completed. Ignoring duplicate callback.`);
+        return NextResponse.json({ success: true, message: 'Already processed' });
+      }
+
       await supabaseAdmin.from('shop_orders').update({ payment_status: paymentStatus, mpesa_receipt: mpesaReceipt }).eq('id', order.id);
       return NextResponse.json({ success: true, type: 'order' });
     }

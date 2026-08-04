@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { Plus, Edit2, Trash2, Users, Loader2, ArrowUpDown, UserCheck, Sparkles } from 'lucide-react';
-import { apiRequest } from '@/lib/api';
+import { apiRequest, uploadFile } from '@/lib/api';
 import { ImageUploadInput } from '@/components/admin/ImageUploadInput';
+import { Modal } from '@/components/admin/Modal';
 
 interface TeamMember {
   id: string;
@@ -24,11 +25,17 @@ export default function AdminTeamPage() {
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    role: string;
+    bio: string;
+    image_url: File | string | null;
+    sort_order: number;
+  }>({
     name: '',
     role: '',
     bio: '',
-    image_url: '',
+    image_url: null,
     sort_order: 0,
   });
 
@@ -37,7 +44,7 @@ export default function AdminTeamPage() {
     setError(null);
     const res = await apiRequest<TeamMember[]>('/team');
     if (res.success && res.data) {
-      setMembers(res.data);
+      setMembers(res.data.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)));
     } else {
       setError(res.error || 'Failed to fetch team members');
     }
@@ -54,7 +61,7 @@ export default function AdminTeamPage() {
       name: '',
       role: '',
       bio: '',
-      image_url: '',
+      image_url: null,
       sort_order: members.length + 1,
     });
     setIsModalOpen(true);
@@ -77,12 +84,28 @@ export default function AdminTeamPage() {
     setSubmitting(true);
     setError(null);
 
+    let finalImageUrl = typeof formData.image_url === 'string' ? formData.image_url : '';
+    if (formData.image_url instanceof File) {
+      const uploadRes = await uploadFile(formData.image_url);
+      if (!uploadRes.success || !uploadRes.url) {
+        setError(uploadRes.error || 'Failed to upload image');
+        setSubmitting(false);
+        return;
+      }
+      finalImageUrl = uploadRes.url;
+    }
+
+    const payload = {
+      ...formData,
+      image_url: finalImageUrl || 'https://images.unsplash.com/photo-1529699211952-734e80c4d42b?auto=format&fit=crop&q=80&w=100',
+    };
+
     const endpoint = editingMember ? `/team/${editingMember.id}` : '/team';
     const method = editingMember ? 'PUT' : 'POST';
 
     const res = await apiRequest(endpoint, {
       method,
-      body: JSON.stringify(formData),
+      body: JSON.stringify(payload),
     });
 
     if (res.success) {
@@ -158,7 +181,7 @@ export default function AdminTeamPage() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {members.map((member) => (
               <div
                 key={member.id}
@@ -216,96 +239,91 @@ export default function AdminTeamPage() {
         )}
       </div>
 
-      {/* Modal Dialog */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-stone-200 space-y-4">
-            <h2 className="text-lg font-bold text-charcoal font-serif">
-              {editingMember ? 'Edit Team Member' : 'Add New Team Member'}
-            </h2>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-stone-700 mb-1">
-                  Full Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="e.g. John Doe"
-                  className="w-full rounded-xl border border-stone-300 bg-white px-3.5 py-2 text-xs text-charcoal focus:ring-2 focus:ring-[#6B4A34] focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-stone-700 mb-1">
-                  Role / Title *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.role}
-                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                  placeholder="e.g. Head of Operations"
-                  className="w-full rounded-xl border border-stone-300 bg-white px-3.5 py-2 text-xs text-charcoal focus:ring-2 focus:ring-[#6B4A34] focus:outline-none"
-                />
-              </div>
-
-              <ImageUploadInput
-                label="Profile Photo (Upload from Device)"
-                value={formData.image_url}
-                onChange={(url) => setFormData({ ...formData, image_url: url })}
-              />
-
-              <div>
-                <label className="block text-xs font-semibold text-stone-700 mb-1">
-                  Biography *
-                </label>
-                <textarea
-                  required
-                  rows={3}
-                  value={formData.bio}
-                  onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                  placeholder="Brief background..."
-                  className="w-full rounded-xl border border-stone-300 bg-white px-3.5 py-2 text-xs text-charcoal focus:ring-2 focus:ring-[#6B4A34] focus:outline-none resize-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-stone-700 mb-1">
-                  Display Order
-                </label>
-                <input
-                  type="number"
-                  value={formData.sort_order}
-                  onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })}
-                  className="w-full rounded-xl border border-stone-300 bg-white px-3.5 py-2 text-xs text-charcoal focus:ring-2 focus:ring-[#6B4A34] focus:outline-none"
-                />
-              </div>
-
-              <div className="flex justify-end gap-3 pt-3 border-t border-stone-200">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-xs font-medium text-stone-600 hover:bg-stone-100 rounded-xl"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="px-4 py-2 text-xs font-bold text-white bg-[#6B4A34] hover:bg-[#573b29] rounded-xl flex items-center gap-2 disabled:opacity-50"
-                >
-                  {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {editingMember ? 'Save Changes' : 'Add Member'}
-                </button>
-              </div>
-            </form>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={editingMember ? 'Edit Team Member' : 'Add New Team Member'}
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-stone-700 mb-1">
+              Full Name *
+            </label>
+            <input
+              type="text"
+              required
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="e.g. John Doe"
+              className="w-full rounded-xl border border-stone-300 bg-white px-3.5 py-2 text-xs text-charcoal focus:ring-2 focus:ring-[#6B4A34] focus:outline-none"
+            />
           </div>
-        </div>
-      )}
+
+          <div>
+            <label className="block text-xs font-semibold text-stone-700 mb-1">
+              Role / Title *
+            </label>
+            <input
+              type="text"
+              required
+              value={formData.role}
+              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+              placeholder="e.g. Head of Operations"
+              className="w-full rounded-xl border border-stone-300 bg-white px-3.5 py-2 text-xs text-charcoal focus:ring-2 focus:ring-[#6B4A34] focus:outline-none"
+            />
+          </div>
+
+          <ImageUploadInput
+            label="Profile Photo (Upload from Device)"
+            value={formData.image_url}
+            onChange={(url) => setFormData({ ...formData, image_url: url })}
+          />
+
+          <div>
+            <label className="block text-xs font-semibold text-stone-700 mb-1">
+              Biography *
+            </label>
+            <textarea
+              required
+              rows={3}
+              value={formData.bio}
+              onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+              placeholder="Brief background..."
+              className="w-full rounded-xl border border-stone-300 bg-white px-3.5 py-2 text-xs text-charcoal focus:ring-2 focus:ring-[#6B4A34] focus:outline-none resize-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-stone-700 mb-1">
+              Display Order
+            </label>
+            <input
+              type="number"
+              value={formData.sort_order}
+              onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })}
+              className="w-full rounded-xl border border-stone-300 bg-white px-3.5 py-2 text-xs text-charcoal focus:ring-2 focus:ring-[#6B4A34] focus:outline-none"
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 pt-3 border-t border-stone-200">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="px-4 py-2 text-xs font-medium text-stone-600 hover:bg-stone-100 rounded-xl"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="px-4 py-2 text-xs font-bold text-white bg-[#6B4A34] hover:bg-[#573b29] rounded-xl flex items-center gap-2 disabled:opacity-50"
+            >
+              {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
+              {editingMember ? 'Save Changes' : 'Add Member'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

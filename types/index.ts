@@ -57,7 +57,6 @@ export interface GalleryImage {
   id: string;
   image_url: string;
   caption: string;
-  category: string;
   created_at?: string;
 }
 
@@ -69,6 +68,23 @@ export interface TeamMember {
   image_url: string;
   sort_order?: number;
   created_at?: string;
+}
+
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  message: string;
+  created_at: string;
+}
+
+export interface ImpactProgram {
+  id: string;
+  title: string;
+  description: string;
+  image_url: string;
+  sort_order: number;
+  created_at: string;
 }
 
 export interface Partner {
@@ -109,5 +125,14 @@ export interface ShopOrder {
   payment_status: 'pending' | 'completed' | 'failed';
   checkout_request_id?: string;
   mpesa_receipt?: string;
+  created_at?: string;
+}
+
+export interface Video {
+  id: string;
+  title: string;
+  youtube_url: string;
+  description: string;
+  is_featured: boolean;
   created_at?: string;
 }

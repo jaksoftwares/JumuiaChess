@@ -3,36 +3,8 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { apiRequest } from '@/lib/api';
-import { BlogPost } from '@/types';
-import { Calendar, Loader2, ArrowRight, ArrowLeft, ExternalLink, X } from 'lucide-react';
-
-interface VideoItem {
-  id: string;
-  title: string;
-  youtubeId: string;
-  description: string;
-}
-
-const FEATURED_VIDEOS: VideoItem[] = [
-  {
-    id: 'video-dina',
-    title: 'Dina Belenkaya Live at Charlotte Chess Centre',
-    youtubeId: '-XLfXDGkcbE',
-    description: 'Dina Belenkaya live with the Kenya National Team Champions during their one-month chess exchange workshop at Charlotte Chess Centre.',
-  },
-  {
-    id: 'video-1',
-    title: 'Empowering Youth Through Chess',
-    youtubeId: 'dHQGNQwtgyA',
-    description: 'Bringing board games, structured learning, and mentorship across Kenya.',
-  },
-  {
-    id: 'video-2',
-    title: 'The Gift of Chess Mission',
-    youtubeId: '9yAMCRHL0og',
-    description: 'Distributing 1 million chess sets to unlock strategic thinking worldwide.',
-  },
-];
+import { BlogPost, Video } from '@/types';
+import { ArrowLeft, ArrowRight, Calendar, ExternalLink, Loader2 } from 'lucide-react';
 
 const DEFAULT_SOURCE_URLS: Record<string, string> = {
   'celebrating-minds-of-all-kinds-infinite-chess-kenya': 'https://infinitechess.fide.com/2026/04/22/celebrating-minds-of-all-kinds-infinite-chess-project-in-kenya/',
@@ -45,24 +17,46 @@ export default function BlogNews() {
   const [loading, setLoading] = useState(true);
   const [readingPost, setReadingPost] = useState<BlogPost | null>(null);
 
+  const [videos, setVideos] = useState<Video[]>([]);
+
   useEffect(() => {
-    async function loadPosts() {
+    async function loadData() {
       try {
-        const res = await apiRequest<BlogPost[]>('/blog');
-        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-          setPosts(res.data);
+        const [blogRes, videoRes] = await Promise.all([
+          apiRequest<BlogPost[]>('/blog'),
+          apiRequest<Video[]>('/videos')
+        ]);
+        
+        if (blogRes.success && Array.isArray(blogRes.data)) {
+          setPosts(blogRes.data);
         } else {
           setPosts([]);
         }
+
+        if (videoRes.success && Array.isArray(videoRes.data)) {
+          setVideos(videoRes.data);
+        } else {
+          setVideos([]);
+        }
       } catch (err) {
-        console.error('[BlogNews Section] Error loading posts:', err);
+        console.error('[BlogNews Section] Error loading data:', err);
         setPosts([]);
+        setVideos([]);
       } finally {
         setLoading(false);
       }
     }
-    loadPosts();
+    loadData();
   }, []);
+
+  const featuredVideo = videos.find(v => v.is_featured) || videos[0];
+  const supportingVideos = videos.filter(v => v.id !== featuredVideo?.id).slice(0, 2);
+
+  const getYouTubeId = (url: string) => {
+    if (!url) return '';
+    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&]{11})/);
+    return match ? match[1] : '';
+  };
 
   const getSourceUrl = (post: BlogPost): string => {
     if (post.source_url) return post.source_url;
@@ -108,12 +102,12 @@ export default function BlogNews() {
               </div>
 
               {/* Main Featured Highlight Video */}
-              {FEATURED_VIDEOS[0] && (
+              {featuredVideo && (
                 <div className="space-y-2.5">
                   <div className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-lg bg-stone-900 border border-stone-200/60">
                     <iframe
-                      src={`https://www.youtube.com/embed/${FEATURED_VIDEOS[0].youtubeId}?autoplay=0&rel=0&modestbranding=1`}
-                      title={FEATURED_VIDEOS[0].title}
+                      src={`https://www.youtube.com/embed/${getYouTubeId(featuredVideo.youtube_url)}?autoplay=0&rel=0&modestbranding=1`}
+                      title={featuredVideo.title}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                       className="absolute inset-0 w-full h-full border-0 rounded-2xl"
@@ -124,10 +118,10 @@ export default function BlogNews() {
                       FEATURED LIVE STREAM
                     </span>
                     <h4 className="font-serif text-lg font-bold text-[#2A2421] leading-snug">
-                      {FEATURED_VIDEOS[0].title}
+                      {featuredVideo.title}
                     </h4>
                     <p className="font-sans text-xs text-stone-600 leading-relaxed">
-                      {FEATURED_VIDEOS[0].description}
+                      {featuredVideo.description}
                     </p>
                   </div>
                 </div>
@@ -135,11 +129,11 @@ export default function BlogNews() {
 
               {/* 2 Supporting Videos (Side-by-Side Sub-Grid, NO Scrollbars) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                {FEATURED_VIDEOS.slice(1).map((video) => (
+                {supportingVideos.map((video) => (
                   <div key={video.id} className="space-y-2">
                     <div className="relative aspect-video w-full rounded-xl overflow-hidden shadow-md bg-stone-900 border border-stone-200/60">
                       <iframe
-                        src={`https://www.youtube.com/embed/${video.youtubeId}?autoplay=0&rel=0&modestbranding=1`}
+                        src={`https://www.youtube.com/embed/${getYouTubeId(video.youtube_url)}?autoplay=0&rel=0&modestbranding=1`}
                         title={video.title}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
@@ -156,6 +150,19 @@ export default function BlogNews() {
                     </div>
                   </div>
                 ))}
+              </div>
+
+              <div className="flex justify-center pt-8">
+                <a 
+                  href="/news#videos"
+                  className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#2A2421] hover:bg-[#6B4A34] text-white font-sans text-[13px] font-bold uppercase tracking-[0.15em] rounded-2xl overflow-hidden transition-all duration-500 hover:shadow-[0_10px_40px_-10px_rgba(107,74,52,0.5)] hover:-translate-y-1 w-full sm:w-auto border border-[#2A2421] hover:border-[#6B4A34]"
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    Explore Video Gallery
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-500" />
+                  </span>
+                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
+                </a>
               </div>
             </div>
 
@@ -175,56 +182,71 @@ export default function BlogNews() {
                   No published articles are available yet. Check back soon for new field reports.
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {posts.map((post) => (
-                    <div
-                      key={post.id}
-                      onClick={() => setReadingPost(post)}
-                      className="group bg-white rounded-2xl p-4 sm:p-5 shadow-md shadow-stone-900/5 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 cursor-pointer flex flex-col sm:flex-row gap-4 items-start"
-                    >
-                      {/* Image Thumbnail */}
-                      <div className="relative w-full sm:w-36 h-36 sm:h-28 rounded-xl overflow-hidden bg-stone-100 flex-shrink-0">
-                        <Image
-                          src={post.featured_image_url || '/images/kids.jpg'}
-                          alt={post.title}
-                          fill
-                          sizes="(max-width: 640px) 100vw, 160px"
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      </div>
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    {posts.slice(0, 3).map((post) => (
+                      <div
+                        key={post.id}
+                        onClick={() => setReadingPost(post)}
+                        className="group bg-white rounded-2xl p-4 sm:p-5 shadow-md shadow-stone-900/5 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 cursor-pointer flex flex-col sm:flex-row gap-4 items-start border border-stone-100"
+                      >
+                        {/* Image Thumbnail */}
+                        <div className="relative w-full sm:w-36 h-36 sm:h-28 rounded-xl overflow-hidden bg-stone-100 flex-shrink-0">
+                          <Image
+                            src={post.featured_image_url || '/images/kids.jpg'}
+                            alt={post.title}
+                            fill
+                            sizes="(max-width: 640px) 100vw, 160px"
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        </div>
 
-                      {/* Content Details */}
-                      <div className="flex-1 space-y-2 flex flex-col justify-between h-full">
-                        <div className="space-y-1.5">
-                          <div className="flex items-center gap-2 text-[11px] text-stone-400 font-sans">
-                            <Calendar className="w-3.5 h-3.5 text-[#6B4A34]" />
-                            <span>
-                              {post.published_at
-                                ? new Date(post.published_at).toLocaleDateString(undefined, {
-                                    month: 'short',
-                                    day: 'numeric',
-                                    year: 'numeric',
-                                  })
-                                : 'Recent'}
-                            </span>
+                        {/* Content Details */}
+                        <div className="flex-1 space-y-2 flex flex-col justify-between h-full">
+                          <div className="space-y-1.5">
+                            <div className="flex items-center gap-2 text-[11px] text-stone-400 font-sans tracking-wide">
+                              <Calendar className="w-3.5 h-3.5 text-[#6B4A34]" />
+                              <span>
+                                {post.published_at
+                                  ? new Date(post.published_at).toLocaleDateString(undefined, {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      year: 'numeric',
+                                    })
+                                  : 'Recent'}
+                              </span>
+                            </div>
+
+                            <h4 className="font-serif text-base sm:text-lg font-bold text-[#2A2421] leading-snug group-hover:text-[#6B4A34] transition-colors duration-300 line-clamp-2">
+                              {post.title}
+                            </h4>
+
+                            <p className="font-sans text-xs text-stone-600 line-clamp-2 leading-relaxed">
+                              {post.excerpt}
+                            </p>
                           </div>
 
-                          <h4 className="font-serif text-base sm:text-lg font-bold text-[#2A2421] leading-snug group-hover:text-[#6B4A34] transition-colors duration-300 line-clamp-2">
-                            {post.title}
-                          </h4>
-
-                          <p className="font-sans text-xs text-stone-600 line-clamp-2 leading-relaxed">
-                            {post.excerpt}
-                          </p>
-                        </div>
-
-                        <div className="inline-flex items-center gap-1 text-xs font-bold text-[#6B4A34] group-hover:text-[#4A3222] transition-colors pt-1">
-                          <span>Read Article</span>
-                          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform duration-300" />
+                          <div className="inline-flex items-center gap-1 text-xs font-bold text-[#6B4A34] group-hover:text-[#4A3222] transition-colors pt-1">
+                            <span>Read Article</span>
+                            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform duration-300" />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+
+                  <div className="flex justify-center pt-6">
+                    <a 
+                      href="/news#articles"
+                      className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#2A2421] hover:bg-[#6B4A34] text-white font-sans text-[13px] font-bold uppercase tracking-[0.15em] rounded-2xl overflow-hidden transition-all duration-500 hover:shadow-[0_10px_40px_-10px_rgba(107,74,52,0.5)] hover:-translate-y-1 w-full sm:w-auto border border-[#2A2421] hover:border-[#6B4A34]"
+                    >
+                      <span className="relative z-10 flex items-center gap-2">
+                        Read All Articles
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-500" />
+                      </span>
+                      <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
+                    </a>
+                  </div>
                 </div>
               )}
             </div>

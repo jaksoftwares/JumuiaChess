@@ -1,28 +1,20 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { apiRequest } from '@/lib/api';
+import { apiRequest, uploadFile } from '@/lib/api';
 import { GalleryImage } from '@/types';
-import { Loader2, Upload, Trash2, Tag, Image as ImageIcon, Sparkles } from 'lucide-react';
+import { Loader2, Plus, Trash2, Tag, Image as ImageIcon, Sparkles } from 'lucide-react';
 import { ImageUploadInput } from '@/components/admin/ImageUploadInput';
-
-const CATEGORIES = [
-  'Public Schools',
-  'Informal Settlements',
-  'Juvenile Rehabilitation',
-  'Refugees (Kakuma)',
-  'Autism Programs',
-  'Children\'s Homes',
-];
+import { Modal } from '@/components/admin/Modal';
 
 export default function AdminGallery() {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Form State
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [caption, setCaption] = useState('');
-  const [category, setCategory] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState<File | string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -39,13 +31,15 @@ export default function AdminGallery() {
     loadImages();
   }, []);
 
+  const handleOpenCreateModal = () => {
+    setCaption('');
+    setImageUrl(null);
+    setMessage(null);
+    setIsModalOpen(true);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!category) {
-      setMessage({ type: 'error', text: 'Please select a category tag.' });
-      return;
-    }
-
     if (!imageUrl) {
       setMessage({ type: 'error', text: 'Please select or upload an image.' });
       return;
@@ -54,22 +48,29 @@ export default function AdminGallery() {
     setIsSubmitting(true);
     setMessage(null);
 
+    let finalImageUrl = typeof imageUrl === 'string' ? imageUrl : '';
+    if (imageUrl instanceof File) {
+      const uploadRes = await uploadFile(imageUrl);
+      if (!uploadRes.success || !uploadRes.url) {
+        setMessage({ type: 'error', text: uploadRes.error || 'Failed to upload image' });
+        setIsSubmitting(false);
+        return;
+      }
+      finalImageUrl = uploadRes.url;
+    }
+
     const res = await apiRequest('/gallery', {
       method: 'POST',
       body: JSON.stringify({
-        image_url: imageUrl,
+        image_url: finalImageUrl,
         caption,
-        category,
       }),
     });
 
     setIsSubmitting(false);
 
     if (res.success) {
-      setMessage({ type: 'success', text: 'Image added to gallery!' });
-      setCaption('');
-      setCategory('');
-      setImageUrl('');
+      setIsModalOpen(false);
       loadImages();
     } else {
       setMessage({ type: 'error', text: res.error || 'Failed to upload gallery image.' });
@@ -102,86 +103,38 @@ export default function AdminGallery() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Upload Form */}
-        <div className="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm space-y-4 h-fit">
-          <h2 className="font-serif text-base font-bold text-[#6B4A34] border-b border-stone-100 pb-3">
-            Upload New Photo
-          </h2>
-
-          {message && (
-            <div className={`p-3.5 rounded-xl text-xs ${
-              message.type === 'success' 
-                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' 
-                : 'bg-red-50 text-red-800 border border-red-200'
-            }`}>
-              {message.text}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <ImageUploadInput
-              label="Gallery Image (Upload from Device)"
-              value={imageUrl}
-              onChange={(url) => setImageUrl(url)}
-            />
-
-            <div>
-              <label className="block text-xs font-semibold text-stone-700 mb-1">Category Tag *</label>
-              <select
-                required
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
-              >
-                <option value="">Select Category Tag</option>
-                {CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-stone-700 mb-1">Caption *</label>
-              <textarea
-                required
-                rows={3}
-                value={caption}
-                onChange={(e) => setCaption(e.target.value)}
-                placeholder="Short caption describing the photo..."
-                className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34] resize-none"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full mt-4 py-3 bg-[#6B4A34] hover:bg-[#573b29] text-white font-bold text-xs rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all duration-200 flex items-center justify-center space-x-2"
-            >
-              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <span>Publish Image</span>}
-            </button>
-          </form>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between px-1">
+          <span className="text-xs font-bold text-stone-600 uppercase tracking-wider">
+            Uploaded Gallery Photos ({images.length})
+          </span>
+          <button
+            onClick={handleOpenCreateModal}
+            className="px-4 py-2.5 bg-[#6B4A34] hover:bg-[#573b29] text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-xs hover:shadow-md active:scale-95 transition-all duration-200"
+          >
+            <Plus className="w-4 h-4" /> Upload New Photo
+          </button>
         </div>
 
         {/* Gallery Image Grid */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="font-serif text-base font-bold text-charcoal">
-              Uploaded Gallery Photos ({images.length})
-            </h2>
-            <span className="text-[11px] font-mono text-stone-400">Synced to Database</span>
-          </div>
-
+        <div className="w-full space-y-4">
           {loading ? (
             <div className="flex justify-center items-center py-16">
               <Loader2 className="h-8 w-8 animate-spin text-[#6B4A34]" />
             </div>
           ) : images.length === 0 ? (
-            <div className="text-center py-16 text-stone-400 text-xs font-sans bg-white border border-stone-200 rounded-2xl">
-              No gallery images found. Upload a photo using the left panel.
+            <div className="text-center py-16 text-stone-400 text-xs font-sans bg-white border border-stone-200 rounded-2xl flex flex-col items-center justify-center space-y-3">
+              <ImageIcon className="w-8 h-8 text-stone-300" />
+              <p>No gallery images found.</p>
+              <button
+                onClick={handleOpenCreateModal}
+                className="mt-2 px-4 py-2 bg-[#6B4A34] text-white text-xs font-bold rounded-xl inline-flex items-center gap-2 shadow-sm"
+              >
+                <Plus className="w-4 h-4" /> Upload First Photo
+              </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5">
               {images.map((img) => (
                 <div
                   key={img.id}
@@ -193,10 +146,7 @@ export default function AdminGallery() {
                       alt={img.caption}
                       className="w-full h-full object-cover"
                     />
-                    <span className="absolute top-2.5 left-2.5 font-sans text-[10px] font-semibold text-white bg-charcoal/80 px-2.5 py-0.5 rounded-full flex items-center backdrop-blur-sm">
-                      <Tag className="h-3 w-3 mr-1 text-[#C8B195]" />
-                      {img.category}
-                    </span>
+
                   </div>
 
                   <div className="p-4 flex items-center justify-between border-t border-stone-100">
@@ -215,6 +165,59 @@ export default function AdminGallery() {
           )}
         </div>
       </div>
+
+      <Modal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        title="Upload New Photo"
+      >
+        {message && (
+          <div className={`p-3.5 rounded-xl text-xs ${
+            message.type === 'success' 
+              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' 
+              : 'bg-red-50 text-red-800 border border-red-200'
+          }`}>
+            {message.text}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <ImageUploadInput
+            label="Gallery Image (Upload from Device)"
+            value={imageUrl}
+            onChange={(url) => setImageUrl(url)}
+          />
+
+          <div>
+            <label className="block text-xs font-semibold text-stone-700 mb-1">Caption *</label>
+            <textarea
+              required
+              rows={3}
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+              placeholder="Short caption describing the photo..."
+              className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34] resize-none"
+            />
+          </div>
+
+          <div className="flex space-x-2 pt-2 border-t border-stone-200">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="w-1/2 py-2.5 mt-2 border border-stone-300 font-semibold text-xs rounded-xl hover:bg-stone-100 text-stone-600 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`w-1/2 mt-2 py-2.5 bg-[#6B4A34] hover:bg-[#573b29] text-white font-bold text-xs rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all duration-200 flex items-center justify-center space-x-2`}
+            >
+              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <span>Publish Image</span>}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }
