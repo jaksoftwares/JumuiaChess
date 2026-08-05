@@ -4,9 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { apiRequest } from '@/lib/api';
 import { Product } from '@/types';
-import { Loader2, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import { Loader2, ChevronLeft, ChevronRight, ArrowRight, ShoppingBag } from 'lucide-react';
 import { useCartStore } from '@/store/cart';
 
 const BROWN_SHADES = [
@@ -23,34 +22,13 @@ const CHESS_PIECE_IMAGES = [
   '/images/pawn.png'
 ];
 
-export default function Shop() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function Shop({ products = [] }: { products?: Product[] }) {
   const [scrollLeft, setScrollLeft] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   
   const { addItem } = useCartStore();
   const [addedItem, setAddedItem] = useState<string | null>(null);
   const router = useRouter();
-
-  useEffect(() => {
-    async function loadProducts() {
-      try {
-        const res = await apiRequest<Product[]>('/shop/products');
-        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-          setProducts(res.data.filter((p) => p.in_stock));
-        } else {
-          setProducts([]);
-        }
-      } catch (err) {
-        console.error('[Shop Section] Error loading store products:', err);
-        setProducts([]);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadProducts();
-  }, []);
 
   const handleBuyNow = (e: React.MouseEvent, p: Product) => {
     e.preventDefault();
@@ -129,13 +107,11 @@ export default function Shop() {
           </div>
         </div>
 
-        {loading ? (
-          <div className="flex justify-center items-center py-10">
-            <Loader2 className="h-8 w-8 animate-spin text-[#6B4A34]" />
-          </div>
-        ) : products.length === 0 ? (
-          <div className="rounded-2xl border border-[#6B4A34]/10 bg-white/70 p-8 text-center text-sm text-charcoal/70">
-            No charity store products are available yet. New products will appear here once they are added from the admin panel.
+        {/* Store Carousel */}
+        {products.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 bg-white/50 rounded-3xl border border-stone-200">
+            <ShoppingBag className="w-12 h-12 text-[#6B4A34]/20 mb-4" />
+            <p className="font-sans text-stone-500 font-medium">New gear arriving soon!</p>
           </div>
         ) : (
           /* Horizontal Snap Carousel */
