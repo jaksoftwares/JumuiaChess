@@ -6,6 +6,7 @@ import { useCartStore } from '@/store/cart';
 import { apiRequest } from '@/lib/api';
 import { Minus, Plus, Trash2, ArrowLeft, Loader2, ShieldCheck, ShoppingBag, Download } from 'lucide-react';
 import Link from 'next/link';
+import Barcode from 'react-barcode';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -293,66 +294,111 @@ export default function CheckoutPage() {
     </div>
       
       {/* Printable Receipt (Only visible when printing) */}
-      {finalOrderDetails && (
-        <div className="hidden print:block p-10 bg-white text-black min-h-screen">
-          <div className="max-w-3xl mx-auto">
-            {/* Header / Logo */}
-            <div className="flex justify-between items-start border-b-2 border-black pb-8 mb-8">
-              <div>
-                <h1 className="text-4xl font-serif font-bold text-black mb-1">JUMUIYA CHESS</h1>
-                <p className="text-sm font-sans text-gray-600">Official Store Receipt</p>
-              </div>
-              <div className="text-right font-sans text-sm text-gray-600">
-                <p>Order Ref: {finalOrderDetails.receipt}</p>
-                <p>Date: {finalOrderDetails.date}</p>
-              </div>
-            </div>
+      {step === 3 && finalOrderDetails && (
+        <div className="hidden print:block p-10 bg-white text-black min-h-screen relative overflow-hidden">
+          {/* PAID Watermark */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none -rotate-45">
+            <span className="text-[150px] font-bold tracking-widest uppercase">PAID</span>
+          </div>
 
-            {/* Customer Details */}
-            <div className="grid grid-cols-2 gap-8 mb-8 font-sans text-sm">
-              <div>
-                <h3 className="font-bold text-gray-800 uppercase tracking-wider mb-2">Billed To</h3>
-                <p className="text-black">{finalOrderDetails.customerName}</p>
+          <div className="max-w-4xl mx-auto relative z-10">
+            {/* Header: Logo & Receipt Meta */}
+            <div className="flex justify-between items-start border-b-[3px] border-[#6B4A34] pb-8 mb-10">
+              <div className="flex items-center space-x-6">
+                <img src="/images/chess_logo.png" alt="Jumuiya Chess Logo" className="w-24 h-24 object-contain" />
+                <div>
+                  <h1 className="text-4xl font-serif font-black text-[#232320] tracking-tight uppercase mb-1">Jumuiya Chess</h1>
+                  <p className="text-sm font-sans text-gray-500 tracking-widest uppercase font-semibold">Official Store Receipt</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-gray-800 uppercase tracking-wider mb-2">Shipped To</h3>
-                <p className="text-black">{finalOrderDetails.address}</p>
-                <p className="text-black">{finalOrderDetails.city}</p>
-              </div>
-            </div>
-
-            {/* Items Table */}
-            <table className="w-full text-left font-sans text-sm mb-8 border-collapse">
-              <thead>
-                <tr className="border-b-2 border-gray-300">
-                  <th className="py-3 font-bold text-gray-800 uppercase tracking-wider">Item</th>
-                  <th className="py-3 font-bold text-gray-800 uppercase tracking-wider text-center">Qty</th>
-                  <th className="py-3 font-bold text-gray-800 uppercase tracking-wider text-right">Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                {finalOrderDetails.items.map((item: any, idx: number) => (
-                  <tr key={idx} className="border-b border-gray-200">
-                    <td className="py-4 text-black">{item.name}</td>
-                    <td className="py-4 text-black text-center">{item.quantity}</td>
-                    <td className="py-4 text-black text-right">KES {item.price.toLocaleString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {/* Total */}
-            <div className="flex justify-end border-t-2 border-black pt-4 mb-16">
               <div className="text-right">
-                <p className="font-sans text-sm text-gray-600 uppercase tracking-wider mb-1">Total Paid (M-Pesa)</p>
-                <p className="font-serif text-3xl font-bold text-black">KES {finalOrderDetails.amount.toLocaleString()}</p>
+                <div className="bg-[#FAF7F2] p-4 rounded-lg border border-[#6B4A34]/20 inline-block">
+                  <p className="font-sans text-[10px] uppercase tracking-widest text-gray-500 mb-1">Receipt Number</p>
+                  <p className="font-mono text-xl font-bold text-[#6B4A34]">{finalOrderDetails.receipt}</p>
+                </div>
+                <p className="text-sm font-sans text-gray-600 mt-3 font-semibold">Date: {finalOrderDetails.date}</p>
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="text-center font-sans text-xs text-gray-500 mt-16 pt-8 border-t border-gray-200">
-              <p className="mb-2">Thank you for supporting Jumuiya Chess!</p>
-              <p>For questions about your order, please contact info@jumuiyachess.org</p>
+            {/* Information Grid */}
+            <div className="grid grid-cols-2 gap-12 mb-12">
+              {/* Billed To */}
+              <div className="bg-gray-50 p-6 rounded-xl border border-gray-100">
+                <h3 className="font-sans text-xs font-bold text-[#6B4A34] uppercase tracking-widest mb-4 border-b border-gray-200 pb-2">Billed To</h3>
+                <p className="font-serif text-xl font-bold text-gray-900 mb-1">{finalOrderDetails.customerName}</p>
+              </div>
+              
+              {/* Shipped To */}
+              <div className="bg-gray-50 p-6 rounded-xl border border-gray-100">
+                <h3 className="font-sans text-xs font-bold text-[#6B4A34] uppercase tracking-widest mb-4 border-b border-gray-200 pb-2">Shipped To</h3>
+                <p className="font-serif text-lg font-bold text-gray-900 mb-1">{finalOrderDetails.customerName}</p>
+                <p className="font-sans text-sm text-gray-600">{finalOrderDetails.address}</p>
+                <p className="font-sans text-sm text-gray-600">{finalOrderDetails.city}</p>
+              </div>
+            </div>
+
+            {/* Itemized Table */}
+            <div className="rounded-xl overflow-hidden border border-gray-200 mb-10">
+              <table className="w-full text-left font-sans border-collapse">
+                <thead>
+                  <tr className="bg-[#232320] text-white">
+                    <th className="py-4 px-6 text-xs font-bold uppercase tracking-widest">Item Description</th>
+                    <th className="py-4 px-6 text-xs font-bold uppercase tracking-widest text-center">Qty</th>
+                    <th className="py-4 px-6 text-xs font-bold uppercase tracking-widest text-right">Price</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white">
+                  {finalOrderDetails.items.map((item: any, idx: number) => (
+                    <tr key={idx} className="border-b border-gray-100 last:border-b-0">
+                      <td className="py-6 px-6">
+                        <p className="font-bold text-gray-900 text-lg">{item.name}</p>
+                      </td>
+                      <td className="py-6 px-6 text-center">
+                        <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 font-mono text-sm font-bold text-gray-800">
+                          {item.quantity}
+                        </span>
+                      </td>
+                      <td className="py-6 px-6 text-right">
+                        <p className="font-mono text-lg font-semibold text-gray-900">KES {item.price.toLocaleString()}</p>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Total & Verification Section */}
+            <div className="flex justify-between items-end mb-16">
+              {/* Barcode Verification */}
+              <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-sm">
+                <p className="font-sans text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 text-center">Scan to Verify</p>
+                <div className="scale-90 origin-top">
+                  <Barcode value={finalOrderDetails.receipt} height={40} width={1.5} fontSize={14} background="#ffffff" lineColor="#232320" />
+                </div>
+              </div>
+
+              {/* Total Box */}
+              <div className="text-right bg-stone-50 p-8 rounded-2xl border-2 border-[#6B4A34] min-w-[300px]">
+                <p className="font-sans text-xs text-gray-500 uppercase tracking-widest font-bold mb-2">Total Paid (M-Pesa)</p>
+                <p className="font-serif text-4xl font-black text-[#232320]">KES {finalOrderDetails.amount.toLocaleString()}</p>
+              </div>
+            </div>
+
+            {/* Footer / Signature */}
+            <div className="border-t border-gray-200 pt-8 mt-12 grid grid-cols-2 gap-8 items-end">
+              <div>
+                <p className="font-serif italic text-gray-500 mb-1">Authorized by</p>
+                <div className="w-48 h-12 border-b-2 border-gray-800 mb-2 flex items-end">
+                  <span className="font-signature text-3xl text-gray-800 opacity-80">Jumuiya Team</span>
+                </div>
+                <p className="font-sans text-xs text-gray-500 font-semibold uppercase tracking-widest">Official Signature</p>
+              </div>
+              
+              <div className="text-right font-sans text-xs text-gray-400">
+                <p className="mb-1 font-semibold text-gray-500">Jumuiya Chess Initiative</p>
+                <p>For questions about your order, please contact info@jumuiyachess.org</p>
+                <p>Thank you for shopping with us.</p>
+              </div>
             </div>
           </div>
         </div>

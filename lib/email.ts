@@ -99,18 +99,43 @@ export const sendDonationReceipt = async (
 ): Promise<void> => {
   const subject = `Thank You for Your Donation! Receipt: ${details.receipt}`;
   const html = `
-    <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
-      <h2 style="color: #6B4A34;">Jumuiya Chess</h2>
-      <p>Hello ${details.donorName || 'Awesome Supporter'},</p>
-      <p>Thank you so much for your generous donation of <strong>KES ${details.amount.toLocaleString()}</strong>.</p>
-      <p>Your contribution directly supports our mission to empower communities through chess!</p>
-      <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
-      <p><strong>Transaction Details:</strong></p>
-      <ul>
-        <li><strong>Amount:</strong> KES ${details.amount.toLocaleString()}</li>
-        <li><strong>M-Pesa Receipt:</strong> ${details.receipt}</li>
-      </ul>
-      <p style="font-size: 0.8em; color: #888; margin-top: 40px;">This is an automated receipt from Jumuiya Chess.</p>
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 30px; border: 1px solid #e5e7eb; border-radius: 8px; color: #111827;">
+      <h1 style="color: #6B4A34; margin-top: 0;">Jumuiya Chess</h1>
+      <p style="color: #4b5563; font-size: 14px;">Official Donation Receipt</p>
+      
+      <p>Hello <strong>${details.donorName || 'Awesome Supporter'}</strong>,</p>
+      <p>Thank you so much for your generous donation! Your contribution directly supports our mission to empower communities through chess.</p>
+      
+      <table style="width: 100%; margin: 30px 0; border-collapse: collapse; font-size: 14px;">
+        <thead>
+          <tr style="background-color: #f9fafb;">
+            <th style="padding: 10px; text-align: left; border-bottom: 2px solid #e5e7eb;">Description</th>
+            <th style="padding: 10px; text-align: right; border-bottom: 2px solid #e5e7eb;">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="border-b border-gray-200">
+            <td style="padding: 10px; border-bottom: 1px solid #eee;">General Donation (M-Pesa STK)</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">KES ${details.amount.toLocaleString()}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td style="padding: 10px; text-align: right; font-weight: bold;">Total Contribution</td>
+            <td style="padding: 10px; text-align: right; font-weight: bold; color: #6B4A34;">KES ${details.amount.toLocaleString()}</td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div style="background-color: #f9fafb; padding: 15px; border-radius: 6px; font-size: 14px;">
+        <p style="margin: 0 0 5px 0;"><strong>Donation Reference:</strong> ${details.receipt}</p>
+        <p style="margin: 0;"><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+      </div>
+
+      <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
+      <p style="font-size: 12px; color: #9ca3af; text-align: center;">
+        This is an automated receipt from Jumuiya Chess. If you have any questions, please contact us at info@jumuiyachess.org.
+      </p>
     </div>
   `;
 
