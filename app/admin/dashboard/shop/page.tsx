@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { apiRequest, uploadFile } from '@/lib/api';
 import { Product } from '@/types';
-import { Loader2, Plus, ShoppingBag, Trash2, Edit2, Sparkles, CheckCircle2, XCircle } from 'lucide-react';
-import { ImageUploadInput } from '@/components/admin/ImageUploadInput';
+import { Loader2, Plus, ShoppingBag, Trash2, Edit2, Eye, Sparkles, CheckCircle2, XCircle } from 'lucide-react';
+import { MultiImageUploadInput } from '@/components/admin/MultiImageUploadInput';
 import { Modal } from '@/components/admin/Modal';
 
 export default function AdminShop() {
@@ -13,9 +13,11 @@ export default function AdminShop() {
 
   // Form State
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [previewProduct, setPreviewProduct] = useState<Product | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [imageUrl, setImageUrl] = useState<File | string | null>(null);
+  const [images, setImages] = useState<(File | string)[]>([]);
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
   const [inStock, setInStock] = useState(true);
@@ -41,6 +43,7 @@ export default function AdminShop() {
     setEditingId(null);
     setName('');
     setImageUrl(null);
+    setImages([]);
     setPrice('');
     setDescription('');
     setInStock(true);
@@ -52,6 +55,7 @@ export default function AdminShop() {
     setEditingId(prod.id);
     setName(prod.name);
     setImageUrl(prod.image_url || null);
+    setImages(prod.images || []);
     setPrice(prod.price.toString());
     setDescription(prod.description);
     setInStock(prod.in_stock);
@@ -66,18 +70,43 @@ export default function AdminShop() {
 
     let finalImageUrl = typeof imageUrl === 'string' ? imageUrl : '';
     if (imageUrl instanceof File) {
+      setMessage({ type: 'success', text: 'Uploading primary image...' });
       const uploadRes = await uploadFile(imageUrl);
       if (!uploadRes.success || !uploadRes.url) {
-        setMessage({ type: 'error', text: uploadRes.error || 'Failed to upload image' });
+        setMessage({ type: 'error', text: uploadRes.error || 'Failed to upload primary image' });
         setIsSubmitting(false);
         return;
       }
       finalImageUrl = uploadRes.url;
     }
 
+    let finalImages: string[] = [];
+    const validImages = images.filter(img => img !== null && img !== undefined && img !== '');
+    
+    if (validImages.length > 0) {
+      setMessage({ type: 'success', text: `Uploading ${validImages.length} additional images...` });
+      for (const img of validImages) {
+        if (img instanceof File) {
+          const uploadRes = await uploadFile(img);
+          if (uploadRes.success && uploadRes.url) {
+            finalImages.push(uploadRes.url);
+          } else {
+            setMessage({ type: 'error', text: uploadRes.error || 'Failed to upload additional image' });
+            setIsSubmitting(false);
+            return;
+          }
+        } else if (typeof img === 'string') {
+          finalImages.push(img);
+        }
+      }
+    }
+    
+    setMessage({ type: 'success', text: 'Saving product...' });
+
     const body = {
       name,
       image_url: finalImageUrl || 'https://images.unsplash.com/photo-1529699211952-734e80c4d42b?auto=format&fit=crop&q=80&w=600',
+      images: finalImages,
       price: parseFloat(price),
       description,
       in_stock: inStock,
@@ -198,6 +227,13 @@ export default function AdminShop() {
                     </td>
                     <td className="py-3.5 text-right space-x-1">
                       <button
+                        onClick={() => setPreviewProduct(p)}
+                        className="p-1.5 text-stone-600 hover:text-[#6B4A34] hover:bg-stone-100 rounded-lg transition-colors"
+                        title="Preview Product"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      <button
                         onClick={() => handleEditClick(p)}
                         className="p-1.5 text-stone-600 hover:text-[#6B4A34] hover:bg-stone-100 rounded-lg transition-colors"
                         title="Edit Product"
@@ -258,11 +294,22 @@ export default function AdminShop() {
             />
           </div>
 
-          <ImageUploadInput
-            label="Product Image (Upload from Device)"
-            value={imageUrl}
-            onChange={(url) => setImageUrl(url)}
-          />
+          <div className="space-y-4 border border-stone-200 p-4 rounded-xl bg-stone-50/50">
+            <MultiImageUploadInput
+              images={[imageUrl, ...images].filter(Boolean) as (File | string)[]}
+              onChange={(newImages) => {
+                if (newImages.length === 0) {
+                  setImageUrl(null);
+                  setImages([]);
+                } else {
+                  setImageUrl(newImages[0]);
+                  setImages(newImages.slice(1));
+                }
+              }}
+              maxImages={5}
+              label="Product Images"
+            />
+          </div>
 
           <div>
             <label className="block text-xs font-semibold text-stone-700 mb-1">Description *</label>
@@ -307,6 +354,75 @@ export default function AdminShop() {
           </div>
         </form>
       </Modal>
+
+      {/* Preview Modal */}
+      {previewProduct && (
+        <Modal
+          isOpen={!!previewProduct}
+          onClose={() => setPreviewProduct(null)}
+          title="Product Preview"
+        >
+          <div className="space-y-6">
+            <div className="flex flex-col md:flex-row gap-6">
+              {/* Image Gallery */}
+              <div className="w-full md:w-1/2 space-y-3">
+                <div className="aspect-square relative rounded-2xl overflow-hidden bg-stone-100 border border-stone-200">
+                  <img
+                    src={previewProduct.image_url}
+                    alt={previewProduct.name}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                </div>
+                {previewProduct.images && previewProduct.images.length > 0 && (
+                  <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                    {previewProduct.images.map((img, idx) => (
+                      <div key={idx} className="h-16 w-16 relative rounded-lg overflow-hidden shrink-0 border border-stone-200 bg-stone-100">
+                        <img src={img} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Product Details */}
+              <div className="w-full md:w-1/2 space-y-4">
+                <div>
+                  <h3 className="font-serif text-2xl font-bold text-charcoal">{previewProduct.name}</h3>
+                  <p className="font-sans text-xl font-bold text-[#6B4A34] mt-1">KES {previewProduct.price}</p>
+                </div>
+                
+                <div>
+                  {previewProduct.in_stock ? (
+                    <span className="text-emerald-800 bg-emerald-50 px-2 py-1 rounded border border-emerald-200 font-bold inline-flex items-center gap-1.5 text-xs">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> In Stock
+                    </span>
+                  ) : (
+                    <span className="text-red-800 bg-red-50 px-2 py-1 rounded border border-red-200 font-bold inline-flex items-center gap-1.5 text-xs">
+                      <XCircle className="w-3.5 h-3.5 text-red-600" /> Out of Stock
+                    </span>
+                  )}
+                </div>
+
+                <div className="pt-2 border-t border-stone-100">
+                  <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">Description</h4>
+                  <p className="font-sans text-sm text-stone-600 whitespace-pre-wrap leading-relaxed">
+                    {previewProduct.description}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-stone-200 flex justify-end">
+              <button
+                onClick={() => setPreviewProduct(null)}
+                className="px-6 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs rounded-xl transition-colors"
+              >
+                Close Preview
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

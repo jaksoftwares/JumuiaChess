@@ -5,9 +5,9 @@ import { initiateStkPush } from '@/lib/mpesa';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { customerName, phoneNumber, items, amount } = body;
+    const { customerName, phoneNumber, email, shippingAddress, city, items, amount } = body;
 
-    if (!customerName || !phoneNumber || !items || !amount) {
+    if (!customerName || !phoneNumber || !items || !amount || !email || !shippingAddress || !city) {
       return NextResponse.json({ error: 'Missing checkout requirements' }, { status: 400 });
     }
 
@@ -16,9 +16,13 @@ export async function POST(request: NextRequest) {
       .insert([{
         customer_name: customerName,
         phone_number: phoneNumber,
+        email,
+        shipping_address: shippingAddress,
+        city,
         items,
         amount: parseFloat(amount),
         payment_status: 'pending',
+        delivery_status: 'pending',
       }])
       .select()
       .single();
@@ -41,7 +45,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         message: 'Checkout STK push initiated successfully.',
-        checkoutRequestId: stkResult.checkoutRequestId,
+        data: {
+          checkoutRequestId: stkResult.checkoutRequestId,
+        }
       });
     } catch (stkError: any) {
       console.error('Checkout M-Pesa STK Push failed:', stkError.message);

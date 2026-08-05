@@ -80,6 +80,7 @@ export function warmupAdminData() {
     '/team',
     '/partners',
     '/settings',
+    '/donations',
   ];
   endpoints.forEach((ep) => {
     apiRequest(ep).catch(() => {});

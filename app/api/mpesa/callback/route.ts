@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { sendRegistrationConfirmation } from '@/lib/email';
+import { sendRegistrationConfirmation, sendDonationReceipt, notifyAdminOfDonation, sendOrderReceipt, notifyAdminOfOrder } from '@/lib/email';
 
 // POST /api/mpesa/callback
 export async function POST(request: NextRequest) {
@@ -60,7 +60,55 @@ export async function POST(request: NextRequest) {
       }
 
       await supabaseAdmin.from('shop_orders').update({ payment_status: paymentStatus, mpesa_receipt: mpesaReceipt }).eq('id', order.id);
+
+      if (ResultCode === 0) {
+        if (order.email) {
+          await sendOrderReceipt(order.email, {
+            customerName: order.customer_name,
+            amount: parseFloat(order.amount),
+            receipt: mpesaReceipt,
+            items: order.items || [],
+            address: order.shipping_address
+          });
+        }
+        await notifyAdminOfOrder({
+          customerName: order.customer_name,
+          email: order.email || '',
+          phone: order.phone_number,
+          amount: parseFloat(order.amount),
+          receipt: mpesaReceipt,
+          items: order.items || [],
+          address: `${order.shipping_address}, ${order.city}`
+        });
+      }
+
       return NextResponse.json({ success: true, type: 'order' });
+    }
+    const { data: donation } = await supabaseAdmin.from('donations').select('*').eq('checkout_request_id', CheckoutRequestID).single();
+    if (donation) {
+      if (donation.payment_status === 'completed') {
+        console.log(`[M-PESA] Donation ${donation.id} is already marked as completed.`);
+        return NextResponse.json({ success: true, message: 'Already processed' });
+      }
+
+      await supabaseAdmin.from('donations').update({ payment_status: paymentStatus, mpesa_receipt: mpesaReceipt }).eq('id', donation.id);
+
+      if (ResultCode === 0) {
+        if (donation.email) {
+          await sendDonationReceipt(donation.email, {
+            donorName: donation.donor_name || 'Supporter',
+            amount: parseFloat(donation.amount),
+            receipt: mpesaReceipt
+          });
+        }
+        await notifyAdminOfDonation({
+          donorName: donation.donor_name || 'Anonymous',
+          amount: parseFloat(donation.amount),
+          receipt: mpesaReceipt,
+          message: donation.donor_message || ''
+        });
+      }
+      return NextResponse.json({ success: true, type: 'donation' });
     }
 
     return NextResponse.json({ success: false, message: 'No matching transaction record found' });

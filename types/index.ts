@@ -34,6 +34,7 @@ export interface Product {
   id: string;
   name: string;
   image_url: string;
+  images?: string[];
   price: number;
   description: string;
   in_stock: boolean;
@@ -115,6 +116,9 @@ export interface ShopOrder {
   id: string;
   customer_name: string;
   phone_number: string;
+  email?: string;
+  shipping_address?: string;
+  city?: string;
   items: Array<{
     productId: string;
     name: string;
@@ -123,6 +127,8 @@ export interface ShopOrder {
   }>;
   amount: number;
   payment_status: 'pending' | 'completed' | 'failed';
+  delivery_status: 'pending' | 'processing' | 'shipped' | 'delivered';
+  delivery_notes?: string;
   checkout_request_id?: string;
   mpesa_receipt?: string;
   created_at?: string;

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { apiRequest } from '@/lib/api';
 import { BlogPost, Video } from '@/types';
 import { ArrowLeft, ArrowRight, Calendar, ExternalLink, Loader2 } from 'lucide-react';
 
@@ -12,42 +11,8 @@ const DEFAULT_SOURCE_URLS: Record<string, string> = {
   'kakuma-boards-distribution': 'https://infinitechess.fide.com/',
 };
 
-export default function BlogNews() {
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function BlogNews({ posts = [], videos = [] }: { posts?: BlogPost[], videos?: Video[] }) {
   const [readingPost, setReadingPost] = useState<BlogPost | null>(null);
-
-  const [videos, setVideos] = useState<Video[]>([]);
-
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [blogRes, videoRes] = await Promise.all([
-          apiRequest<BlogPost[]>('/blog'),
-          apiRequest<Video[]>('/videos')
-        ]);
-        
-        if (blogRes.success && Array.isArray(blogRes.data)) {
-          setPosts(blogRes.data);
-        } else {
-          setPosts([]);
-        }
-
-        if (videoRes.success && Array.isArray(videoRes.data)) {
-          setVideos(videoRes.data);
-        } else {
-          setVideos([]);
-        }
-      } catch (err) {
-        console.error('[BlogNews Section] Error loading data:', err);
-        setPosts([]);
-        setVideos([]);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadData();
-  }, []);
 
   const featuredVideo = videos.find(v => v.is_featured) || videos[0];
   const supportingVideos = videos.filter(v => v.id !== featuredVideo?.id).slice(0, 2);
@@ -86,13 +51,8 @@ export default function BlogNews() {
           </p>
         </div>
 
-        {loading ? (
-          <div className="flex justify-center items-center py-16">
-            <Loader2 className="h-8 w-8 animate-spin text-[#6B4A34]" />
-          </div>
-        ) : (
-          /* Split Layout: Left Videos Feed / Right Articles List */
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+        {/* Split Layout: Left Videos Feed / Right Articles List */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
             {/* Left Column: Stylistic Video Layout (Main Highlight + 2 Sub-grid Cards, NO Scrollbars) */}
             <div className="lg:col-span-6 space-y-5">
               <div className="border-b border-stone-200/80 pb-2">
@@ -251,8 +211,7 @@ export default function BlogNews() {
               )}
             </div>
           </div>
-        )}
-      </div>
+        </div>
 
       {/* FLOATING MAGAZINE ARTICLE READER MODAL */}
       {readingPost && (

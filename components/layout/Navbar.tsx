@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Menu, X, ArrowRight, Sparkles } from 'lucide-react';
+import { Menu, X, ArrowRight, Sparkles, ShoppingBag } from 'lucide-react';
 import Image from 'next/image';
+import { useCartStore } from '@/store/cart';
 
 const NAV_LINKS = [
   { name: 'Our Story', href: '#our-story' },
@@ -21,8 +23,13 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
+  const isHome = pathname === '/';
+  const { getTotalItems } = useCartStore();
 
   useEffect(() => {
+    setMounted(true);
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
@@ -92,11 +99,12 @@ export default function Navbar() {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-2.5">
             {NAV_LINKS.map((link) => {
-              const isActive = activeSection === link.href.slice(1);
+              const isActive = isHome && activeSection === link.href.slice(1);
+              const finalHref = isHome ? link.href : `/${link.href}`;
               return (
                 <a
                   key={link.name}
-                  href={link.href}
+                  href={finalHref}
                   aria-current={isActive ? 'page' : undefined}
                   className={`relative px-3.5 py-1.5 rounded-xl font-sans text-xs font-semibold transition-all duration-300 ${
                     isActive
@@ -111,14 +119,29 @@ export default function Navbar() {
             })}
           </nav>
 
-          {/* Mobile Hamburger Toggle Button (Styled High-Visibility Pill) */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden p-2.5 rounded-full bg-[#6B4A34] text-white shadow-lg hover:bg-[#573b29] transition-all flex items-center justify-center border border-white/20 active:scale-95"
-            aria-label="Toggle menu"
-          >
-            {isOpen ? <X className="h-5 w-5 text-white" /> : <Menu className="h-5 w-5 text-white" />}
-          </button>
+          <div className="flex items-center space-x-4 lg:space-x-0">
+            {/* Cart Icon (Visible on both Mobile and Desktop) */}
+            <Link 
+              href="/store" 
+              className={`relative p-2 transition-colors lg:ml-6 ${scrolled ? 'text-charcoal hover:text-[#6B4A34]' : 'text-charcoal hover:text-[#6B4A34]'}`}
+            >
+              <ShoppingBag className="w-5 h-5" />
+              {mounted && getTotalItems() > 0 && (
+                <span className="absolute top-0 right-0 translate-x-1/4 -translate-y-1/4 bg-[#6B4A34] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full shadow-sm">
+                  {getTotalItems()}
+                </span>
+              )}
+            </Link>
+
+            {/* Mobile Hamburger Toggle Button (Styled High-Visibility Pill) */}
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="lg:hidden p-2.5 rounded-full bg-[#6B4A34] text-white shadow-lg hover:bg-[#573b29] transition-all flex items-center justify-center border border-white/20 active:scale-95"
+              aria-label="Toggle menu"
+            >
+              {isOpen ? <X className="h-5 w-5 text-white" /> : <Menu className="h-5 w-5 text-white" />}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -152,12 +175,13 @@ export default function Navbar() {
           {/* Nav Links */}
           <div className="py-8 flex flex-col space-y-4 my-auto">
             {NAV_LINKS.map((link) => {
-              const isActive = activeSection === link.href.slice(1);
+              const isActive = isHome && activeSection === link.href.slice(1);
+              const finalHref = isHome ? link.href : `/${link.href}`;
               return (
                 <a
                   key={link.name}
-                  href={link.href}
-                  onClick={() => handleLinkClick(link.href)}
+                  href={finalHref}
+                  onClick={() => handleLinkClick(finalHref)}
                   aria-current={isActive ? 'page' : undefined}
                   className={`flex items-center justify-between p-3.5 rounded-2xl font-serif text-xl font-bold transition-all ${
                     isActive

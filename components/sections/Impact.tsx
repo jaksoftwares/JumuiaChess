@@ -1,10 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { apiRequest } from '@/lib/api';
 import { ImpactProgram } from '@/types';
-import { Loader2 } from 'lucide-react';
 
 const FALLBACK_PROGRAMS = [
   {
@@ -54,26 +51,7 @@ const FALLBACK_PROGRAMS = [
   },
 ];
 
-export default function Impact() {
-  const [programs, setPrograms] = useState<ImpactProgram[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function loadPrograms() {
-      try {
-        const res = await apiRequest<ImpactProgram[]>('/impact');
-        if (res.success && res.data && res.data.length > 0) {
-          setPrograms(res.data);
-        }
-      } catch (err) {
-        console.error('Failed to load impact programs', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadPrograms();
-  }, []);
-
+export default function Impact({ programs = [] }: { programs?: ImpactProgram[] }) {
   const displayPrograms = programs.length > 0 ? programs : FALLBACK_PROGRAMS;
 
   return (
@@ -93,11 +71,6 @@ export default function Impact() {
         </div>
 
         {/* 9 Program Cards Grid */}
-        {loading ? (
-          <div className="flex justify-center items-center py-24">
-            <Loader2 className="w-8 h-8 animate-spin text-[#6B4A34]" />
-          </div>
-        ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {displayPrograms.map((program, index) => {
               const isDark = index % 2 === 1;
@@ -148,7 +121,6 @@ export default function Impact() {
               );
             })}
           </div>
-        )}
       </div>
     </section>
   );

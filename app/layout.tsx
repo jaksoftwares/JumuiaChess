@@ -19,6 +19,8 @@ export const metadata: Metadata = {
   description: "Transforming lives globally through the power of chess. We distribute chess boards, organize local tournaments, and foster communities.",
 };
 
+import NextTopLoader from 'nextjs-toploader';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,6 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${playfair.variable} ${inter.variable} scroll-smooth`}>
       <body className="antialiased bg-offwhite text-charcoal min-h-screen flex flex-col">
+        <NextTopLoader color="#6B4A34" showSpinner={false} />
         {children}
       </body>
     </html>
