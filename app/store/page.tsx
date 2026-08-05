@@ -78,19 +78,20 @@ export default function StorePage() {
             <p className="text-[#232320]/60 font-sans text-sm">No products available at the moment. Please check back later.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {products.map((product) => {
               const inCart = items.find(i => i.productId === product.id);
               return (
                 <Link href={`/store/${product.id}`} key={product.id} className="group bg-white rounded-[16px] sm:rounded-[20px] border border-[#6B4A34]/10 overflow-hidden hover:border-[#6B4A34]/30 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col cursor-pointer">
                   {/* Edge-to-Edge Image Container */}
-                  <div className="relative aspect-[4/5] sm:aspect-[4/3] bg-[#FAF7F2] overflow-hidden">
+                  <div className="relative aspect-square bg-[#FAF7F2] overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none z-10" />
                     {product.image_url ? (
                       <Image
                         src={product.image_url}
                         alt={product.name}
                         fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         className="object-cover group-hover:scale-105 transition-transform duration-700"
                       />
                     ) : (

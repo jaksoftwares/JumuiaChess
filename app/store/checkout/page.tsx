@@ -24,6 +24,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [checkoutRequestId, setCheckoutRequestId] = useState<string | null>(null);
+  const [finalOrderDetails, setFinalOrderDetails] = useState<any>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -48,6 +49,15 @@ export default function CheckoutPage() {
           const res = await apiRequest<{ status: string }>(`/shop/orders/status/${checkoutRequestId}`);
           if (res.success && res.data) {
             if (res.data.status === 'completed') {
+              setFinalOrderDetails({
+                customerName,
+                address,
+                city,
+                amount: getTotalPrice(),
+                items: [...items],
+                receipt: checkoutRequestId,
+                date: new Date().toLocaleDateString()
+              });
               setStep(3);
               clearCart();
               clearInterval(interval);
@@ -117,28 +127,7 @@ export default function CheckoutPage() {
   };
 
   const downloadReceipt = () => {
-    import('jspdf').then((jsPDF) => {
-      const doc = new jsPDF.default();
-      doc.setFontSize(22);
-      doc.setTextColor('#6B4A34');
-      doc.text('Jumuiya Chess Store', 20, 20);
-      
-      doc.setFontSize(14);
-      doc.setTextColor('#232320');
-      doc.text('Official Order Receipt', 20, 30);
-      
-      doc.setFontSize(12);
-      doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 45);
-      doc.text(`Customer Name: ${customerName}`, 20, 55);
-      doc.text(`Amount: KES ${getTotalPrice().toLocaleString()}`, 20, 65);
-      doc.text(`Order Ref: ${checkoutRequestId}`, 20, 75);
-      
-      doc.setFontSize(14);
-      doc.setTextColor('#6B4A34');
-      doc.text('Thank you for supporting Jumuiya Chess!', 20, 100);
-      
-      doc.save(`Jumuiya_Order_Receipt_${checkoutRequestId}.pdf`);
-    });
+    window.print();
   };
 
   if (!mounted) return null;
@@ -161,7 +150,8 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="bg-[#FAF7F2] min-h-screen py-10 px-4 md:px-8">
+    <>
+      <div className="bg-[#FAF7F2] min-h-screen py-10 px-4 md:px-8 print:hidden">
       <div className="max-w-6xl mx-auto">
         <Link href="/store" className="inline-flex items-center text-xs font-bold text-[#6B4A34] uppercase tracking-widest hover:text-[#232320] mb-8 transition-colors">
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -299,8 +289,74 @@ export default function CheckoutPage() {
             </div>
           </div>
         )}
-
       </div>
     </div>
+      
+      {/* Printable Receipt (Only visible when printing) */}
+      {finalOrderDetails && (
+        <div className="hidden print:block p-10 bg-white text-black min-h-screen">
+          <div className="max-w-3xl mx-auto">
+            {/* Header / Logo */}
+            <div className="flex justify-between items-start border-b-2 border-black pb-8 mb-8">
+              <div>
+                <h1 className="text-4xl font-serif font-bold text-black mb-1">JUMUIYA CHESS</h1>
+                <p className="text-sm font-sans text-gray-600">Official Store Receipt</p>
+              </div>
+              <div className="text-right font-sans text-sm text-gray-600">
+                <p>Order Ref: {finalOrderDetails.receipt}</p>
+                <p>Date: {finalOrderDetails.date}</p>
+              </div>
+            </div>
+
+            {/* Customer Details */}
+            <div className="grid grid-cols-2 gap-8 mb-8 font-sans text-sm">
+              <div>
+                <h3 className="font-bold text-gray-800 uppercase tracking-wider mb-2">Billed To</h3>
+                <p className="text-black">{finalOrderDetails.customerName}</p>
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-800 uppercase tracking-wider mb-2">Shipped To</h3>
+                <p className="text-black">{finalOrderDetails.address}</p>
+                <p className="text-black">{finalOrderDetails.city}</p>
+              </div>
+            </div>
+
+            {/* Items Table */}
+            <table className="w-full text-left font-sans text-sm mb-8 border-collapse">
+              <thead>
+                <tr className="border-b-2 border-gray-300">
+                  <th className="py-3 font-bold text-gray-800 uppercase tracking-wider">Item</th>
+                  <th className="py-3 font-bold text-gray-800 uppercase tracking-wider text-center">Qty</th>
+                  <th className="py-3 font-bold text-gray-800 uppercase tracking-wider text-right">Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                {finalOrderDetails.items.map((item: any, idx: number) => (
+                  <tr key={idx} className="border-b border-gray-200">
+                    <td className="py-4 text-black">{item.name}</td>
+                    <td className="py-4 text-black text-center">{item.quantity}</td>
+                    <td className="py-4 text-black text-right">KES {item.price.toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Total */}
+            <div className="flex justify-end border-t-2 border-black pt-4 mb-16">
+              <div className="text-right">
+                <p className="font-sans text-sm text-gray-600 uppercase tracking-wider mb-1">Total Paid (M-Pesa)</p>
+                <p className="font-serif text-3xl font-bold text-black">KES {finalOrderDetails.amount.toLocaleString()}</p>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="text-center font-sans text-xs text-gray-500 mt-16 pt-8 border-t border-gray-200">
+              <p className="mb-2">Thank you for supporting Jumuiya Chess!</p>
+              <p>For questions about your order, please contact info@jumuiyachess.org</p>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

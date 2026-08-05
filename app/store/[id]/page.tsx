@@ -103,15 +103,16 @@ export default function ProductDetailsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
           {/* Left: Product Image */}
           <div className="space-y-4">
-            <div className="relative aspect-[4/5] bg-white rounded-[32px] overflow-hidden border border-[#6B4A34]/10 shadow-sm">
+            <div className="relative aspect-square bg-white rounded-[32px] overflow-hidden border border-[#6B4A34]/10 shadow-sm">
               <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none z-10" />
               {activeImage ? (
-                <Image
-                  src={activeImage}
-                  alt={product.name}
-                  fill
-                  className="object-cover"
-                />
+                  <Image
+                    src={activeImage}
+                    alt={product.name}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover"
+                  />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-[#232320]/20">
                   <ShoppingBag className="w-20 h-20" />
@@ -126,7 +127,7 @@ export default function ProductDetailsPage() {
                   onClick={() => setActiveImage(product.image_url)}
                   className={`relative w-20 h-20 rounded-xl overflow-hidden border-2 transition-all flex-shrink-0 ${activeImage === product.image_url ? 'border-[#6B4A34] shadow-md' : 'border-transparent opacity-70 hover:opacity-100 hover:border-[#6B4A34]/30'}`}
                 >
-                  <Image src={product.image_url} alt="Primary Thumbnail" fill className="object-cover" />
+                  <Image src={product.image_url} alt="Primary Thumbnail" fill sizes="80px" className="object-cover" />
                 </button>
                 {product.images.map((img, idx) => (
                   <button 
@@ -134,7 +135,7 @@ export default function ProductDetailsPage() {
                     onClick={() => setActiveImage(img)}
                     className={`relative w-20 h-20 rounded-xl overflow-hidden border-2 transition-all flex-shrink-0 ${activeImage === img ? 'border-[#6B4A34] shadow-md' : 'border-transparent opacity-70 hover:opacity-100 hover:border-[#6B4A34]/30'}`}
                   >
-                    <Image src={img} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" />
+                    <Image src={img} alt={`Thumbnail ${idx + 1}`} fill sizes="80px" className="object-cover" />
                   </button>
                 ))}
               </div>
@@ -142,7 +143,7 @@ export default function ProductDetailsPage() {
           </div>
 
           {/* Right: Product Details */}
-          <div className="flex flex-col py-4">
+          <div className="flex flex-col py-4 lg:sticky lg:top-32 lg:self-start">
             <h1 className="font-serif text-4xl md:text-5xl font-bold text-[#232320] leading-tight mb-4">
               {product.name}
             </h1>
@@ -211,13 +212,14 @@ export default function ProductDetailsPage() {
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
               {relatedProducts.map((p) => (
                 <Link href={`/store/${p.id}`} key={p.id} className="group bg-white rounded-[16px] sm:rounded-[20px] border border-[#6B4A34]/10 overflow-hidden hover:border-[#6B4A34]/30 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col cursor-pointer">
-                  <div className="relative aspect-[4/5] sm:aspect-[4/3] bg-[#FAF7F2] overflow-hidden">
+                  <div className="relative aspect-square bg-[#FAF7F2] overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none z-10" />
                     {p.image_url ? (
                       <Image
                         src={p.image_url}
                         alt={p.name}
                         fill
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
                         className="object-cover group-hover:scale-105 transition-transform duration-700"
                       />
                     ) : (

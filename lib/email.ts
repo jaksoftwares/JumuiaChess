@@ -174,18 +174,55 @@ export const sendOrderReceipt = async (
   details: { customerName: string; amount: number; receipt: string; items: any[], address: string }
 ): Promise<void> => {
   const subject = `Order Confirmed: ${details.receipt}`;
-  const itemsHtml = details.items.map(item => `<li>${item.quantity}x ${item.name} - KES ${item.price}</li>`).join('');
+  
+  const itemsHtml = details.items.map(item => `
+    <tr>
+      <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">KES ${item.price.toLocaleString()}</td>
+    </tr>
+  `).join('');
+
   const html = `
-    <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
-      <h2 style="color: #6B4A34;">Jumuiya Chess Store</h2>
-      <p>Hello ${details.customerName},</p>
-      <p>Thank you for your purchase of <strong>KES ${details.amount.toLocaleString()}</strong>.</p>
-      <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
-      <p><strong>Order Items:</strong></p>
-      <ul>${itemsHtml}</ul>
-      <p><strong>Shipping To:</strong> ${details.address}</p>
-      <p><strong>M-Pesa Receipt:</strong> ${details.receipt}</p>
-      <p style="font-size: 0.8em; color: #888; margin-top: 40px;">This is an automated receipt from Jumuiya Chess.</p>
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 30px; border: 1px solid #e5e7eb; border-radius: 8px; color: #111827;">
+      <h1 style="color: #6B4A34; margin-top: 0;">Jumuiya Chess</h1>
+      <p style="color: #4b5563; font-size: 14px;">Official Store Receipt</p>
+      
+      <p>Hello <strong>${details.customerName}</strong>,</p>
+      <p>Thank you for shopping with us! Your order has been confirmed and is being processed.</p>
+      
+      <table style="width: 100%; margin: 30px 0; border-collapse: collapse; font-size: 14px;">
+        <thead>
+          <tr style="background-color: #f9fafb;">
+            <th style="padding: 10px; text-align: left; border-bottom: 2px solid #e5e7eb;">Item</th>
+            <th style="padding: 10px; text-align: center; border-bottom: 2px solid #e5e7eb;">Qty</th>
+            <th style="padding: 10px; text-align: right; border-bottom: 2px solid #e5e7eb;">Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemsHtml}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2" style="padding: 10px; text-align: right; font-weight: bold;">Total Paid</td>
+            <td style="padding: 10px; text-align: right; font-weight: bold; color: #6B4A34;">KES ${details.amount.toLocaleString()}</td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div style="background-color: #f9fafb; padding: 15px; border-radius: 6px; font-size: 14px;">
+        <p style="margin: 0 0 5px 0;"><strong>Order Reference:</strong> ${details.receipt}</p>
+        <p style="margin: 0;"><strong>Shipping To:</strong> ${details.address}</p>
+      </div>
+
+      <p style="font-size: 14px; margin-top: 30px;">
+        You will receive another email as soon as your order has been shipped. 
+      </p>
+
+      <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
+      <p style="font-size: 12px; color: #9ca3af; text-align: center;">
+        This is an automated receipt from Jumuiya Chess. If you have any questions, please contact us at info@jumuiyachess.org.
+      </p>
     </div>
   `;
 

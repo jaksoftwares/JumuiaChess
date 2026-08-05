@@ -45,7 +45,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         message: 'Checkout STK push initiated successfully.',
-        checkoutRequestId: stkResult.checkoutRequestId,
+        data: {
+          checkoutRequestId: stkResult.checkoutRequestId,
+        }
       });
     } catch (stkError: any) {
       console.error('Checkout M-Pesa STK Push failed:', stkError.message);
