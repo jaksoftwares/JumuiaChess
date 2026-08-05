@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { sendOrderShippedNotification } from '@/lib/email';
+import { sendDeliveryStatusUpdate } from '@/lib/email';
 
 // PUT /api/shop/orders/[id] - Update order (delivery status, notes)
 export async function PUT(
@@ -12,10 +12,10 @@ export async function PUT(
     const body = await request.json();
     const { delivery_status, delivery_notes } = body;
 
-    // Get current order state to check if status is changing to shipped
+    // Get current order state to check if status or notes changed
     const { data: currentOrder, error: fetchError } = await supabaseAdmin
       .from('shop_orders')
-      .select('delivery_status, email, customer_name, mpesa_receipt')
+      .select('delivery_status, delivery_notes, email, customer_name, mpesa_receipt')
       .eq('id', id)
       .single();
 
@@ -30,11 +30,16 @@ export async function PUT(
 
     if (error) throw error;
 
-    // If status changed TO shipped, send the email
-    if (delivery_status === 'shipped' && currentOrder.delivery_status !== 'shipped' && currentOrder.email) {
-      await sendOrderShippedNotification(currentOrder.email, {
+    // Check if status or notes changed
+    const statusChanged = delivery_status !== currentOrder.delivery_status;
+    const notesChanged = delivery_notes !== currentOrder.delivery_notes;
+
+    // If either changed, and we have an email, send the update
+    if ((statusChanged || notesChanged) && currentOrder.email) {
+      await sendDeliveryStatusUpdate(currentOrder.email, {
         customerName: currentOrder.customer_name,
-        receipt: currentOrder.mpesa_receipt || 'Order Shipped',
+        receipt: currentOrder.mpesa_receipt || 'Store Order',
+        status: delivery_status,
         deliveryNotes: delivery_notes
       });
     }
