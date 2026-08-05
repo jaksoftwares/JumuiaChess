@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Loader2, Heart, ArrowRight, X, ShieldCheck, Download } from 'lucide-react';
 import { apiRequest } from '@/lib/api';
+import Barcode from 'react-barcode';
 
 export default function DonationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
@@ -108,34 +109,14 @@ export default function DonationModal({ isOpen, onClose }: { isOpen: boolean; on
   };
 
   const downloadReceipt = () => {
-    import('jspdf').then((jsPDF) => {
-      const doc = new jsPDF.default();
-      doc.setFontSize(22);
-      doc.setTextColor('#6B4A34');
-      doc.text('Jumuiya Chess Initiative', 20, 20);
-      
-      doc.setFontSize(14);
-      doc.setTextColor('#232320');
-      doc.text('Official Donation Receipt', 20, 30);
-      
-      doc.setFontSize(12);
-      doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 45);
-      doc.text(`Donor Name: ${donorName || 'Anonymous Supporter'}`, 20, 55);
-      doc.text(`Amount: KES ${finalAmount.toLocaleString()}`, 20, 65);
-      doc.text(`M-Pesa Receipt: ${receipt}`, 20, 75);
-      
-      doc.setFontSize(14);
-      doc.setTextColor('#6B4A34');
-      doc.text('Thank you for your generous support!', 20, 100);
-      
-      doc.save(`Jumuiya_Donation_Receipt_${receipt}.pdf`);
-    });
+    window.print();
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-charcoal/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <>
+      <div className="fixed inset-0 bg-charcoal/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:hidden">
       <div className="bg-[#FAF7F2] rounded-2xl border border-[#6B4A34]/20 shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto relative animate-scale-in">
         
         {step !== 3 && (
@@ -340,7 +321,115 @@ export default function DonationModal({ isOpen, onClose }: { isOpen: boolean; on
           )}
           
         </div>
+        </div>
       </div>
-    </div>
+
+      {/* Printable Receipt (Only visible when printing) */}
+      {step === 4 && receipt && (
+        <div className="hidden print:block p-10 bg-white text-black min-h-screen relative overflow-hidden">
+          {/* PAID Watermark */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none -rotate-45">
+            <span className="text-[150px] font-bold tracking-widest uppercase">PAID</span>
+          </div>
+
+          <div className="max-w-4xl mx-auto relative z-10">
+            {/* Header: Logo & Receipt Meta */}
+            <div className="flex justify-between items-start border-b-[3px] border-[#6B4A34] pb-8 mb-10">
+              <div className="flex items-center space-x-6">
+                <img src="/images/chess_logo.png" alt="Jumuiya Chess Logo" className="w-24 h-24 object-contain" />
+                <div>
+                  <h1 className="text-4xl font-serif font-black text-[#232320] tracking-tight uppercase mb-1">Jumuiya Chess</h1>
+                  <p className="text-sm font-sans text-gray-500 tracking-widest uppercase font-semibold">Official Donation Receipt</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="bg-[#FAF7F2] p-4 rounded-lg border border-[#6B4A34]/20 inline-block">
+                  <p className="font-sans text-[10px] uppercase tracking-widest text-gray-500 mb-1">Receipt Number</p>
+                  <p className="font-mono text-xl font-bold text-[#6B4A34]">{receipt}</p>
+                </div>
+                <p className="text-sm font-sans text-gray-600 mt-3 font-semibold">Date: {new Date().toLocaleDateString()}</p>
+              </div>
+            </div>
+
+            {/* Information Grid */}
+            <div className="grid grid-cols-2 gap-12 mb-12">
+              {/* Donor */}
+              <div className="bg-gray-50 p-6 rounded-xl border border-gray-100">
+                <h3 className="font-sans text-xs font-bold text-[#6B4A34] uppercase tracking-widest mb-4 border-b border-gray-200 pb-2">Billed To</h3>
+                <p className="font-serif text-xl font-bold text-gray-900 mb-1">{donorName || 'Anonymous Supporter'}</p>
+                {email && <p className="font-sans text-sm text-gray-600">{email}</p>}
+                {phoneNumber && <p className="font-sans text-sm text-gray-600">{phoneNumber}</p>}
+              </div>
+              
+              {/* Org Details */}
+              <div className="bg-gray-50 p-6 rounded-xl border border-gray-100">
+                <h3 className="font-sans text-xs font-bold text-[#6B4A34] uppercase tracking-widest mb-4 border-b border-gray-200 pb-2">Organization</h3>
+                <p className="font-serif text-lg font-bold text-gray-900 mb-1">Jumuiya Chess Initiative</p>
+                <p className="font-sans text-sm text-gray-600">Nairobi, Kenya</p>
+                <p className="font-sans text-sm text-gray-600">info@jumuiyachess.org</p>
+                <p className="font-sans text-sm text-gray-600">+254 (0) 700 000000</p>
+              </div>
+            </div>
+
+            {/* Itemized Table */}
+            <div className="rounded-xl overflow-hidden border border-gray-200 mb-10">
+              <table className="w-full text-left font-sans border-collapse">
+                <thead>
+                  <tr className="bg-[#232320] text-white">
+                    <th className="py-4 px-6 text-xs font-bold uppercase tracking-widest">Description</th>
+                    <th className="py-4 px-6 text-xs font-bold uppercase tracking-widest text-right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white">
+                  <tr>
+                    <td className="py-6 px-6 border-b border-gray-100">
+                      <p className="font-bold text-gray-900 text-lg">General Donation</p>
+                      <p className="text-sm text-gray-500 mt-1">Processed via M-Pesa STK Push</p>
+                    </td>
+                    <td className="py-6 px-6 border-b border-gray-100 text-right">
+                      <p className="font-mono text-lg font-semibold text-gray-900">KES {finalAmount.toLocaleString()}</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Total & Verification Section */}
+            <div className="flex justify-between items-end mb-16">
+              {/* Barcode Verification */}
+              <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-sm">
+                <p className="font-sans text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 text-center">Scan to Verify</p>
+                <div className="scale-90 origin-top">
+                  <Barcode value={receipt} height={40} width={1.5} fontSize={14} background="#ffffff" lineColor="#232320" />
+                </div>
+              </div>
+
+              {/* Total Box */}
+              <div className="text-right bg-stone-50 p-8 rounded-2xl border-2 border-[#6B4A34] min-w-[300px]">
+                <p className="font-sans text-xs text-gray-500 uppercase tracking-widest font-bold mb-2">Total Contribution</p>
+                <p className="font-serif text-4xl font-black text-[#232320]">KES {finalAmount.toLocaleString()}</p>
+              </div>
+            </div>
+
+            {/* Footer / Signature */}
+            <div className="border-t border-gray-200 pt-8 mt-12 grid grid-cols-2 gap-8 items-end">
+              <div>
+                <p className="font-serif italic text-gray-500 mb-1">Authorized by</p>
+                <div className="w-48 h-12 border-b-2 border-gray-800 mb-2 flex items-end">
+                  <span className="font-signature text-3xl text-gray-800 opacity-80">Jumuiya Team</span>
+                </div>
+                <p className="font-sans text-xs text-gray-500 font-semibold uppercase tracking-widest">Official Signature</p>
+              </div>
+              
+              <div className="text-right font-sans text-xs text-gray-400">
+                <p className="mb-1 font-semibold text-gray-500">Jumuiya Chess Initiative</p>
+                <p>Your generous support empowers our mission.</p>
+                <p>Thank you for partnering with us.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
