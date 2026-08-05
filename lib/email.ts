@@ -92,3 +92,79 @@ export const sendContactNotification = async (
 
   console.log(`[EMAIL MOCK] Notification for admin (${recipientEmail}):\nSender: ${senderName} (${senderEmail})\nSubject: ${subject}\nMessage: ${message}`);
 };
+
+export const sendDonationReceipt = async (
+  email: string,
+  details: { donorName: string; amount: number; receipt: string }
+): Promise<void> => {
+  const subject = `Thank You for Your Donation! Receipt: ${details.receipt}`;
+  const html = `
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
+      <h2 style="color: #6B4A34;">Jumuiya Chess</h2>
+      <p>Hello ${details.donorName || 'Awesome Supporter'},</p>
+      <p>Thank you so much for your generous donation of <strong>KES ${details.amount.toLocaleString()}</strong>.</p>
+      <p>Your contribution directly supports our mission to empower communities through chess!</p>
+      <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
+      <p><strong>Transaction Details:</strong></p>
+      <ul>
+        <li><strong>Amount:</strong> KES ${details.amount.toLocaleString()}</li>
+        <li><strong>M-Pesa Receipt:</strong> ${details.receipt}</li>
+      </ul>
+      <p style="font-size: 0.8em; color: #888; margin-top: 40px;">This is an automated receipt from Jumuiya Chess.</p>
+    </div>
+  `;
+
+  if (resend) {
+    try {
+      await resend.emails.send({
+        from: RESEND_FROM_EMAIL,
+        to: email,
+        subject,
+        html,
+      });
+      console.log(`[Resend] Donation receipt sent to ${email}`);
+      return;
+    } catch (error) {
+      console.error('[Resend Error] Failed to send donation receipt:', error);
+    }
+  }
+  console.log(`[EMAIL MOCK] Donation receipt to ${email}`);
+};
+
+export const notifyAdminOfDonation = async (
+  details: { donorName: string; amount: number; receipt: string; message: string }
+): Promise<void> => {
+  let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'iykekonzolaw21@gmail.com';
+  try {
+    const { data } = await supabaseAdmin.from('site_settings').select('org_email').single();
+    if (data && data.org_email) {
+      recipientEmail = data.org_email;
+    }
+  } catch (err) { }
+
+  const subject = `🎉 New Donation Received: KES ${details.amount}`;
+  const html = `
+    <div style="font-family: sans-serif; max-width: 600px; padding: 20px;">
+      <h2 style="color: #6B4A34;">New Donation Alert</h2>
+      <p><strong>Donor:</strong> ${details.donorName || 'Anonymous'}</p>
+      <p><strong>Amount:</strong> KES ${details.amount.toLocaleString()}</p>
+      <p><strong>Receipt:</strong> ${details.receipt}</p>
+      ${details.message ? `<p><strong>Message:</strong> <em>"${details.message}"</em></p>` : ''}
+    </div>
+  `;
+
+  if (resend) {
+    try {
+      await resend.emails.send({
+        from: RESEND_FROM_EMAIL,
+        to: recipientEmail,
+        subject,
+        html,
+      });
+      return;
+    } catch (error) {
+      console.error('[Resend Error] Failed to notify admin of donation:', error);
+    }
+  }
+  console.log(`[EMAIL MOCK] Admin notified of donation: ${details.receipt}`);
+};
