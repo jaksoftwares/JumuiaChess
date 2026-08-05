@@ -4,10 +4,10 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 // PUT /api/videos/[id]
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const { id } = await params;
     const body = await request.json();
     const { title, youtube_url, description, is_featured } = body;
 
@@ -42,10 +42,10 @@ export async function PUT(
 // DELETE /api/videos/[id]
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const { id } = await params;
 
     const { error } = await supabaseAdmin
       .from('videos')
