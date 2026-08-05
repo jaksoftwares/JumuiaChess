@@ -32,13 +32,7 @@ export default function Footer() {
             </span>
           </div>
           
-          {/* Quiet Admin Login */}
-          <Link
-            href="/admin/login"
-            className="font-sans text-xs text-stone/40 hover:text-sage transition-colors underline decoration-dotted"
-          >
-            Admin Login
-          </Link>
+
         </div>
       </div>
     </footer>
