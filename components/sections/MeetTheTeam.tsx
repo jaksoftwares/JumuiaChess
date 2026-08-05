@@ -15,7 +15,7 @@ export default function MeetTheTeam() {
       try {
         const res = await apiRequest<TeamMember[]>('/team');
         if (res.success && Array.isArray(res.data)) {
-          setMembers(res.data);
+          setMembers(res.data.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)));
         } else {
           setMembers([]);
         }
@@ -41,16 +41,16 @@ export default function MeetTheTeam() {
       <div className="relative max-w-7xl mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
           {/* Left Column: Title & Description */}
-          <div className="lg:col-span-5 space-y-5">
+          <div className="lg:col-span-5 space-y-5 text-center lg:text-left">
             <span className="font-mono text-xs font-bold tracking-[0.25em] text-[#C8B195] uppercase block">
               OUR TEAM
             </span>
 
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-white tracking-tight leading-tight">
+            <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight leading-tight">
               The People Behind the Board.
             </h2>
 
-            <p className="font-sans text-xs md:text-sm text-stone-300 leading-relaxed">
+            <p className="font-sans text-sm md:text-base text-stone-300 leading-relaxed max-w-xl mx-auto lg:mx-0">
               Our team unites certified coaches, community organizers, and mentors empowering young minds across Kenya through the game of chess.
             </p>
 
@@ -65,7 +65,7 @@ export default function MeetTheTeam() {
             </div>
           </div>
 
-          {/* Right Column: Headshots Layout (Row 1: 2 columns, Row 2: 3 columns) */}
+          {/* Right Column: Headshots Layout */}
           <div className="lg:col-span-7">
             {loading ? (
               <div className="flex justify-center items-center py-20">
@@ -76,30 +76,41 @@ export default function MeetTheTeam() {
                 No team members published yet. Add team members in the admin panel to showcase them here.
               </div>
             ) : (
-              <div className="space-y-3 md:space-y-4.5">
-                {/* First Row: 2 members */}
+              <div className="space-y-6 lg:space-y-4.5">
+                {/* First Row */}
                 {firstRowMembers.length > 0 && (
-                  <div className="grid grid-cols-2 gap-3 md:gap-4.5 max-w-[66.666%] mx-auto">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 sm:gap-4 lg:gap-4.5 lg:max-w-[66.666%] lg:mx-auto">
                     {firstRowMembers.map((member) => (
                       <div
                         key={member.id}
-                        className="relative aspect-square overflow-hidden bg-stone-900 border border-white/10 rounded-2xl group shadow-md hover:shadow-2xl transition-all duration-300"
+                        className="group flex flex-col bg-stone-900 border border-white/10 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300"
                       >
-                        <Image
-                          src={member.image_url}
-                          alt={member.name}
-                          fill
-                          unoptimized
-                          sizes="(max-width: 768px) 50vw, 33vw"
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-
-                        {/* Gradient Overlay & Member Name/Role */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-90 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 text-white">
-                          <h4 className="font-serif text-sm md:text-base font-bold text-white leading-tight">
+                        <div className="relative aspect-square overflow-hidden w-full">
+                          <Image
+                            src={member.image_url}
+                            alt={member.name}
+                            fill
+                            unoptimized
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          {/* Desktop Gradient Overlay & Member Name/Role */}
+                          <div className="hidden lg:flex absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex-col justify-end p-5 text-white">
+                            <h4 className="font-serif text-lg font-bold text-white leading-tight">
+                              {member.name}
+                            </h4>
+                            <p className="font-mono text-[11px] text-[#C8B195] uppercase tracking-wider mt-1.5">
+                              {member.role}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        {/* Mobile Text (Visible only below lg breakpoint) */}
+                        <div className="lg:hidden p-5 bg-stone-900 flex flex-col justify-center text-center">
+                          <h4 className="font-serif text-xl font-bold text-white leading-tight">
                             {member.name}
                           </h4>
-                          <p className="font-mono text-[10px] text-[#C8B195] uppercase tracking-wider mt-1">
+                          <p className="font-mono text-xs font-bold text-[#C8B195] uppercase tracking-wider mt-1.5">
                             {member.role}
                           </p>
                         </div>
@@ -108,29 +119,40 @@ export default function MeetTheTeam() {
                   </div>
                 )}
 
-                {/* Second Row: 3 members */}
+                {/* Second Row */}
                 {secondRowMembers.length > 0 && (
-                  <div className="grid grid-cols-3 gap-3 md:gap-4.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-4 lg:gap-4.5">
                     {secondRowMembers.map((member) => (
                       <div
                         key={member.id}
-                        className="relative aspect-square overflow-hidden bg-stone-900 border border-white/10 rounded-2xl group shadow-md hover:shadow-2xl transition-all duration-300"
+                        className="group flex flex-col bg-stone-900 border border-white/10 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300"
                       >
-                        <Image
-                          src={member.image_url}
-                          alt={member.name}
-                          fill
-                          unoptimized
-                          sizes="(max-width: 768px) 50vw, 33vw"
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-
-                        {/* Gradient Overlay & Member Name/Role */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-90 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 text-white">
-                          <h4 className="font-serif text-sm md:text-base font-bold text-white leading-tight">
+                        <div className="relative aspect-square overflow-hidden w-full">
+                          <Image
+                            src={member.image_url}
+                            alt={member.name}
+                            fill
+                            unoptimized
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          {/* Desktop Gradient Overlay & Member Name/Role */}
+                          <div className="hidden lg:flex absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex-col justify-end p-5 text-white">
+                            <h4 className="font-serif text-lg font-bold text-white leading-tight">
+                              {member.name}
+                            </h4>
+                            <p className="font-mono text-[11px] text-[#C8B195] uppercase tracking-wider mt-1.5">
+                              {member.role}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        {/* Mobile Text (Visible only below lg breakpoint) */}
+                        <div className="lg:hidden p-5 bg-stone-900 flex flex-col justify-center text-center">
+                          <h4 className="font-serif text-xl font-bold text-white leading-tight">
                             {member.name}
                           </h4>
-                          <p className="font-mono text-[10px] text-[#C8B195] uppercase tracking-wider mt-1">
+                          <p className="font-mono text-xs font-bold text-[#C8B195] uppercase tracking-wider mt-1.5">
                             {member.role}
                           </p>
                         </div>

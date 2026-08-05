@@ -20,7 +20,9 @@ import {
   Handshake,
   ExternalLink,
   ChevronRight,
-  ShieldCheck
+  ShieldCheck,
+  Youtube,
+  Target
 } from 'lucide-react';
 
 const MENU_GROUPS = [
@@ -37,6 +39,7 @@ const MENU_GROUPS = [
       { name: 'Meet the Team', href: '/admin/dashboard/team', icon: UserCheck },
       { name: 'Media Gallery', href: '/admin/dashboard/gallery', icon: ImageIcon },
       { name: 'Blog & News', href: '/admin/dashboard/blog', icon: BookOpen },
+      { name: 'Videos & Streams', href: '/admin/dashboard/videos', icon: Youtube },
     ]
   },
   {
@@ -44,6 +47,7 @@ const MENU_GROUPS = [
     items: [
       { name: 'Tournaments', href: '/admin/dashboard/tournaments', icon: Trophy },
       { name: 'Charity Shop', href: '/admin/dashboard/shop', icon: ShoppingBag },
+      { name: 'Impact Framework', href: '/admin/dashboard/impact', icon: Target },
       { name: 'Partners & Sponsors', href: '/admin/dashboard/partners', icon: Handshake },
       { name: 'Site Settings', href: '/admin/dashboard/settings', icon: SettingsIcon },
     ]

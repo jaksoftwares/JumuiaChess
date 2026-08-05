@@ -17,10 +17,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { image_url, caption, category, featured } = body;
+    const { image_url, caption } = body;
     const { data, error } = await supabaseAdmin
       .from('gallery_images')
-      .insert([{ image_url, caption, category, featured }])
+      .insert([{ image_url, caption }])
       .select().single();
     if (error) {
       if (error.code === '42P01') {

@@ -3,7 +3,11 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 
 export async function GET(request: NextRequest) {
   try {
-    const { data, error } = await supabaseAdmin.from('blog_posts').select('*').order('published_at', { ascending: false });
+    const { data, error } = await supabaseAdmin
+      .from('impact_programs')
+      .select('*')
+      .order('sort_order', { ascending: true });
+
     if (error) throw error;
     return NextResponse.json({ success: true, data });
   } catch (err: any) {
@@ -14,27 +18,15 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { title, slug, featured_image_url, excerpt, body: postBody, published } = body;
     
-    const insertData: any = { 
-      title, 
-      slug, 
-      featured_image_url, 
-      excerpt, 
-      body: postBody, 
-      published 
-    };
-    
-    if (published) {
-      insertData.published_at = new Date().toISOString();
-    }
-
     const { data, error } = await supabaseAdmin
-      .from('blog_posts')
-      .insert([insertData])
-      .select().single();
+      .from('impact_programs')
+      .insert([body])
+      .select()
+      .single();
+
     if (error) throw error;
-    return NextResponse.json({ success: true, data }, { status: 201 });
+    return NextResponse.json({ success: true, data });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }

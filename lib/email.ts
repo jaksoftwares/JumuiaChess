@@ -3,6 +3,7 @@ import { supabaseAdmin } from './supabase/admin';
 // import nodemailer from 'nodemailer'; // Nodemailer requires 'net' which is sometimes problematic on Edge runtime depending on NextJS config. We'll stick to Resend.
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
+const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Jumuiya Chess <info@jumuiyachess.org>';
 const resend = RESEND_API_KEY && RESEND_API_KEY !== 're_mock' ? new Resend(RESEND_API_KEY) : null;
 
 export const sendRegistrationConfirmation = async (
@@ -31,7 +32,7 @@ export const sendRegistrationConfirmation = async (
   if (resend) {
     try {
       await resend.emails.send({
-        from: 'Jumuiya Chess <onboarding@resend.dev>',
+        from: RESEND_FROM_EMAIL,
         to: email,
         subject,
         html,
@@ -76,7 +77,7 @@ export const sendContactNotification = async (
   if (resend) {
     try {
       await resend.emails.send({
-        from: `${senderName} <onboarding@resend.dev>`,
+        from: RESEND_FROM_EMAIL,
         reply_to: senderEmail,
         to: recipientEmail,
         subject,

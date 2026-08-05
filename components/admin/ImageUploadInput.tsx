@@ -1,12 +1,11 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import { Upload, X, Link, Loader2, CheckCircle2 } from 'lucide-react';
-import { uploadFile } from '@/lib/api';
+import React, { useState, useRef, useEffect } from 'react';
+import { Upload, X, Link, CheckCircle2 } from 'lucide-react';
 
 interface ImageUploadInputProps {
-  value: string;
-  onChange: (url: string) => void;
+  value: File | string | null;
+  onChange: (val: File | string | null) => void;
   label?: string;
   placeholder?: string;
 }
@@ -61,30 +60,46 @@ export const ImageUploadInput: React.FC<ImageUploadInputProps> = ({
   label = 'Image',
   placeholder = 'https://example.com/image.jpg'
 }) => {
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [showUrlInput, setShowUrlInput] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Maintain local object URL for previewing File objects
+  useEffect(() => {
+    if (!value) {
+      setPreviewUrl(null);
+      return;
+    }
+
+    if (typeof value === 'string') {
+      setPreviewUrl(value);
+      return;
+    }
+
+    // It's a File object, create local URL
+    const objectUrl = URL.createObjectURL(value);
+    setPreviewUrl(objectUrl);
+
+    // Clean up
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [value]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawFile = e.target.files?.[0];
     if (!rawFile) return;
 
-    setIsUploading(true);
-    setUploadError(null);
+    setIsProcessing(true);
+    setError(null);
 
     try {
       const fileToUpload = await compressImageClient(rawFile);
-      const res = await uploadFile(fileToUpload);
-      if (res.success && res.url) {
-        onChange(res.url);
-      } else {
-        setUploadError(res.error || 'Failed to upload image');
-      }
+      onChange(fileToUpload);
     } catch (err: any) {
-      setUploadError(err.message || 'Error uploading file');
+      setError(err.message || 'Error processing file');
     } finally {
-      setIsUploading(false);
+      setIsProcessing(false);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -92,11 +107,17 @@ export const ImageUploadInput: React.FC<ImageUploadInputProps> = ({
   };
 
   const handleClear = () => {
-    onChange('');
-    setUploadError(null);
+    onChange(null);
+    setError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+  };
+
+  const getFileName = () => {
+    if (!value) return '';
+    if (typeof value === 'string') return value.split('/').pop() || 'Image attached';
+    return value.name;
   };
 
   return (
@@ -107,7 +128,12 @@ export const ImageUploadInput: React.FC<ImageUploadInputProps> = ({
         </label>
         <button
           type="button"
-          onClick={() => setShowUrlInput(!showUrlInput)}
+          onClick={() => {
+            setShowUrlInput(!showUrlInput);
+            if (!showUrlInput && typeof value !== 'string') {
+               handleClear();
+            }
+          }}
           className="text-xs text-[#6B4A34] hover:underline flex items-center gap-1 font-sans"
         >
           {showUrlInput ? (
@@ -126,7 +152,7 @@ export const ImageUploadInput: React.FC<ImageUploadInputProps> = ({
         <div className="flex gap-2">
           <input
             type="url"
-            value={value}
+            value={typeof value === 'string' ? value : ''}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
             className="flex-1 rounded-xl border border-stone-300 bg-white px-3 py-2 text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
@@ -146,17 +172,19 @@ export const ImageUploadInput: React.FC<ImageUploadInputProps> = ({
           {value ? (
             <div className="relative rounded-xl border border-stone-200 p-2.5 bg-stone-50 flex items-center justify-between">
               <div className="flex items-center gap-3 overflow-hidden">
-                <img
-                  src={value}
-                  alt="Preview"
-                  className="w-12 h-12 object-cover rounded-lg border border-stone-200 flex-shrink-0"
-                  onError={(e) => {
-                    (e.target as HTMLElement).style.display = 'none';
-                  }}
-                />
+                {previewUrl && (
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    className="w-12 h-12 object-cover rounded-lg border border-stone-200 flex-shrink-0"
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = 'none';
+                    }}
+                  />
+                )}
                 <div className="truncate">
                   <p className="text-xs font-semibold text-charcoal truncate max-w-[180px]">
-                    {value.split('/').pop() || 'Image attached'}
+                    {getFileName()}
                   </p>
                   <span className="inline-flex items-center gap-1 text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded font-sans mt-0.5">
                     <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Attached
@@ -184,15 +212,14 @@ export const ImageUploadInput: React.FC<ImageUploadInputProps> = ({
             <div
               onClick={() => fileInputRef.current?.click()}
               className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors ${
-                isUploading
+                isProcessing
                   ? 'border-[#6B4A34] bg-stone-100'
                   : 'border-stone-300 hover:border-[#6B4A34] bg-white hover:bg-stone-50'
               }`}
             >
-              {isUploading ? (
+              {isProcessing ? (
                 <div className="flex flex-col items-center justify-center py-2 text-[#6B4A34] space-y-1">
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span className="text-xs font-medium">Uploading image from device...</span>
+                  <span className="text-xs font-medium">Processing image...</span>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-1 space-y-1">
@@ -201,7 +228,7 @@ export const ImageUploadInput: React.FC<ImageUploadInputProps> = ({
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-charcoal">
-                      Click to upload photo from device
+                      Click to select photo from device
                     </p>
                     <p className="text-[10px] text-stone-400 mt-0.5">
                       PNG, JPG, WEBP or GIF (Max 24MB)
@@ -222,8 +249,8 @@ export const ImageUploadInput: React.FC<ImageUploadInputProps> = ({
         </div>
       )}
 
-      {uploadError && (
-        <p className="text-xs text-red-600 mt-1">{uploadError}</p>
+      {error && (
+        <p className="text-xs text-red-600 mt-1">{error}</p>
       )}
     </div>
   );

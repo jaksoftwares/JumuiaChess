@@ -15,15 +15,17 @@ const getBaseUrl = () => {
 
 // Helper: Format phone number to 2547XXXXXXXX or 2541XXXXXXXX
 export const formatPhoneNumber = (phone: string): string => {
+  // Remove all non-digit characters (including spaces, dashes, and the '+' sign)
   let cleaned = phone.replace(/\D/g, '');
+  
   if (cleaned.startsWith('0')) {
     cleaned = '254' + cleaned.substring(1);
-  } else if (cleaned.startsWith('+')) {
-    cleaned = cleaned.substring(1);
   }
+  
   if (!cleaned.startsWith('254')) {
     cleaned = '254' + cleaned;
   }
+  
   return cleaned;
 };
 
