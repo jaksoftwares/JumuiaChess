@@ -13,8 +13,8 @@ export function middleware(request: NextRequest) {
 
     // Allow local development without forcing login while still protecting the route in production.
     if (!hasAuthToken && !hasDevSession && process.env.NODE_ENV === 'production') {
-      const loginUrl = new URL('/admin/login', request.url);
-      return NextResponse.redirect(loginUrl);
+      const homeUrl = new URL('/', request.url);
+      return NextResponse.redirect(homeUrl);
     }
   }
 
