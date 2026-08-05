@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { apiRequest, uploadFile } from '@/lib/api';
 import { Product } from '@/types';
 import { Loader2, Plus, ShoppingBag, Trash2, Edit2, Sparkles, CheckCircle2, XCircle } from 'lucide-react';
-import { ImageUploadInput } from '@/components/admin/ImageUploadInput';
+import { MultiImageUploadInput } from '@/components/admin/MultiImageUploadInput';
 import { Modal } from '@/components/admin/Modal';
 
 export default function AdminShop() {
@@ -287,38 +287,20 @@ export default function AdminShop() {
           </div>
 
           <div className="space-y-4 border border-stone-200 p-4 rounded-xl bg-stone-50/50">
-            <h3 className="text-xs font-bold text-stone-700 uppercase tracking-wider">Product Images (Max 5)</h3>
-            <ImageUploadInput
-              label="Primary Image (Thumbnail) *"
-              value={imageUrl}
-              onChange={(url) => setImageUrl(url)}
+            <MultiImageUploadInput
+              images={[imageUrl, ...images].filter(Boolean) as (File | string)[]}
+              onChange={(newImages) => {
+                if (newImages.length === 0) {
+                  setImageUrl(null);
+                  setImages([]);
+                } else {
+                  setImageUrl(newImages[0]);
+                  setImages(newImages.slice(1));
+                }
+              }}
+              maxImages={5}
+              label="Product Images"
             />
-            {images.map((img, i) => (
-              <div key={i} className="relative group pt-2 border-t border-stone-200">
-                <ImageUploadInput
-                  label={`Additional Image ${i + 1}`}
-                  value={img}
-                  onChange={(val) => {
-                    if (!val) {
-                      setImages(prev => prev.filter((_, idx) => idx !== i));
-                    } else {
-                      const newImages = [...images];
-                      newImages[i] = val;
-                      setImages(newImages);
-                    }
-                  }}
-                />
-              </div>
-            ))}
-            {images.length < 4 && (
-              <button
-                type="button"
-                onClick={() => setImages([...images, null as unknown as string])}
-                className="w-full py-3 mt-2 border-2 border-dashed border-stone-300 rounded-xl text-xs font-bold text-stone-500 hover:text-[#6B4A34] hover:border-[#6B4A34] hover:bg-white transition-colors flex items-center justify-center gap-2"
-              >
-                <Plus className="w-4 h-4" /> Add Additional Image
-              </button>
-            )}
           </div>
 
           <div>
