@@ -16,6 +16,7 @@ export default function AdminShop() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [imageUrl, setImageUrl] = useState<File | string | null>(null);
+  const [images, setImages] = useState<(File | string)[]>([]);
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
   const [inStock, setInStock] = useState(true);
@@ -41,6 +42,7 @@ export default function AdminShop() {
     setEditingId(null);
     setName('');
     setImageUrl(null);
+    setImages([]);
     setPrice('');
     setDescription('');
     setInStock(true);
@@ -52,6 +54,7 @@ export default function AdminShop() {
     setEditingId(prod.id);
     setName(prod.name);
     setImageUrl(prod.image_url || null);
+    setImages(prod.images || []);
     setPrice(prod.price.toString());
     setDescription(prod.description);
     setInStock(prod.in_stock);
@@ -66,18 +69,43 @@ export default function AdminShop() {
 
     let finalImageUrl = typeof imageUrl === 'string' ? imageUrl : '';
     if (imageUrl instanceof File) {
+      setMessage({ type: 'success', text: 'Uploading primary image...' });
       const uploadRes = await uploadFile(imageUrl);
       if (!uploadRes.success || !uploadRes.url) {
-        setMessage({ type: 'error', text: uploadRes.error || 'Failed to upload image' });
+        setMessage({ type: 'error', text: uploadRes.error || 'Failed to upload primary image' });
         setIsSubmitting(false);
         return;
       }
       finalImageUrl = uploadRes.url;
     }
 
+    let finalImages: string[] = [];
+    const validImages = images.filter(img => img !== null && img !== undefined && img !== '');
+    
+    if (validImages.length > 0) {
+      setMessage({ type: 'success', text: `Uploading ${validImages.length} additional images...` });
+      for (const img of validImages) {
+        if (img instanceof File) {
+          const uploadRes = await uploadFile(img);
+          if (uploadRes.success && uploadRes.url) {
+            finalImages.push(uploadRes.url);
+          } else {
+            setMessage({ type: 'error', text: uploadRes.error || 'Failed to upload additional image' });
+            setIsSubmitting(false);
+            return;
+          }
+        } else if (typeof img === 'string') {
+          finalImages.push(img);
+        }
+      }
+    }
+    
+    setMessage({ type: 'success', text: 'Saving product...' });
+
     const body = {
       name,
       image_url: finalImageUrl || 'https://images.unsplash.com/photo-1529699211952-734e80c4d42b?auto=format&fit=crop&q=80&w=600',
+      images: finalImages,
       price: parseFloat(price),
       description,
       in_stock: inStock,
@@ -258,11 +286,40 @@ export default function AdminShop() {
             />
           </div>
 
-          <ImageUploadInput
-            label="Product Image (Upload from Device)"
-            value={imageUrl}
-            onChange={(url) => setImageUrl(url)}
-          />
+          <div className="space-y-4 border border-stone-200 p-4 rounded-xl bg-stone-50/50">
+            <h3 className="text-xs font-bold text-stone-700 uppercase tracking-wider">Product Images (Max 5)</h3>
+            <ImageUploadInput
+              label="Primary Image (Thumbnail) *"
+              value={imageUrl}
+              onChange={(url) => setImageUrl(url)}
+            />
+            {images.map((img, i) => (
+              <div key={i} className="relative group pt-2 border-t border-stone-200">
+                <ImageUploadInput
+                  label={`Additional Image ${i + 1}`}
+                  value={img}
+                  onChange={(val) => {
+                    if (!val) {
+                      setImages(prev => prev.filter((_, idx) => idx !== i));
+                    } else {
+                      const newImages = [...images];
+                      newImages[i] = val;
+                      setImages(newImages);
+                    }
+                  }}
+                />
+              </div>
+            ))}
+            {images.length < 4 && (
+              <button
+                type="button"
+                onClick={() => setImages([...images, null as unknown as string])}
+                className="w-full py-3 mt-2 border-2 border-dashed border-stone-300 rounded-xl text-xs font-bold text-stone-500 hover:text-[#6B4A34] hover:border-[#6B4A34] hover:bg-white transition-colors flex items-center justify-center gap-2"
+              >
+                <Plus className="w-4 h-4" /> Add Additional Image
+              </button>
+            )}
+          </div>
 
           <div>
             <label className="block text-xs font-semibold text-stone-700 mb-1">Description *</label>

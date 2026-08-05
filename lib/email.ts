@@ -168,3 +168,97 @@ export const notifyAdminOfDonation = async (
   }
   console.log(`[EMAIL MOCK] Admin notified of donation: ${details.receipt}`);
 };
+
+export const sendOrderReceipt = async (
+  email: string,
+  details: { customerName: string; amount: number; receipt: string; items: any[], address: string }
+): Promise<void> => {
+  const subject = `Order Confirmed: ${details.receipt}`;
+  const itemsHtml = details.items.map(item => `<li>${item.quantity}x ${item.name} - KES ${item.price}</li>`).join('');
+  const html = `
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
+      <h2 style="color: #6B4A34;">Jumuiya Chess Store</h2>
+      <p>Hello ${details.customerName},</p>
+      <p>Thank you for your purchase of <strong>KES ${details.amount.toLocaleString()}</strong>.</p>
+      <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
+      <p><strong>Order Items:</strong></p>
+      <ul>${itemsHtml}</ul>
+      <p><strong>Shipping To:</strong> ${details.address}</p>
+      <p><strong>M-Pesa Receipt:</strong> ${details.receipt}</p>
+      <p style="font-size: 0.8em; color: #888; margin-top: 40px;">This is an automated receipt from Jumuiya Chess.</p>
+    </div>
+  `;
+
+  if (resend) {
+    try {
+      await resend.emails.send({ from: RESEND_FROM_EMAIL, to: email, subject, html });
+      console.log(`[Resend] Order receipt sent to ${email}`);
+      return;
+    } catch (error) {
+      console.error('[Resend Error] Failed to send order receipt:', error);
+    }
+  }
+  console.log(`[EMAIL MOCK] Order receipt to ${email}`);
+};
+
+export const notifyAdminOfOrder = async (
+  details: { customerName: string; amount: number; receipt: string; items: any[], address: string, email: string, phone: string }
+): Promise<void> => {
+  let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'iykekonzolaw21@gmail.com';
+  try {
+    const { data } = await supabaseAdmin.from('site_settings').select('org_email').single();
+    if (data && data.org_email) recipientEmail = data.org_email;
+  } catch (err) { }
+
+  const subject = `📦 New Store Order: KES ${details.amount}`;
+  const itemsHtml = details.items.map(item => `<li>${item.quantity}x ${item.name}</li>`).join('');
+  const html = `
+    <div style="font-family: sans-serif; max-width: 600px; padding: 20px;">
+      <h2 style="color: #6B4A34;">New Store Order</h2>
+      <p><strong>Customer:</strong> ${details.customerName} (${details.email} | ${details.phone})</p>
+      <p><strong>Amount:</strong> KES ${details.amount.toLocaleString()}</p>
+      <p><strong>Receipt:</strong> ${details.receipt}</p>
+      <p><strong>Shipping Address:</strong> ${details.address}</p>
+      <p><strong>Items:</strong></p>
+      <ul>${itemsHtml}</ul>
+    </div>
+  `;
+
+  if (resend) {
+    try {
+      await resend.emails.send({ from: RESEND_FROM_EMAIL, to: recipientEmail, subject, html });
+      return;
+    } catch (error) {
+      console.error('[Resend Error] Failed to notify admin of order:', error);
+    }
+  }
+  console.log(`[EMAIL MOCK] Admin notified of order: ${details.receipt}`);
+};
+
+export const sendOrderShippedNotification = async (
+  email: string,
+  details: { customerName: string; receipt: string; deliveryNotes?: string }
+): Promise<void> => {
+  const subject = `Your Order Has Shipped! 🚀 (${details.receipt})`;
+  const html = `
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
+      <h2 style="color: #6B4A34;">Great News, ${details.customerName}!</h2>
+      <p>Your Jumuiya Chess order <strong>(${details.receipt})</strong> has been marked as shipped and is currently on its way to you.</p>
+      ${details.deliveryNotes ? `<hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" /><p><strong>Tracking / Delivery Notes:</strong></p><p style="padding: 10px; background-color: #FAF7F2; border-radius: 4px;">${details.deliveryNotes}</p>` : ''}
+      <p style="margin-top: 20px;">If you have any questions, feel free to reply to this email.</p>
+      <p>Thank you for supporting our mission!</p>
+      <p style="font-size: 0.8em; color: #888; margin-top: 40px;">This is an automated notification from Jumuiya Chess.</p>
+    </div>
+  `;
+
+  if (resend) {
+    try {
+      await resend.emails.send({ from: RESEND_FROM_EMAIL, to: email, subject, html });
+      console.log(`[Resend] Order shipped notification sent to ${email}`);
+      return;
+    } catch (error) {
+      console.error('[Resend Error] Failed to send order shipped notification:', error);
+    }
+  }
+  console.log(`[EMAIL MOCK] Order shipped notification to ${email}`);
+};

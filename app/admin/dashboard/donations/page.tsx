@@ -289,9 +289,9 @@ export default function AdminDonations() {
                     <td className="p-4 font-bold text-charcoal">KES {d.amount.toLocaleString()}</td>
                     <td className="p-4">
                       <div className={`inline-flex items-center space-x-1 px-2 py-1 rounded-md text-[10px] font-bold uppercase mb-1 ${
-                        d.payment_status === 'completed' ? 'bg-emerald-100 text-emerald-800' :
-                        d.payment_status === 'pending' ? 'bg-amber-100 text-amber-800' :
-                        'bg-red-100 text-red-800'
+                        d.payment_status === 'completed' ? 'bg-[#6B4A34]/10 text-[#6B4A34]' :
+                        d.payment_status === 'pending' ? 'bg-amber-900/10 text-amber-900' :
+                        'bg-red-900/10 text-red-900'
                       }`}>
                         {d.payment_status === 'completed' && <CheckCircle2 className="w-3 h-3" />}
                         {d.payment_status === 'pending' && <Clock className="w-3 h-3" />}
@@ -307,7 +307,7 @@ export default function AdminDonations() {
                       <button onClick={() => handleEditClick(d)} className="p-2 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-lg transition-colors">
                         <Edit2 className="w-4 h-4" />
                       </button>
-                      <button onClick={() => setDeletingId(d.id)} className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors">
+                      <button onClick={() => setDeletingId(d.id)} className="p-2 bg-[#FAF7F2] hover:bg-red-900/10 text-red-900 rounded-lg transition-colors border border-[#6B4A34]/10">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </td>
@@ -323,7 +323,7 @@ export default function AdminDonations() {
       <Modal isOpen={!!editingId} onClose={() => setEditingId(null)} title="Edit Donation">
         <form onSubmit={handleUpdate} className="space-y-4">
           {message && (
-            <div className={`p-3 rounded-lg text-sm ${message.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
+            <div className={`p-3 rounded-lg text-xs font-bold ${message.type === 'success' ? 'bg-[#6B4A34]/10 text-[#6B4A34]' : 'bg-red-900/10 text-red-900'}`}>
               {message.text}
             </div>
           )}
@@ -331,18 +331,18 @@ export default function AdminDonations() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-stone-500 uppercase mb-1">Donor Name</label>
-              <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-sm" />
+              <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#6B4A34]/20 rounded-lg text-sm focus:outline-none focus:border-[#6B4A34]" />
             </div>
             <div>
               <label className="block text-xs font-bold text-stone-500 uppercase mb-1">Amount</label>
-              <input type="number" value={editAmount} onChange={(e) => setEditAmount(e.target.value)} required className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-sm" />
+              <input type="number" value={editAmount} onChange={(e) => setEditAmount(e.target.value)} required className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#6B4A34]/20 rounded-lg text-sm focus:outline-none focus:border-[#6B4A34]" />
             </div>
           </div>
           
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-stone-500 uppercase mb-1">Status</label>
-              <select value={editStatus} onChange={(e) => setEditStatus(e.target.value)} className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-sm">
+              <select value={editStatus} onChange={(e) => setEditStatus(e.target.value)} className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#6B4A34]/20 rounded-lg text-sm focus:outline-none focus:border-[#6B4A34]">
                 <option value="pending">Pending</option>
                 <option value="completed">Completed</option>
                 <option value="failed">Failed</option>
@@ -350,13 +350,13 @@ export default function AdminDonations() {
             </div>
             <div>
               <label className="block text-xs font-bold text-stone-500 uppercase mb-1">M-Pesa Receipt</label>
-              <input type="text" value={editReceipt} onChange={(e) => setEditReceipt(e.target.value)} className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-sm" />
+              <input type="text" value={editReceipt} onChange={(e) => setEditReceipt(e.target.value)} className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#6B4A34]/20 rounded-lg text-sm focus:outline-none focus:border-[#6B4A34]" />
             </div>
           </div>
 
           <div>
             <label className="block text-xs font-bold text-stone-500 uppercase mb-1">Donor Message</label>
-            <textarea value={editMessage} onChange={(e) => setEditMessage(e.target.value)} rows={2} className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-sm resize-none"></textarea>
+            <textarea value={editMessage} onChange={(e) => setEditMessage(e.target.value)} rows={2} className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#6B4A34]/20 rounded-lg text-sm resize-none focus:outline-none focus:border-[#6B4A34]"></textarea>
           </div>
 
           <button type="submit" disabled={isSubmitting} className="w-full py-2.5 bg-[#6B4A34] text-white rounded-lg font-bold text-sm hover:bg-[#5A3E2B] transition-colors flex justify-center items-center">
@@ -370,10 +370,10 @@ export default function AdminDonations() {
         <div className="space-y-4">
           <p className="text-sm text-stone-600">Are you sure you want to permanently delete this donation record? This action cannot be undone and will affect your total revenue statistics.</p>
           <div className="flex space-x-3">
-            <button onClick={() => setDeletingId(null)} className="flex-1 py-2.5 bg-stone-100 text-stone-700 font-bold rounded-lg text-sm hover:bg-stone-200 transition-colors">
+            <button onClick={() => setDeletingId(null)} className="flex-1 py-2.5 bg-[#FAF7F2] text-charcoal font-bold rounded-lg text-sm hover:bg-white border border-[#6B4A34]/20 transition-colors">
               Cancel
             </button>
-            <button onClick={handleDelete} disabled={isSubmitting} className="flex-1 py-2.5 bg-red-600 text-white font-bold rounded-lg text-sm hover:bg-red-700 transition-colors flex justify-center items-center">
+            <button onClick={handleDelete} disabled={isSubmitting} className="flex-1 py-2.5 bg-[#232320] text-white font-bold rounded-lg text-sm hover:bg-[#6B4A34] transition-colors flex justify-center items-center">
               {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Delete Permanently'}
             </button>
           </div>

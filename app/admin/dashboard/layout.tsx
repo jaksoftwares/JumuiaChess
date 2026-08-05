@@ -31,7 +31,7 @@ const MENU_GROUPS = [
     title: 'Overview',
     items: [
       { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
-      { name: 'Registrations & M-Pesa', href: '/admin/dashboard/registrations', icon: Users },
+      { name: 'Event Registrations', href: '/admin/dashboard/registrations', icon: Users },
     ]
   },
   {
@@ -47,7 +47,8 @@ const MENU_GROUPS = [
     title: 'Management',
     items: [
       { name: 'Tournaments', href: '/admin/dashboard/tournaments', icon: Trophy },
-      { name: 'Charity Shop', href: '/admin/dashboard/shop', icon: ShoppingBag },
+      { name: 'Shop Inventory', href: '/admin/dashboard/shop', icon: ShoppingBag },
+      { name: 'Shop Orders', href: '/admin/dashboard/shop/orders', icon: ShoppingBag },
       { name: 'Donations', href: '/admin/dashboard/donations', icon: HeartHandshake },
       { name: 'Impact Framework', href: '/admin/dashboard/impact', icon: Target },
       { name: 'Partners & Sponsors', href: '/admin/dashboard/partners', icon: Handshake },

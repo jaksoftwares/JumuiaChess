@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { sendRegistrationConfirmation, sendDonationReceipt, notifyAdminOfDonation } from '@/lib/email';
+import { sendRegistrationConfirmation, sendDonationReceipt, notifyAdminOfDonation, sendOrderReceipt, notifyAdminOfOrder } from '@/lib/email';
 
 // POST /api/mpesa/callback
 export async function POST(request: NextRequest) {
@@ -60,6 +60,28 @@ export async function POST(request: NextRequest) {
       }
 
       await supabaseAdmin.from('shop_orders').update({ payment_status: paymentStatus, mpesa_receipt: mpesaReceipt }).eq('id', order.id);
+
+      if (ResultCode === 0) {
+        if (order.email) {
+          await sendOrderReceipt(order.email, {
+            customerName: order.customer_name,
+            amount: parseFloat(order.amount),
+            receipt: mpesaReceipt,
+            items: order.items || [],
+            address: order.shipping_address
+          });
+        }
+        await notifyAdminOfOrder({
+          customerName: order.customer_name,
+          email: order.email || '',
+          phone: order.phone_number,
+          amount: parseFloat(order.amount),
+          receipt: mpesaReceipt,
+          items: order.items || [],
+          address: `${order.shipping_address}, ${order.city}`
+        });
+      }
+
       return NextResponse.json({ success: true, type: 'order' });
     }
     const { data: donation } = await supabaseAdmin.from('donations').select('*').eq('checkout_request_id', CheckoutRequestID).single();

@@ -79,6 +79,7 @@ CREATE TABLE IF NOT EXISTS products (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
     image_url TEXT NOT NULL,
+    images TEXT[] DEFAULT '{}',
     price NUMERIC(10, 2) NOT NULL,
     description TEXT NOT NULL,
     in_stock BOOLEAN NOT NULL DEFAULT true,

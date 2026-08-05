@@ -18,11 +18,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, image_url, price, description, in_stock } = body;
+    const { name, image_url, images, price, description, in_stock } = body;
     
     const { data, error } = await supabaseAdmin
       .from('products')
-      .insert([{ name, image_url, price: parseFloat(price), description, in_stock }])
+      .insert([{ name, image_url, images: images || [], price: parseFloat(price), description, in_stock }])
       .select()
       .single();
 
