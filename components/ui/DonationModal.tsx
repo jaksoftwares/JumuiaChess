@@ -108,8 +108,30 @@ export default function DonationModal({ isOpen, onClose }: { isOpen: boolean; on
     }
   };
 
-  const downloadReceipt = () => {
-    window.print();
+  const downloadReceipt = async () => {
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const jsPDF = (await import('jspdf')).default;
+      
+      const element = document.getElementById('printable-donation-receipt');
+      if (!element) return;
+      
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`Jumuiya_Donation_Receipt_${receipt}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
   };
 
   if (!isOpen) return null;
@@ -324,9 +346,10 @@ export default function DonationModal({ isOpen, onClose }: { isOpen: boolean; on
         </div>
       </div>
 
-      {/* Printable Receipt (Only visible when printing) */}
+      {/* Printable Receipt (Rendered off-screen for PDF generation) */}
       {step === 4 && receipt && (
-        <div className="hidden print:block p-10 bg-white text-black min-h-screen relative overflow-hidden">
+        <div className="absolute top-[-9999px] left-[-9999px] w-[800px]">
+          <div id="printable-donation-receipt" className="p-10 bg-white text-black relative overflow-hidden">
           {/* PAID Watermark */}
           <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none -rotate-45">
             <span className="text-[150px] font-bold tracking-widest uppercase">PAID</span>
@@ -400,7 +423,7 @@ export default function DonationModal({ isOpen, onClose }: { isOpen: boolean; on
               <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-sm">
                 <p className="font-sans text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 text-center">Scan to Verify</p>
                 <div className="scale-90 origin-top">
-                  <Barcode value={receipt} height={40} width={1.5} fontSize={14} background="#ffffff" lineColor="#232320" />
+                  <Barcode value={receipt} height={40} width={1.5} fontSize={14} background="#ffffff" lineColor="#232320" renderer="img" />
                 </div>
               </div>
 
@@ -428,6 +451,7 @@ export default function DonationModal({ isOpen, onClose }: { isOpen: boolean; on
               </div>
             </div>
           </div>
+        </div>
         </div>
       )}
     </>
