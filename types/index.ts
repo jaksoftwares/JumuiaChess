@@ -24,6 +24,8 @@ export interface Registration {
   payment_status: 'pending' | 'completed' | 'failed';
   checkout_request_id?: string;
   mpesa_receipt?: string;
+  ticket_number?: string;
+  attendance_status?: 'registered' | 'checked-in';
   created_at?: string;
   tournaments?: {
     name: string;

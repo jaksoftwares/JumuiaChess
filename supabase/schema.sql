@@ -188,6 +188,8 @@ CREATE TABLE IF NOT EXISTS registrations (
     payment_status TEXT NOT NULL DEFAULT 'pending' CHECK (payment_status IN ('pending', 'completed', 'failed')),
     checkout_request_id TEXT UNIQUE,
     mpesa_receipt TEXT,
+    ticket_number TEXT UNIQUE,
+    attendance_status TEXT NOT NULL DEFAULT 'registered' CHECK (attendance_status IN ('registered', 'checked-in')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 

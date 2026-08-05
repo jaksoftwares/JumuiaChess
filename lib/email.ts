@@ -8,24 +8,50 @@ const resend = RESEND_API_KEY && RESEND_API_KEY !== 're_mock' ? new Resend(RESEN
 
 export const sendRegistrationConfirmation = async (
   email: string,
-  details: { playerName: string; tournamentName: string; amount: number; category: string }
+  details: { playerName: string; tournamentName: string; amount: number; category: string; ticketNumber: string }
 ): Promise<void> => {
-  const subject = `Registration Confirmed: ${details.tournamentName}`;
+  const subject = `Registration Confirmed: ${details.tournamentName} 🎫`;
+  const ticketUrl = `https://jumuiyachess.org/tickets/${details.ticketNumber}`;
+  
   const html = `
-    <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
-      <h2 style="color: #6B4A34;">Jumuiya Chess</h2>
-      <p>Hello ${details.playerName},</p>
-      <p>Your registration for <strong>${details.tournamentName}</strong> has been successfully received and confirmed!</p>
-      <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
-      <p><strong>Registration Details:</strong></p>
-      <ul>
-        <li><strong>Player Name:</strong> ${details.playerName}</li>
-        <li><strong>Tournament:</strong> ${details.tournamentName}</li>
-        <li><strong>Category:</strong> ${details.category}</li>
-        <li><strong>Entry Fee Paid:</strong> KES ${details.amount}</li>
-      </ul>
-      <p>We look forward to seeing you at the tournament!</p>
-      <p style="font-size: 0.8em; color: #888; margin-top: 40px;">This is an automated email from Jumuiya Chess.</p>
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 30px; border: 1px solid #e5e7eb; border-radius: 8px; color: #111827; background-color: #ffffff;">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #6B4A34; margin: 0; font-size: 28px;">Jumuiya Chess</h1>
+        <p style="color: #4b5563; font-size: 14px; text-transform: uppercase; letter-spacing: 2px;">Official Event Ticket</p>
+      </div>
+      
+      <p style="font-size: 16px;">Hello <strong>${details.playerName}</strong>,</p>
+      <p style="font-size: 16px; line-height: 1.5;">Your registration for <strong>${details.tournamentName}</strong> has been successfully received and confirmed!</p>
+      
+      <div style="background-color: #FAF7F2; padding: 20px; border-radius: 8px; margin: 30px 0; border: 1px solid #e5e7eb;">
+        <p style="margin: 0 0 10px 0; font-size: 12px; text-transform: uppercase; color: #6B4A34; font-weight: bold;">Ticket Information</p>
+        <table style="width: 100%; font-size: 14px;">
+          <tr>
+            <td style="padding: 4px 0; color: #4b5563;">Player Name:</td>
+            <td style="padding: 4px 0; font-weight: bold; text-align: right;">${details.playerName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 4px 0; color: #4b5563;">Category:</td>
+            <td style="padding: 4px 0; font-weight: bold; text-align: right;">${details.category}</td>
+          </tr>
+          <tr>
+            <td style="padding: 4px 0; color: #4b5563;">Ticket Number:</td>
+            <td style="padding: 4px 0; font-weight: bold; text-align: right; font-family: monospace; font-size: 16px;">${details.ticketNumber}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="text-align: center; margin: 40px 0;">
+        <a href="${ticketUrl}" style="background-color: #232320; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block;">
+          Download Your PDF Ticket
+        </a>
+        <p style="font-size: 12px; color: #6b7280; margin-top: 15px;">Please download and present this ticket at the venue.</p>
+      </div>
+      
+      <p style="font-size: 14px; line-height: 1.5;">We look forward to seeing you at the tournament!</p>
+      
+      <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 30px 0;" />
+      <p style="font-size: 12px; color: #9ca3af; text-align: center;">This is an automated email from Jumuiya Chess.</p>
     </div>
   `;
 
@@ -45,6 +71,37 @@ export const sendRegistrationConfirmation = async (
   }
 
   console.log(`[EMAIL MOCK] Registration confirmation to ${email}:\nSubject: ${subject}`);
+};
+
+export const notifyAdminOfRegistration = async (
+  details: { playerName: string; tournamentName: string; amount: number; ticketNumber: string }
+): Promise<void> => {
+  let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'iykekonzolaw21@gmail.com';
+  try {
+    const { data } = await supabaseAdmin.from('site_settings').select('org_email').single();
+    if (data && data.org_email) recipientEmail = data.org_email;
+  } catch (err) { }
+
+  const subject = `🎫 New Registration: ${details.tournamentName}`;
+  const html = `
+    <div style="font-family: sans-serif; max-width: 600px; padding: 20px;">
+      <h2 style="color: #6B4A34;">New Tournament Registration</h2>
+      <p><strong>Player:</strong> ${details.playerName}</p>
+      <p><strong>Tournament:</strong> ${details.tournamentName}</p>
+      <p><strong>Amount Paid:</strong> KES ${details.amount}</p>
+      <p><strong>Ticket Number:</strong> ${details.ticketNumber}</p>
+    </div>
+  `;
+
+  if (resend) {
+    try {
+      await resend.emails.send({ from: RESEND_FROM_EMAIL, to: recipientEmail, subject, html });
+      return;
+    } catch (error) {
+      console.error('[Resend Error] Failed to notify admin of registration:', error);
+    }
+  }
+  console.log(`[EMAIL MOCK] Admin notified of registration: ${details.ticketNumber}`);
 };
 
 export const sendContactNotification = async (
