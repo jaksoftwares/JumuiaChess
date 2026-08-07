@@ -44,7 +44,7 @@ export async function seedContent() {
       log('Inserting default site_settings row...');
       const { error } = await supabase.from('site_settings').insert({
         id: 1,
-        org_email: 'iykekonzolaw21@gmail.com',
+        org_email: 'admin@jumuiyachess.org',
         org_phone: '0722274720',
         mpesa_paybill: '174379',
         instagram_url: 'https://instagram.com/giftofchess',
