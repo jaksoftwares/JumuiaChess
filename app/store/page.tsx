@@ -52,12 +52,24 @@ export default function StorePage() {
 
       {/* Premium Hero Header */}
       <div className="bg-[#16171A] text-white py-24 px-6 relative overflow-hidden">
+        {/* Background Image Banner */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/images/pieces.jpg"
+            alt="Chess Pieces Banner"
+            fill
+            priority
+            unoptimized
+            className="object-cover opacity-30"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#16171A] via-[#16171A]/70 to-transparent" />
+        </div>
+
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#6B4A34]/20 rounded-full blur-[100px] pointer-events-none" />
         <div className="absolute bottom-0 left-[-100px] w-[300px] h-[300px] bg-[#C8B195]/10 rounded-full blur-[80px] pointer-events-none" />
         
-        <div className="max-w-7xl mx-auto relative text-center space-y-6">
-         
-          <h1 className="font-serif text-4xl md:text-6xl font-bold tracking-tight">
+        <div className="max-w-7xl mx-auto relative z-10 text-center space-y-6">
+          <h1 className="font-serif text-4xl md:text-6xl font-bold tracking-tight text-[#C8B195] drop-shadow-md">
             The Charity Store
           </h1>
           <p className="font-sans text-base md:text-lg text-white/70 max-w-2xl mx-auto leading-relaxed font-light">
@@ -82,36 +94,51 @@ export default function StorePage() {
             {products.map((product) => {
               const inCart = items.find(i => i.productId === product.id);
               return (
-                <Link href={`/store/${product.id}`} key={product.id} className="group bg-white rounded-[16px] sm:rounded-[20px] border border-[#6B4A34]/10 overflow-hidden hover:border-[#6B4A34]/30 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col cursor-pointer">
-                  {/* Edge-to-Edge Image Container */}
-                  <div className="relative aspect-square bg-[#FAF7F2] overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none z-10" />
+                <Link
+                  href={`/store/${product.id}`}
+                  key={product.id}
+                  className="relative overflow-hidden h-[420px] rounded-[24px] border border-stone-200/20 shadow-lg group hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 cursor-pointer flex flex-col justify-end"
+                >
+                  {/* Full-Bleed Background Image */}
+                  <div className="absolute inset-0 z-0 overflow-hidden bg-stone-900">
                     {product.image_url ? (
                       <Image
                         src={product.image_url}
                         alt={product.name}
                         fill
+                        unoptimized
                         sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-700"
+                        className="object-cover group-hover:scale-105 transition-all duration-700"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[#232320]/20">
-                        <ShoppingBag className="w-12 h-12" />
+                      <div className="w-full h-full flex items-center justify-center text-white/20">
+                        <ShoppingBag className="w-16 h-16" />
                       </div>
                     )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
                   </div>
-                  
-                  {/* Content */}
-                  <div className="p-3 sm:p-5 flex-grow flex flex-col justify-between bg-white z-20">
-                    <div className="mb-4 sm:mb-6">
-                      <h3 className="font-serif text-sm sm:text-xl font-bold text-[#232320] mb-1 sm:mb-2 group-hover:text-[#6B4A34] transition-colors leading-tight line-clamp-1 sm:line-clamp-none">{product.name}</h3>
-                      <p className="font-sans text-[10px] sm:text-xs text-[#232320]/50 line-clamp-2 leading-relaxed hidden sm:block">
-                        {product.description}
+
+                  {/* Glossy Shimmer Wave Effect on Hover */}
+                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none z-20" />
+
+                  {/* Glassmorphism Bottom Panel */}
+                  <div className="relative z-10 bg-charcoal/60 backdrop-blur-md border-t border-white/10 p-6 flex flex-col space-y-3 text-white">
+                    <div>
+                      <h3 className="font-serif text-lg font-bold text-white leading-tight group-hover:text-[#C8B195] transition-colors line-clamp-1">
+                        {product.name}
+                      </h3>
+                      <p className="font-sans text-xs text-white/80 line-clamp-2 mt-1 leading-relaxed">
+                        {product.description || "Premium Jumuia Chess product. Supports our outreach programs."}
                       </p>
                     </div>
-                    
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-3 sm:pt-4 border-t border-[#6B4A34]/10 gap-2 sm:gap-0">
-                      <span className="font-bold text-[#6B4A34] font-sans text-xs sm:text-base">KES {product.price.toLocaleString()}</span>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                      <div>
+                        <span className="text-[10px] text-white/60 uppercase tracking-wider block font-sans">Price</span>
+                        <span className="font-serif text-base font-bold text-[#C8B195]">
+                          KES {product.price.toLocaleString()}
+                        </span>
+                      </div>
                       <button
                         onClick={(e) => {
                           e.preventDefault();
@@ -119,10 +146,10 @@ export default function StorePage() {
                           setAddedItem(product.id);
                           setTimeout(() => setAddedItem(null), 2000);
                         }}
-                        className={`w-full sm:w-auto px-2 py-2 sm:px-6 sm:py-2.5 font-sans text-[10px] sm:text-xs font-bold rounded-full transition-all duration-300 shadow-sm text-center ${
+                        className={`px-4 py-2 font-sans text-xs font-bold rounded-xl transition-all duration-300 shadow-md ${
                           addedItem === product.id 
-                            ? 'bg-emerald-500 text-white'
-                            : 'bg-[#FAF7F2] text-[#6B4A34] hover:bg-[#6B4A34] hover:text-white'
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-[#6B4A34] text-white hover:bg-[#523826]'
                         }`}
                       >
                         {addedItem === product.id ? 'Added ✓' : 'Add to Cart'}

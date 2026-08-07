@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
+import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
 import { apiRequest } from '@/lib/api';
 import { Tournament } from '@/types';
-import { Calendar, MapPin, Award, Loader2, CheckCircle2, User, Trophy, ShieldCheck, FileText, ArrowRight } from 'lucide-react';
+import { Calendar, MapPin, Loader2, CheckCircle2, User, Trophy, FileText } from 'lucide-react';
 
 const TOURNAMENT_CONFIGS = [
   { image: '/images/kids.jpg', isDark: false },
@@ -25,7 +26,7 @@ const GRAND_PRIX_CATEGORIES = [
   'PWD / DAP Section (FREE Entrance)',
 ];
 
-export default function Tournaments() {
+export default function TournamentsPage() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null);
@@ -71,7 +72,7 @@ export default function Tournaments() {
           setTournaments([]);
         }
       } catch (err) {
-        console.error('[Tournaments Section] Error loading tournaments:', err);
+        console.error('[Tournaments Page] Error loading tournaments:', err);
         setTournaments([]);
       } finally {
         setLoading(false);
@@ -117,7 +118,6 @@ export default function Tournaments() {
         mpesaReceipt?: string;
         resultDesc?: string;
         registration?: any;
-        error?: string;
       };
 
       if (res && res.success) {
@@ -207,7 +207,7 @@ export default function Tournaments() {
     const res = await apiRequest('/mpesa/register', {
       method: 'POST',
       body: JSON.stringify(body),
-    }) as { success: boolean; checkoutRequestId?: string; error?: string; message?: string };
+    }) as { success: boolean; checkoutRequestId?: string; error?: string };
 
     setFormSubmitting(false);
 
@@ -244,113 +244,197 @@ export default function Tournaments() {
   };
 
   return (
-    <section id="tournaments" className="py-24 px-6 bg-white relative scroll-mt-24 lg:scroll-mt-28">
-      <div className="max-w-7xl mx-auto space-y-16">
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-3 max-w-2xl">
-            <span className="font-sans text-xs font-semibold tracking-widest text-[#6B4A34] uppercase">
-              Compete & Grow
-            </span>
-            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-charcoal leading-tight">
-              Upcoming Tournaments
-            </h2>
-            <p className="font-sans text-xs md:text-sm text-charcoal/70 leading-relaxed">
-              Participate in our chess tournaments. Every entry fee directly supports board donations and chess-in-school curriculums.
-            </p>
+    <>
+      <Navbar />
+      <main className="flex-grow pt-[72px] bg-[#FAF7F2] min-h-screen pb-24">
+        {/* Premium Hero Banner Header */}
+        <div className="bg-[#16171A] text-white py-24 px-6 relative overflow-hidden">
+          {/* Background Image Banner */}
+          <div className="absolute inset-0 z-0">
+            <Image
+              src="/images/pieces.jpg"
+              alt="Chess Tournaments Banner"
+              fill
+              priority
+              unoptimized
+              className="object-cover opacity-30"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#16171A] via-[#16171A]/70 to-transparent" />
           </div>
 
-          <div className="flex items-center gap-4 self-start md:self-auto">
-            <Link 
-              href="/tournaments"
-              className="group inline-flex items-center text-[#6B4A34] font-sans text-sm font-bold hover:text-[#2A170F] transition-colors duration-300 whitespace-nowrap hover:underline underline-offset-4"
-            >
-              See All
-              <ArrowRight className="w-4 h-4 ml-1.5 group-hover:translate-x-1 transition-transform" />
-            </Link>
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#6B4A34]/20 rounded-full blur-[100px] pointer-events-none" />
+          <div className="absolute bottom-0 left-[-100px] w-[300px] h-[300px] bg-[#C8B195]/10 rounded-full blur-[80px] pointer-events-none" />
+
+          <div className="max-w-7xl mx-auto relative z-10 text-center space-y-6">
+            <h1 className="font-serif text-4xl md:text-6xl font-bold tracking-tight text-[#C8B195] drop-shadow-md">
+              Chess Tournaments
+            </h1>
+            <p className="font-sans text-base md:text-lg text-white/70 max-w-2xl mx-auto leading-relaxed font-light">
+              Compete, level up your FIDE rating, and empower communities through chess. Every entry fee directly supports board donations and chess-in-school curriculums.
+            </p>
           </div>
         </div>
 
-        {loading ? (
-          <div className="flex justify-center items-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-wood" />
-          </div>
-        ) : tournaments.length === 0 ? (
-          <div className="rounded-2xl border border-stone/20 bg-stone/5 p-8 text-center text-sm text-charcoal/70">
-            No tournaments are currently published. Admin-managed tournaments will appear here automatically.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {tournaments.slice(0, 3).map((t, index) => {
-              const config = TOURNAMENT_CONFIGS[index % TOURNAMENT_CONFIGS.length];
-              const posterImage = t.poster_url || config.image;
+        {/* Tournaments Grid Section */}
+        <div className="max-w-7xl mx-auto px-6 py-16 space-y-16">
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-[#6B4A34]" />
+            </div>
+          ) : tournaments.length === 0 ? (
+            <div className="rounded-3xl border border-stone-200 bg-white p-12 text-center text-sm text-stone-500 shadow-sm">
+              No tournaments are currently published. New upcoming tournaments will appear here automatically.
+            </div>
+          ) : (
+            <>
+              {/* Upcoming Tournaments Section */}
+              <div className="space-y-6">
+                <div className="border-b border-stone-200 pb-3 flex items-center justify-between">
+                  <h2 className="font-serif text-2xl font-bold text-[#2A2421]">
+                    Upcoming Tournaments ({tournaments.filter(t => t.status !== 'completed').length})
+                  </h2>
+                  <span className="font-sans text-xs text-[#6B4A34] font-semibold uppercase tracking-wider">
+                    Registration Open
+                  </span>
+                </div>
 
-              return (
-                <div
-                  key={t.id}
-                  className="relative overflow-hidden h-[450px] rounded-[24px] border border-stone/20 shadow-lg group hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 cursor-pointer"
-                  onClick={() => {
-                    setSelectedTournament(t);
-                    setStatusMessage(null);
-                    setCheckoutRequestId(null);
-                  }}
-                >
-                  {/* Full-Bleed Background Image */}
-                  <div className="absolute inset-0 z-0 overflow-hidden">
-                    <Image
-                      src={posterImage}
-                      alt={t.name}
-                      fill
-                      unoptimized
-                      sizes="(max-w-7xl) 100vw, 33vw"
-                      className="object-cover group-hover:scale-105 transition-all duration-700"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-charcoal/30 to-transparent" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {tournaments.filter(t => t.status !== 'completed').map((t, index) => {
+                    const config = TOURNAMENT_CONFIGS[index % TOURNAMENT_CONFIGS.length];
+                    const posterImage = t.poster_url || config.image;
+
+                    return (
+                      <div
+                        key={t.id}
+                        className="relative overflow-hidden h-[450px] rounded-[24px] border border-stone-200/40 shadow-lg group hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 cursor-pointer"
+                        onClick={() => {
+                          setSelectedTournament(t);
+                          setStatusMessage(null);
+                          setCheckoutRequestId(null);
+                        }}
+                      >
+                        {/* Full-Bleed Background Image */}
+                        <div className="absolute inset-0 z-0 overflow-hidden">
+                          <Image
+                            src={posterImage}
+                            alt={t.name}
+                            fill
+                            unoptimized
+                            sizes="(max-width: 768px) 100vw, 33vw"
+                            className="object-cover group-hover:scale-105 transition-all duration-700"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#16171A]/95 via-[#16171A]/40 to-transparent" />
+                        </div>
+
+                        {/* Bottom Panel */}
+                        <div className="absolute bottom-0 left-0 right-0 bg-[#16171A]/60 backdrop-blur-md border-t border-white/10 p-6 flex flex-col space-y-3 z-10 text-white">
+                          <div>
+                            <h3 className="font-serif text-lg md:text-xl font-bold text-white leading-tight">
+                              {t.name}
+                            </h3>
+
+                            <div className="flex items-center space-x-4 mt-2 text-xs text-white/80 font-sans">
+                              <div className="flex items-center space-x-1">
+                                <Calendar className="w-3.5 h-3.5 text-[#C8B195]" />
+                                <span>{t.event_date}</span>
+                              </div>
+                              <div className="flex items-center space-x-1">
+                                <MapPin className="w-3.5 h-3.5 text-[#C8B195]" />
+                                <span className="truncate max-w-[140px]">{t.venue}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                            <div>
+                              <span className="text-[10px] text-white/60 uppercase tracking-wider block font-sans">Entry Fee</span>
+                              <span className="font-serif text-base font-bold text-[#C8B195]">
+                                KES {t.entry_fee.toLocaleString()}
+                              </span>
+                            </div>
+                            <button className="px-4 py-2 bg-[#6B4A34] text-white font-sans text-xs font-bold rounded-xl hover:bg-[#523826] transition-all shadow-md">
+                              Register Now
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Past / Completed Events Section (if any exist) */}
+              {tournaments.some(t => t.status === 'completed') && (
+                <div className="space-y-6 pt-6">
+                  <div className="border-b border-stone-200 pb-3 flex items-center justify-between">
+                    <h2 className="font-serif text-2xl font-bold text-[#2A2421]/80">
+                      Past Events & Archives
+                    </h2>
+                    <span className="font-sans text-xs text-stone-500 uppercase tracking-wider">
+                      Completed
+                    </span>
                   </div>
 
-                  {/* Bottom Panel */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-charcoal/60 backdrop-blur-md border-t border-white/10 p-6 flex flex-col space-y-3 z-10 text-white">
-                    <div>
-                      <h3 className="font-serif text-lg md:text-xl font-bold text-white leading-tight">
-                        {t.name}
-                      </h3>
-                      
-                      <div className="flex items-center space-x-4 mt-2 text-xs text-white/80 font-sans">
-                        <div className="flex items-center space-x-1">
-                          <Calendar className="w-3.5 h-3.5 text-[#C8B195]" />
-                          <span>{t.event_date}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <MapPin className="w-3.5 h-3.5 text-[#C8B195]" />
-                          <span className="truncate max-w-[120px]">{t.venue}</span>
-                        </div>
-                      </div>
-                    </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {tournaments.filter(t => t.status === 'completed').map((t, index) => {
+                      const config = TOURNAMENT_CONFIGS[index % TOURNAMENT_CONFIGS.length];
+                      const posterImage = t.poster_url || config.image;
 
-                    <div className="flex items-center justify-between pt-2 border-t border-white/10">
-                      <div>
-                        <span className="text-[10px] text-white/60 uppercase tracking-wider block font-sans">Entry Fee</span>
-                        <span className="font-serif text-base font-bold text-[#C8B195]">
-                          KES {t.entry_fee.toLocaleString()}
-                        </span>
-                      </div>
-                      <button className="px-4 py-2 bg-wood text-white font-sans text-xs font-bold rounded-xl hover:bg-wood/90 transition-all shadow-md">
-                        Register Now
-                      </button>
-                    </div>
+                      return (
+                        <div
+                          key={t.id}
+                          className="relative overflow-hidden h-[450px] rounded-[24px] border border-stone-200/40 shadow-md group hover:shadow-xl transition-all duration-500 opacity-90 grayscale-[20%] hover:grayscale-0"
+                        >
+                          <div className="absolute inset-0 z-0 overflow-hidden">
+                            <Image
+                              src={posterImage}
+                              alt={t.name}
+                              fill
+                              unoptimized
+                              sizes="(max-width: 768px) 100vw, 33vw"
+                              className="object-cover group-hover:scale-105 transition-all duration-700"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#16171A]/95 via-[#16171A]/40 to-transparent" />
+                          </div>
+
+                          <div className="absolute bottom-0 left-0 right-0 bg-[#16171A]/60 backdrop-blur-md border-t border-white/10 p-6 flex flex-col space-y-3 z-10 text-white">
+                            <div>
+                              <div className="flex items-center justify-between mb-1">
+                                <h3 className="font-serif text-lg font-bold text-white leading-tight">
+                                  {t.name}
+                                </h3>
+                                <span className="px-2.5 py-0.5 bg-stone-700/80 text-stone-300 font-mono text-[9px] font-bold rounded-full uppercase">
+                                  Completed
+                                </span>
+                              </div>
+
+                              <div className="flex items-center space-x-4 mt-2 text-xs text-white/80 font-sans">
+                                <div className="flex items-center space-x-1">
+                                  <Calendar className="w-3.5 h-3.5 text-[#C8B195]" />
+                                  <span>{t.event_date}</span>
+                                </div>
+                                <div className="flex items-center space-x-1">
+                                  <MapPin className="w-3.5 h-3.5 text-[#C8B195]" />
+                                  <span className="truncate max-w-[140px]">{t.venue}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
+              )}
+            </>
+          )}
+        </div>
 
         {/* Executive Tournament Registration Modal */}
         {selectedTournament && (
-          <div className="fixed inset-0 bg-charcoal/70 backdrop-blur-md z-50 flex items-center justify-center p-4 printable-ticket-modal-backdrop">
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-3xl border border-stone-200 shadow-2xl max-w-2xl w-full max-h-[92vh] overflow-y-auto p-6 md:p-8 relative animate-scale-in">
               
-              {/* Clean Absolute Top-Right Close Button */}
               <button
                 onClick={() => {
                   setSelectedTournament(null);
@@ -358,23 +442,22 @@ export default function Tournaments() {
                   setCheckoutRequestId(null);
                   setConfirmedRegistration(null);
                 }}
-                className="absolute top-5 right-5 w-9 h-9 rounded-full bg-stone-100 text-charcoal hover:bg-[#6B4A34] hover:text-white font-bold flex items-center justify-center text-sm transition-all z-20 print-hide shadow-sm"
+                className="absolute top-5 right-5 w-9 h-9 rounded-full bg-stone-100 text-stone-800 hover:bg-[#6B4A34] hover:text-white font-bold flex items-center justify-center text-sm transition-all z-20 shadow-sm"
               >
                 ✕
               </button>
 
-              {/* Modal Header Banner (Hidden when ticket pass is displayed) */}
               {statusMessage?.type !== 'success' && (
                 <div className="mb-6 border-b border-stone-100 pb-4 pr-12 space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-[10px] font-bold text-[#6B4A34] uppercase tracking-wider">
                       Grand Prix Tournament Registration
                     </span>
-                    <span className="font-sans text-xs font-semibold text-charcoal/70">
+                    <span className="font-sans text-xs font-semibold text-stone-600">
                       Entry Fee: <strong className="font-serif text-sm font-bold text-[#6B4A34]">{isPwdDap ? 'FREE (KES 0)' : `KES ${currentFee.toLocaleString()}`}</strong>
                     </span>
                   </div>
-                  <h3 className="font-serif text-2xl font-bold text-charcoal leading-tight">
+                  <h3 className="font-serif text-2xl font-bold text-[#2A2421] leading-tight">
                     {selectedTournament.name}
                   </h3>
                 </div>
@@ -383,9 +466,7 @@ export default function Tournaments() {
               {statusMessage ? (
                 <div className="space-y-4">
                   {statusMessage.type === 'success' ? (
-                    /* EXECUTIVE DIGITAL TOURNAMENT PLAYER PASS BADGE */
                     <div id="printable-ticket" className="bg-[#FAF7F2] border-2 border-[#C8B195] rounded-3xl p-6 md:p-8 space-y-6 shadow-xl relative overflow-hidden">
-                      {/* Watermark Crest Header */}
                       <div className="flex items-center justify-between border-b-2 border-[#6B4A34]/20 pb-4">
                         <div className="flex items-center space-x-3">
                           <div className="w-10 h-10 rounded-full bg-[#6B4A34] text-[#C8B195] flex items-center justify-center font-serif text-xl shadow-inner">
@@ -406,7 +487,6 @@ export default function Tournaments() {
                         </span>
                       </div>
 
-                      {/* Tournament Name */}
                       <div className="space-y-1">
                         <span className="text-[10px] text-stone-400 font-mono uppercase block font-bold">Tournament</span>
                         <h4 className="font-serif text-2xl font-bold text-[#6B4A34]">
@@ -414,11 +494,10 @@ export default function Tournaments() {
                         </h4>
                       </div>
 
-                      {/* Executive Details Grid */}
                       <div className="grid grid-cols-2 gap-4 bg-white p-5 rounded-2xl border border-[#C8B195]/40 shadow-sm text-xs">
                         <div>
                           <span className="text-[10px] text-stone-400 font-mono uppercase block font-bold">Player Name</span>
-                          <span className="font-bold text-charcoal text-sm block truncate">
+                          <span className="font-bold text-[#2A2421] text-sm block truncate">
                             {confirmedRegistration?.playerName || `${surname} ${otherNames}`.trim() || 'Player'}
                           </span>
                         </div>
@@ -442,7 +521,6 @@ export default function Tournaments() {
                         </div>
                       </div>
 
-                      {/* Payment Verification Receipt Banner */}
                       <div className="bg-[#6B4A34] text-white p-4 rounded-2xl flex items-center justify-between font-mono text-xs shadow-md">
                         <div>
                           <span className="text-[9px] text-[#C8B195] uppercase block font-bold">M-PESA RECEIPT CODE</span>
@@ -460,12 +538,11 @@ export default function Tournaments() {
                         Please present this ticket pass (digital or printed) at the tournament registration desk on event day.
                       </p>
 
-                      {/* Print & Action Buttons */}
-                      <div className="flex flex-col sm:flex-row gap-3 pt-2 print-hide">
+                      <div className="flex flex-col sm:flex-row gap-3 pt-2">
                         <button
                           type="button"
                           onClick={() => window.print()}
-                          className="flex-1 py-3.5 bg-stone-200 hover:bg-stone-300 text-charcoal font-sans text-xs font-bold rounded-xl transition-all flex items-center justify-center space-x-2"
+                          className="flex-1 py-3.5 bg-stone-200 hover:bg-stone-300 text-[#2A2421] font-sans text-xs font-bold rounded-xl transition-all flex items-center justify-center space-x-2"
                         >
                           <span>🖨️ Print / Save Pass</span>
                         </button>
@@ -477,14 +554,13 @@ export default function Tournaments() {
                             setCheckoutRequestId(null);
                             setConfirmedRegistration(null);
                           }}
-                          className="flex-1 py-3.5 bg-[#6B4A34] hover:brightness-110 text-white font-sans text-xs font-bold rounded-xl shadow-lg transition-all"
+                          className="flex-1 py-3.5 bg-[#6B4A34] hover:bg-[#523826] text-white font-sans text-xs font-bold rounded-xl shadow-lg transition-all"
                         >
                           Done & Close Window
                         </button>
                       </div>
                     </div>
                   ) : (
-                    /* PENDING OR ERROR STATE CARD */
                     <div className={`p-6 rounded-2xl mb-6 shadow-sm border ${
                       statusMessage.type === 'pending'
                         ? 'bg-amber-50/90 border-amber-300 text-amber-950'
@@ -501,7 +577,7 @@ export default function Tournaments() {
                         </h4>
                       </div>
                       <p className="text-xs leading-relaxed opacity-90">{statusMessage.text}</p>
-                      
+
                       {statusMessage.type === 'pending' && checkoutRequestId && (
                         <div className="mt-4 pt-3 border-t border-amber-200 flex flex-col sm:flex-row gap-2">
                           <button
@@ -527,51 +603,48 @@ export default function Tournaments() {
                   )}
                 </div>
               ) : (
-                /* STRUCTURED 3-SECTION REGISTRATION FORM */
                 <form onSubmit={handleRegisterSubmit} className="space-y-6">
-                  
-                  {/* SECTION 1: PLAYER PROFILE & CATEGORY */}
                   <div className="space-y-3">
                     <div className="flex items-center space-x-2 border-b border-stone-100 pb-2">
                       <User className="w-4 h-4 text-[#6B4A34]" />
-                      <h4 className="font-serif font-bold text-sm text-charcoal uppercase tracking-wider">
+                      <h4 className="font-serif font-bold text-sm text-[#2A2421] uppercase tracking-wider">
                         1. Player Profile & Category
                       </h4>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Surname *</label>
+                        <label className="block font-sans text-xs font-semibold text-stone-600 mb-1">Surname *</label>
                         <input
                           type="text"
                           required
                           value={surname}
                           onChange={(e) => setSurname(e.target.value)}
                           placeholder="Kimani"
-                          className="w-full bg-stone-50 border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:border-[#6B4A34]"
+                          className="w-full bg-stone-50 border border-stone-300 p-2.5 rounded-xl text-xs text-[#2A2421] focus:outline-none focus:border-[#6B4A34]"
                         />
                       </div>
                       <div>
-                        <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Other Names *</label>
+                        <label className="block font-sans text-xs font-semibold text-stone-600 mb-1">Other Names *</label>
                         <input
                           type="text"
                           required
                           value={otherNames}
                           onChange={(e) => setOtherNames(e.target.value)}
                           placeholder="John Mwangi"
-                          className="w-full bg-stone-50 border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:border-[#6B4A34]"
+                          className="w-full bg-stone-50 border border-stone-300 p-2.5 rounded-xl text-xs text-[#2A2421] focus:outline-none focus:border-[#6B4A34]"
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Gender *</label>
+                        <label className="block font-sans text-xs font-semibold text-stone-600 mb-1">Gender *</label>
                         <select
                           required
                           value={gender}
                           onChange={(e) => setGender(e.target.value)}
-                          className="w-full bg-stone-50 border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:border-[#6B4A34]"
+                          className="w-full bg-stone-50 border border-stone-300 p-2.5 rounded-xl text-xs text-[#2A2421] focus:outline-none focus:border-[#6B4A34]"
                         >
                           <option value="">Select Gender</option>
                           <option value="Male">Male</option>
@@ -579,36 +652,36 @@ export default function Tournaments() {
                         </select>
                       </div>
                       <div>
-                        <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Country *</label>
+                        <label className="block font-sans text-xs font-semibold text-stone-600 mb-1">Country *</label>
                         <input
                           type="text"
                           required
                           value={country}
                           onChange={(e) => setCountry(e.target.value)}
                           placeholder="Kenya"
-                          className="w-full bg-stone-50 border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:border-[#6B4A34]"
+                          className="w-full bg-stone-50 border border-stone-300 p-2.5 rounded-xl text-xs text-[#2A2421] focus:outline-none focus:border-[#6B4A34]"
                         />
                       </div>
                       <div>
-                        <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Date of Birth *</label>
+                        <label className="block font-sans text-xs font-semibold text-stone-600 mb-1">Date of Birth *</label>
                         <input
                           type="date"
                           required
                           value={dob}
                           onChange={(e) => setDob(e.target.value)}
-                          className="w-full bg-stone-50 border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:border-[#6B4A34]"
+                          className="w-full bg-stone-50 border border-stone-300 p-2.5 rounded-xl text-xs text-[#2A2421] focus:outline-none focus:border-[#6B4A34]"
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Tournament Category *</label>
+                        <label className="block font-sans text-xs font-semibold text-stone-600 mb-1">Tournament Category *</label>
                         <select
                           required
                           value={category}
                           onChange={(e) => setCategory(e.target.value)}
-                          className="w-full bg-stone-50 border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:border-[#6B4A34]"
+                          className="w-full bg-stone-50 border border-stone-300 p-2.5 rounded-xl text-xs text-[#2A2421] focus:outline-none focus:border-[#6B4A34]"
                         >
                           <option value="">Select Category</option>
                           {GRAND_PRIX_CATEGORIES.map((cat) => (
@@ -617,82 +690,80 @@ export default function Tournaments() {
                         </select>
                       </div>
                       <div>
-                        <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">FIDE ID (If any)</label>
+                        <label className="block font-sans text-xs font-semibold text-stone-600 mb-1">FIDE ID (If any)</label>
                         <input
                           type="text"
                           value={fideId}
                           onChange={(e) => setFideId(e.target.value)}
                           placeholder="00"
-                          className="w-full bg-stone-50 border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:border-[#6B4A34]"
+                          className="w-full bg-stone-50 border border-stone-300 p-2.5 rounded-xl text-xs text-[#2A2421] focus:outline-none focus:border-[#6B4A34]"
                         />
                       </div>
                     </div>
                   </div>
 
-                  {/* SECTION 2: CLUB REPRESENTATION & CONTACT */}
                   <div className="space-y-3 pt-2">
                     <div className="flex items-center space-x-2 border-b border-stone-100 pb-2">
                       <Trophy className="w-4 h-4 text-[#6B4A34]" />
-                      <h4 className="font-serif font-bold text-sm text-charcoal uppercase tracking-wider">
+                      <h4 className="font-serif font-bold text-sm text-[#2A2421] uppercase tracking-wider">
                         2. Club Representation & Contact
                       </h4>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Chess Club / School / Institution</label>
+                        <label className="block font-sans text-xs font-semibold text-stone-600 mb-1">Chess Club / School / Institution</label>
                         <input
                           type="text"
                           value={school}
                           onChange={(e) => setSchool(e.target.value)}
                           placeholder="Kibera Knights / Mwiki Primary"
-                          className="w-full bg-stone-50 border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:border-[#6B4A34]"
+                          className="w-full bg-stone-50 border border-stone-300 p-2.5 rounded-xl text-xs text-[#2A2421] focus:outline-none focus:border-[#6B4A34]"
                         />
                       </div>
                       <div>
-                        <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Email Address *</label>
+                        <label className="block font-sans text-xs font-semibold text-stone-600 mb-1">Email Address *</label>
                         <input
                           type="email"
                           required
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="player@example.com"
-                          className="w-full bg-stone-50 border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:border-[#6B4A34]"
+                          className="w-full bg-stone-50 border border-stone-300 p-2.5 rounded-xl text-xs text-[#2A2421] focus:outline-none focus:border-[#6B4A34]"
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">M-Pesa Mobile Number *</label>
+                        <label className="block font-sans text-xs font-semibold text-stone-600 mb-1">M-Pesa Mobile Number *</label>
                         <input
                           type="tel"
                           required
                           value={phoneNumber}
                           onChange={(e) => setPhoneNumber(e.target.value)}
                           placeholder="07XXXXXXXX"
-                          className="w-full bg-stone-50 border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:border-[#6B4A34]"
+                          className="w-full bg-stone-50 border border-stone-300 p-2.5 rounded-xl text-xs text-[#2A2421] focus:outline-none focus:border-[#6B4A34]"
                         />
                         <span className="font-sans text-[10px] text-stone-500">Number that receives the M-Pesa STK prompt.</span>
                       </div>
                       <div>
-                        <label className="block font-sans text-xs font-semibold text-charcoal/70 mb-1">Accompanying Person (Optional)</label>
+                        <label className="block font-sans text-xs font-semibold text-stone-600 mb-1">Accompanying Person (Optional)</label>
                         <input
                           type="text"
                           value={accompanyingPerson}
                           onChange={(e) => setAccompanyingPerson(e.target.value)}
                           placeholder="Parent / Coach Name"
-                          className="w-full bg-stone-50 border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:border-[#6B4A34]"
+                          className="w-full bg-stone-50 border border-stone-300 p-2.5 rounded-xl text-xs text-[#2A2421] focus:outline-none focus:border-[#6B4A34]"
                         />
                       </div>
                     </div>
                   </div>
 
-                  {/* SECTION 3: TERMS & EVENT REGULATIONS */}
                   <div className="space-y-3 pt-2">
                     <div className="flex items-center space-x-2 border-b border-stone-100 pb-2">
                       <FileText className="w-4 h-4 text-[#6B4A34]" />
-                      <h4 className="font-serif font-bold text-sm text-charcoal uppercase tracking-wider">
+                      <h4 className="font-serif font-bold text-sm text-[#2A2421] uppercase tracking-wider">
                         3. Terms of Service & Event Regulations
                       </h4>
                     </div>
@@ -709,16 +780,16 @@ export default function Tournaments() {
                       
                       <div className="space-y-2 text-[11px] leading-relaxed max-h-28 overflow-y-auto pr-1 font-sans text-stone-600">
                         <p>
-                          <strong className="text-charcoal font-semibold">1. FIDE & Chess Kenya Rules:</strong> By registering, players agree to adhere strictly to official tournament rules, pairing criteria, and sportsmanship regulations governed by FIDE and Chess Kenya.
+                          <strong className="text-[#2A2421] font-semibold">1. FIDE & Chess Kenya Rules:</strong> By registering, players agree to adhere strictly to official tournament rules, pairing criteria, and sportsmanship regulations governed by FIDE and Chess Kenya.
                         </p>
                         <p>
-                          <strong className="text-charcoal font-semibold">2. Media & Photography Consent:</strong> Participants (and parents/guardians for minors) grant Jumuiya Chess Initiative rights to photograph and record video during the tournament for website, media, and promotional publications.
+                          <strong className="text-[#2A2421] font-semibold">2. Media & Photography Consent:</strong> Participants (and parents/guardians for minors) grant Jumuiya Chess Initiative rights to photograph and record video during the tournament for website, media, and promotional publications.
                         </p>
                         <p>
-                          <strong className="text-charcoal font-semibold">3. Code of Conduct & Fair Play:</strong> Electronic devices must be powered off in the playing hall. Unsportsmanlike conduct or cheating results in immediate disqualification without fee refund.
+                          <strong className="text-[#2A2421] font-semibold">3. Code of Conduct & Fair Play:</strong> Electronic devices must be powered off in the playing hall. Unsportsmanlike conduct or cheating results in immediate disqualification without fee refund.
                         </p>
                         <p>
-                          <strong className="text-charcoal font-semibold">4. Entry Fee & Refunds:</strong> Entry fees are processed securely via M-Pesa. Registration fees are non-refundable once pairings are published, unless the tournament is cancelled by organizers.
+                          <strong className="text-[#2A2421] font-semibold">4. Entry Fee & Refunds:</strong> Entry fees are processed securely via M-Pesa. Registration fees are non-refundable once pairings are published, unless the tournament is cancelled by organizers.
                         </p>
                       </div>
                     </div>
@@ -741,7 +812,7 @@ export default function Tournaments() {
                   <button
                     type="submit"
                     disabled={formSubmitting}
-                    className="w-full mt-4 py-3.5 bg-[#6B4A34] text-white font-sans text-xs font-bold rounded-xl shadow-md hover:brightness-110 active:scale-[0.99] transition-all duration-300 flex items-center justify-center space-x-2"
+                    className="w-full mt-4 py-3.5 bg-[#6B4A34] text-white font-sans text-xs font-bold rounded-xl shadow-md hover:bg-[#523826] active:scale-[0.99] transition-all duration-300 flex items-center justify-center space-x-2"
                   >
                     {formSubmitting ? (
                       <>
@@ -757,7 +828,8 @@ export default function Tournaments() {
             </div>
           </div>
         )}
-      </div>
-    </section>
+      </main>
+      <Footer />
+    </>
   );
 }

@@ -55,10 +55,17 @@ export default function BlogNews({ posts = [], videos = [] }: { posts?: BlogPost
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
             {/* Left Column: Stylistic Video Layout (Main Highlight + 2 Sub-grid Cards, NO Scrollbars) */}
             <div className="lg:col-span-6 space-y-5">
-              <div className="border-b border-stone-200/80 pb-2">
+              <div className="border-b border-stone-200/80 pb-2 flex items-center justify-between">
                 <h3 className="font-sans text-xs font-bold tracking-widest text-[#6B4A34] uppercase">
                   Featured Videos & Live Stream
                 </h3>
+                <a 
+                  href="/news#videos"
+                  className="group inline-flex items-center text-[#6B4A34] font-sans text-xs font-bold hover:text-[#2A170F] transition-colors duration-300 hover:underline underline-offset-4"
+                >
+                  Explore Gallery
+                  <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
+                </a>
               </div>
 
               {/* Main Featured Highlight Video */}
@@ -111,19 +118,6 @@ export default function BlogNews({ posts = [], videos = [] }: { posts?: BlogPost
                   </div>
                 ))}
               </div>
-
-              <div className="flex justify-center pt-8">
-                <a 
-                  href="/news#videos"
-                  className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#2A2421] hover:bg-[#6B4A34] text-white font-sans text-[13px] font-bold uppercase tracking-[0.15em] rounded-2xl overflow-hidden transition-all duration-500 hover:shadow-[0_10px_40px_-10px_rgba(107,74,52,0.5)] hover:-translate-y-1 w-full sm:w-auto border border-[#2A2421] hover:border-[#6B4A34]"
-                >
-                  <span className="relative z-10 flex items-center gap-2">
-                    Explore Video Gallery
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-500" />
-                  </span>
-                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
-                </a>
-              </div>
             </div>
 
             {/* Right Column: Articles Vertical List View */}
@@ -132,9 +126,13 @@ export default function BlogNews({ posts = [], videos = [] }: { posts?: BlogPost
                 <h3 className="font-sans text-xs font-bold tracking-widest text-[#6B4A34] uppercase">
                   Latest Articles & Reports
                 </h3>
-                <span className="text-xs font-sans text-stone-400">
-                  {posts.length} Posts
-                </span>
+                <a 
+                  href="/news#articles"
+                  className="group inline-flex items-center text-[#6B4A34] font-sans text-xs font-bold hover:text-[#2A170F] transition-colors duration-300 hover:underline underline-offset-4"
+                >
+                  Read All Articles
+                  <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
+                </a>
               </div>
 
               {posts.length === 0 ? (
@@ -193,19 +191,6 @@ export default function BlogNews({ posts = [], videos = [] }: { posts?: BlogPost
                         </div>
                       </div>
                     ))}
-                  </div>
-
-                  <div className="flex justify-center pt-6">
-                    <a 
-                      href="/news#articles"
-                      className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#2A2421] hover:bg-[#6B4A34] text-white font-sans text-[13px] font-bold uppercase tracking-[0.15em] rounded-2xl overflow-hidden transition-all duration-500 hover:shadow-[0_10px_40px_-10px_rgba(107,74,52,0.5)] hover:-translate-y-1 w-full sm:w-auto border border-[#2A2421] hover:border-[#6B4A34]"
-                    >
-                      <span className="relative z-10 flex items-center gap-2">
-                        Read All Articles
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-500" />
-                      </span>
-                      <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
-                    </a>
                   </div>
                 </div>
               )}

@@ -25,7 +25,7 @@ const CHESS_PIECE_IMAGES = [
 export default function Shop({ products = [] }: { products?: Product[] }) {
   const [scrollLeft, setScrollLeft] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  
+
   const { addItem } = useCartStore();
   const [addedItem, setAddedItem] = useState<string | null>(null);
   const router = useRouter();
@@ -33,13 +33,13 @@ export default function Shop({ products = [] }: { products?: Product[] }) {
   const handleBuyNow = (e: React.MouseEvent, p: Product) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     // Only add if not already in cart to prevent double-adding on quick clicks
-    const existing = useCartStore.getState().items.find(i => i.productId === p.id);
+    const existing = useCartStore.getState().items.find((i: { productId: string; }) => i.productId === p.id);
     if (!existing) {
       addItem({ productId: p.id, name: p.name, price: p.price, quantity: 1, imageUrl: p.image_url });
     }
-    
+
     router.push('/store/checkout');
   };
 
@@ -81,10 +81,10 @@ export default function Shop({ products = [] }: { products?: Product[] }) {
             {/* CTA Button */}
             <Link 
               href="/store"
-              className="group inline-flex items-center px-6 py-3 bg-[#6B4A34] text-white font-sans text-sm font-bold rounded-full hover:bg-[#2A170F] transition-all duration-300 shadow-md hover:shadow-lg whitespace-nowrap"
+              className="group inline-flex items-center text-[#6B4A34] font-sans text-sm font-bold hover:text-[#2A170F] transition-colors duration-300 whitespace-nowrap hover:underline underline-offset-4"
             >
               Shop Full Collection
-              <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-4 h-4 ml-1.5 group-hover:translate-x-1 transition-transform" />
             </Link>
 
             {/* Navigation Arrows */}
@@ -130,38 +130,45 @@ export default function Shop({ products = [] }: { products?: Product[] }) {
                 <div
                   onClick={() => router.push(`/store/${p.id}`)}
                   key={p.id}
-                  className="relative min-w-[220px] sm:min-w-[300px] bg-white rounded-[24px] sm:rounded-[32px] border border-[#6B4A34]/10 flex flex-col overflow-hidden group snap-start shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+                  className="relative min-w-[280px] sm:min-w-[320px] md:min-w-[350px] h-[450px] rounded-[24px] border border-stone-200/20 shadow-lg group hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 cursor-pointer overflow-hidden snap-start shrink-0"
                 >
-                  {/* Product Image — Top */}
-                  <div className="relative aspect-[4/3] bg-[#FAF7F2] overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none z-10" />
+                  {/* Full-Bleed Background Image */}
+                  <div className="absolute inset-0 z-0 overflow-hidden">
                     <Image
                       src={productImage}
                       alt={p.name}
                       fill
                       unoptimized
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      sizes="350px"
+                      className="object-cover group-hover:scale-105 transition-all duration-700"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-charcoal/95 via-charcoal/40 to-transparent" />
                   </div>
 
-                  {/* Content — Bottom */}
-                  <div className="p-4 sm:p-6 md:p-8 flex-grow flex flex-col justify-between bg-white z-20">
-                    <div className="space-y-1 sm:space-y-2 mb-4 sm:mb-6">
-                      <h3 className="font-serif text-base sm:text-xl md:text-2xl font-bold text-[#232320] leading-tight group-hover:text-[#6B4A34] transition-colors line-clamp-1">
+                  {/* Glossy Shimmer Wave Effect on Hover */}
+                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none z-20" />
+
+                  {/* Glassmorphism Bottom Panel */}
+                  <div className="absolute bottom-0 left-0 right-0 bg-charcoal/60 backdrop-blur-md border-t border-white/10 p-6 flex flex-col space-y-3 z-10 text-white">
+                    <div>
+                      <h3 className="font-serif text-lg md:text-xl font-bold text-white leading-tight group-hover:text-[#C8B195] transition-colors line-clamp-1">
                         {p.name}
                       </h3>
-                      <p className="font-sans text-[10px] sm:text-xs text-[#232320]/60 line-clamp-2 leading-relaxed">
+                      <p className="font-sans text-xs text-white/80 line-clamp-2 mt-1 leading-relaxed">
                         {p.description || "Premium Jumuia Chess product. Supports our outreach programs."}
                       </p>
                     </div>
 
-                    <div className="flex items-center justify-between pt-4 border-t border-[#6B4A34]/10">
-                      <span className="font-sans text-lg font-bold text-[#6B4A34]">
-                        KES {p.price.toLocaleString()}
-                      </span>
+                    <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                      <div>
+                        <span className="text-[10px] text-white/60 uppercase tracking-wider block font-sans">Price</span>
+                        <span className="font-serif text-base font-bold text-[#C8B195]">
+                          KES {p.price.toLocaleString()}
+                        </span>
+                      </div>
                       <button
                         onClick={(e) => handleBuyNow(e, p)}
-                        className="px-6 py-2.5 bg-[#FAF7F2] text-[#6B4A34] hover:bg-[#6B4A34] hover:text-white font-sans text-xs font-bold rounded-full transition-all duration-300 shadow-sm"
+                        className="px-4 py-2 bg-wood text-white font-sans text-xs font-bold rounded-xl hover:bg-wood/90 transition-all shadow-md"
                       >
                         Buy Now
                       </button>
