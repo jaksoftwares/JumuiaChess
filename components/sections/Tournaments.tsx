@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import Link from 'next/link';
 import { apiRequest } from '@/lib/api';
-import { Calendar, MapPin, Loader2, ArrowRight } from 'lucide-react';
+import { Calendar, MapPin, Loader2, ArrowRight, ArrowRight } from 'lucide-react';
 
 const TOURNAMENT_CONFIGS = [
   { image: '/images/kids.jpg', isDark: false },
@@ -46,29 +47,16 @@ export default function Tournaments() {
     <section id="tournaments" className="py-24 px-6 bg-white relative scroll-mt-24 lg:scroll-mt-28">
       <div className="max-w-7xl mx-auto space-y-16">
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-3 max-w-2xl">
-            <span className="font-sans text-xs font-semibold tracking-widest text-[#6B4A34] uppercase">
-              Compete & Grow
-            </span>
-            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-charcoal leading-tight">
-              Upcoming Tournaments
-            </h2>
-            <p className="font-sans text-xs md:text-sm text-charcoal/70 leading-relaxed">
-              Participate in our chess tournaments. Every entry fee directly supports board donations and chess-in-school curriculums.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-4 self-start md:self-auto">
-            <Link 
-              href="/tournaments"
-              className="group inline-flex items-center text-[#6B4A34] font-sans text-sm font-bold hover:text-[#2A170F] transition-colors duration-300 whitespace-nowrap hover:underline underline-offset-4"
-            >
-              See All
-              <ArrowRight className="w-4 h-4 ml-1.5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
-        </div>
+        <div className="text-center max-w-2xl mx-auto space-y-4">
+          <span className="font-sans text-xs font-semibold tracking-widest text-[#6B4A34] uppercase">
+            Compete & Grow
+          </span>
+          <h2 className="font-serif text-4xl md:text-5xl font-bold text-[#232320]">
+            Upcoming Tournaments
+          </h2>
+          <p className="font-sans text-[#232320]/70">
+            Participate in our chess tournaments. Every entry fee directly supports board donations and chess-in-school curriculums.
+          </p>
         </div>
 
         {loading ? (
@@ -84,7 +72,7 @@ export default function Tournaments() {
             {tournaments.slice(0, 3).map((t, index) => {
               const config = TOURNAMENT_CONFIGS[index % TOURNAMENT_CONFIGS.length];
               const posterImage = t.poster_url || config.image;
-              
+
               const capacity = t.max_participants || 100;
               const registered = t.registrations_count || 0;
               const isFull = registered >= capacity;
@@ -109,7 +97,7 @@ export default function Tournaments() {
                       <h3 className="font-serif text-xl md:text-2xl font-bold text-white leading-tight mb-2 line-clamp-2">
                         {t.name}
                       </h3>
-                      
+
                       <div className="flex items-center space-x-4 text-xs text-white/80 font-sans">
                         <div className="flex items-center space-x-1">
                           <Calendar className="w-3.5 h-3.5 text-[#C8B195]" />
@@ -129,8 +117,8 @@ export default function Tournaments() {
                           KES {t.entry_fee.toLocaleString()}
                         </span>
                       </div>
-                      
-                      <Link 
+
+                      <Link
                         href={`/tournaments/${t.slug || t.id}`}
                         className={`px-5 py-2.5 flex items-center space-x-2 font-sans text-xs font-bold rounded-xl transition-all shadow-md ${isFull ? 'bg-stone-500 text-white cursor-not-allowed opacity-80' : 'bg-[#C8B195] hover:bg-white text-[#232320]'}`}
                         onClick={(e) => isFull && e.preventDefault()}
