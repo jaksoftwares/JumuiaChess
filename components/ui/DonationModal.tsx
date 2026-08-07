@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import { Loader2, Heart, ArrowRight, X, ShieldCheck, Download } from 'lucide-react';
 import { apiRequest } from '@/lib/api';
 import Barcode from 'react-barcode';
+import { useSiteSettings } from '@/components/providers/SettingsProvider';
 
 export default function DonationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const { settings } = useSiteSettings();
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   
   // Form State
@@ -389,8 +391,8 @@ export default function DonationModal({ isOpen, onClose }: { isOpen: boolean; on
                 <h3 className="font-sans text-xs font-bold text-[#6B4A34] uppercase tracking-widest mb-4 border-b border-gray-200 pb-2">Organization</h3>
                 <p className="font-serif text-lg font-bold text-gray-900 mb-1">Jumuiya Chess Initiative</p>
                 <p className="font-sans text-sm text-gray-600">Nairobi, Kenya</p>
-                <p className="font-sans text-sm text-gray-600">info@jumuiyachess.org</p>
-                <p className="font-sans text-sm text-gray-600">+254 (0) 700 000000</p>
+                <p className="font-sans text-sm text-gray-600">{settings.org_email}</p>
+                <p className="font-sans text-sm text-gray-600">{settings.org_phone}</p>
               </div>
             </div>
 

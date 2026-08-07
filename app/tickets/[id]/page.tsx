@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { apiRequest } from '@/lib/api';
 import Barcode from 'react-barcode';
-import { Loader2, Download, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Loader2, Download, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { use } from 'react';
 
@@ -98,6 +98,12 @@ export default function TicketPage({ params }: { params: Promise<{ id: string }>
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] py-12 px-4 flex flex-col items-center">
+      <div className="max-w-5xl w-full mb-6">
+        <Link href="/" className="inline-flex items-center space-x-2 text-sm font-bold text-[#6B4A34] hover:text-[#232320] transition-colors bg-white px-4 py-2 rounded-full shadow-sm border border-[#6B4A34]/10 w-fit">
+          <ArrowLeft className="w-4 h-4" />
+          <span>Return to Homepage</span>
+        </Link>
+      </div>
       <div className="max-w-5xl w-full flex justify-between items-center mb-8">
         <div>
           <h1 className="font-serif text-3xl font-bold text-[#232320]">Your Event Ticket</h1>
@@ -211,7 +217,7 @@ export default function TicketPage({ params }: { params: Promise<{ id: string }>
                 <p className="mt-1">Valid for one entry only.</p>
               </div>
               <div className="bg-white p-2 border-2 border-gray-100 rounded">
-                <Barcode value={data.ticket_number || data.id} height={40} width={1.5} fontSize={12} background="#ffffff" lineColor="#232320" renderer="canvas" />
+                <Barcode value={data.ticket_number || data.id} height={40} width={1.5} fontSize={12} background="#ffffff" lineColor="#232320" renderer="img" />
               </div>
             </div>
 

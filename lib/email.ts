@@ -6,6 +6,14 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
 const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Jumuiya Chess <info@jumuiyachess.org>';
 const resend = RESEND_API_KEY && RESEND_API_KEY !== 're_mock' ? new Resend(RESEND_API_KEY) : null;
 
+async function getOrgEmail() {
+  try {
+    const { data } = await supabaseAdmin.from('site_settings').select('org_email').single();
+    if (data && data.org_email) return data.org_email;
+  } catch (err) { }
+  return 'info@jumuiyachess.org';
+}
+
 export const sendRegistrationConfirmation = async (
   email: string,
   details: { playerName: string; tournamentName: string; amount: number; category: string; ticketNumber: string }
@@ -87,11 +95,7 @@ export const notifyAdminOfRegistration = async (
     age?: number;
   }
 ): Promise<void> => {
-  let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'info@jumuiyachess.org';
-  try {
-    const { data } = await supabaseAdmin.from('site_settings').select('org_email').single();
-    if (data && data.org_email) recipientEmail = data.org_email;
-  } catch (err) { }
+  let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || await getOrgEmail();
 
   const subject = `🎫 INTERNAL ALERT: New Registration - ${details.tournamentName}`;
   const html = `
@@ -209,18 +213,12 @@ export const sendContactNotification = async (
     </div>
   `;
 
-  let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'info@jumuiyachess.org';
-  try {
-    const { data } = await supabaseAdmin.from('site_settings').select('org_email').single();
-    if (data && data.org_email) {
-      recipientEmail = data.org_email;
-    }
-  } catch (err) { }
+  let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || await getOrgEmail();
 
   if (resend) {
     try {
-      // Create a unique array of recipients to avoid duplicate sending if recipientEmail is already info@
-      const recipients = Array.from(new Set([recipientEmail, 'info@jumuiyachess.org']));
+      const orgEmail = await getOrgEmail();
+      const recipients = Array.from(new Set([recipientEmail, orgEmail]));
       
       await resend.emails.send({
         from: RESEND_FROM_EMAIL,
@@ -280,7 +278,7 @@ export const sendDonationReceipt = async (
 
       <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
       <p style="font-size: 12px; color: #9ca3af; text-align: center;">
-        This is an automated receipt from Jumuiya Chess. If you have any questions, please contact us at info@jumuiyachess.org.
+        This is an automated receipt from Jumuiya Chess. If you have any questions, please contact us at ${await getOrgEmail()}.
       </p>
     </div>
   `;
@@ -305,13 +303,7 @@ export const sendDonationReceipt = async (
 export const notifyAdminOfDonation = async (
   details: { donorName: string; amount: number; receipt: string; message: string }
 ): Promise<void> => {
-  let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'info@jumuiyachess.org';
-  try {
-    const { data } = await supabaseAdmin.from('site_settings').select('org_email').single();
-    if (data && data.org_email) {
-      recipientEmail = data.org_email;
-    }
-  } catch (err) { }
+  let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || await getOrgEmail();
 
   const subject = `INTERNAL ALERT: New Donation Received - KES ${details.amount.toLocaleString()}`;
   const html = `
@@ -424,7 +416,7 @@ export const sendOrderReceipt = async (
 
       <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
       <p style="font-size: 12px; color: #9ca3af; text-align: center;">
-        This is an automated receipt from Jumuiya Chess. If you have any questions, please contact us at info@jumuiyachess.org.
+        This is an automated receipt from Jumuiya Chess. If you have any questions, please contact us at ${await getOrgEmail()}.
       </p>
     </div>
   `;
@@ -444,11 +436,7 @@ export const sendOrderReceipt = async (
 export const notifyAdminOfOrder = async (
   details: { customerName: string; amount: number; receipt: string; items: any[], address: string, email: string, phone: string }
 ): Promise<void> => {
-  let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'info@jumuiyachess.org';
-  try {
-    const { data } = await supabaseAdmin.from('site_settings').select('org_email').single();
-    if (data && data.org_email) recipientEmail = data.org_email;
-  } catch (err) { }
+  let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || await getOrgEmail();
 
   const subject = `INTERNAL ALERT: New Store Order - KES ${details.amount.toLocaleString()}`;
   

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { apiRequest } from '@/lib/api';
 import { SiteSettings } from '@/types';
 import { Mail, Phone, MapPin, Send, Loader2, Instagram, Facebook, Twitter, Youtube } from 'lucide-react';
+import { useSiteSettings } from '@/components/providers/SettingsProvider';
 
 export default function ContactUs() {
   const [name, setName] = useState('');
@@ -12,21 +13,8 @@ export default function ContactUs() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
-
-  useEffect(() => {
-    async function loadSettings() {
-      try {
-        const res = await apiRequest<SiteSettings>('/settings');
-        if (res.success && res.data) {
-          setSiteSettings(res.data);
-        }
-      } catch (err) {
-        console.error('[ContactUs] Failed to load settings:', err);
-      }
-    }
-    loadSettings();
-  }, []);
+  
+  const { settings: siteSettings } = useSiteSettings();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,7 +99,7 @@ export default function ContactUs() {
                   </div>
                   <div>
                     <span className="text-[10px] text-stone-400 font-mono uppercase block">Email Address</span>
-                    <span className="font-semibold text-white">info@jumuiyachess.org</span>
+                    <span className="font-semibold text-white">{siteSettings.org_email}</span>
                   </div>
                 </div>
 
@@ -121,7 +109,7 @@ export default function ContactUs() {
                   </div>
                   <div>
                     <span className="text-[10px] text-stone-400 font-mono uppercase block">Phone Number</span>
-                    <span className="font-semibold text-white">0722274720</span>
+                    <span className="font-semibold text-white">{siteSettings.org_phone}</span>
                   </div>
                 </div>
 

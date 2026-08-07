@@ -4,8 +4,17 @@ const MPESA_ENV = process.env.MPESA_ENV || 'sandbox';
 const MPESA_CONSUMER_KEY = process.env.MPESA_CONSUMER_KEY || '';
 const MPESA_CONSUMER_SECRET = process.env.MPESA_CONSUMER_SECRET || '';
 const MPESA_PASSKEY = process.env.MPESA_PASSKEY || '';
-const MPESA_SHORTCODE = process.env.MPESA_SHORTCODE || '';
 const MPESA_CALLBACK_URL = process.env.MPESA_CALLBACK_URL || '';
+
+import { supabaseAdmin } from './supabase/admin';
+
+async function getMpesaShortcode() {
+  try {
+    const { data } = await supabaseAdmin.from('site_settings').select('mpesa_paybill').single();
+    if (data && data.mpesa_paybill) return data.mpesa_paybill;
+  } catch (err) { }
+  return process.env.MPESA_SHORTCODE || '';
+}
 
 const getBaseUrl = () => {
   return MPESA_ENV.toLowerCase() === 'production'
@@ -73,20 +82,22 @@ export const initiateStkPush = async (
     };
   }
 
+  const shortcode = await getMpesaShortcode();
+  
   const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14); // YYYYMMDDHHMMSS
   const password = Buffer.from(
-    `${MPESA_SHORTCODE}${MPESA_PASSKEY}${timestamp}`
+    `${shortcode}${MPESA_PASSKEY}${timestamp}`
   ).toString('base64');
 
   const url = `${getBaseUrl()}/mpesa/stkpush/v1/processrequest`;
   const body = {
-    BusinessShortCode: MPESA_SHORTCODE,
+    BusinessShortCode: shortcode,
     Password: password,
     Timestamp: timestamp,
     TransactionType: 'CustomerPayBillOnline',
     Amount: Math.round(amount),
     PartyA: formattedPhone,
-    PartyB: MPESA_SHORTCODE,
+    PartyB: shortcode,
     PhoneNumber: formattedPhone,
     CallBackURL: MPESA_CALLBACK_URL,
     AccountReference: reference,

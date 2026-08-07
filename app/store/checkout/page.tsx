@@ -7,8 +7,10 @@ import { apiRequest } from '@/lib/api';
 import { Minus, Plus, Trash2, ArrowLeft, Loader2, ShieldCheck, ShoppingBag, Download } from 'lucide-react';
 import Link from 'next/link';
 import Barcode from 'react-barcode';
+import { useSiteSettings } from '@/components/providers/SettingsProvider';
 
 export default function CheckoutPage() {
+  const { settings, loading: settingsLoading } = useSiteSettings();
   const router = useRouter();
   const { items, updateQuantity, removeItem, getTotalPrice, clearCart } = useCartStore();
   const [mounted, setMounted] = useState(false);
@@ -153,7 +155,24 @@ export default function CheckoutPage() {
     }
   };
 
-  if (!mounted) return null;
+  if (!mounted || settingsLoading) return null;
+
+  if (!settings.shop_enabled) {
+    return (
+      <div className="min-h-[60vh] bg-[#FAF7F2] flex flex-col items-center justify-center p-6 text-center space-y-6">
+        <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm text-amber-900/30">
+          <ShieldCheck className="w-10 h-10" />
+        </div>
+        <div>
+          <h2 className="font-serif text-2xl font-bold text-[#232320] mb-2">Store is currently closed</h2>
+          <p className="font-sans text-sm text-[#232320]/60">We are not accepting orders at this time.</p>
+        </div>
+        <Link href="/" className="bg-[#232320] text-white px-6 py-3 rounded-lg font-bold text-sm hover:bg-[#6B4A34] transition-colors">
+          Return to Home
+        </Link>
+      </div>
+    );
+  }
 
   if (items.length === 0 && step === 1) {
     return (
@@ -181,8 +200,32 @@ export default function CheckoutPage() {
           Back to Store
         </Link>
 
-        {step === 1 && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {(step === 1 || step === 2) && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 relative">
+            
+            {/* Full Screen Loading Overlay */}
+            {(loading || step === 2) && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+                <div className="bg-white rounded-3xl p-10 max-w-md w-full shadow-2xl text-center transform transition-all border border-[#6B4A34]/20 flex flex-col items-center">
+                  <div className="relative w-24 h-24 mx-auto mb-6">
+                    <div className="absolute inset-0 border-4 border-[#C8B195]/30 rounded-full"></div>
+                    <div className="absolute inset-0 border-4 border-[#6B4A34] rounded-full border-t-transparent animate-spin"></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <ShieldCheck className="w-8 h-8 text-[#6B4A34] opacity-80" />
+                    </div>
+                  </div>
+                  <h3 className="font-serif text-2xl font-bold text-[#232320] mb-3">
+                    {step === 2 ? 'Processing Payment' : 'Secure Checkout'}
+                  </h3>
+                  <p className="font-sans text-[#232320]/70 text-sm leading-relaxed">
+                    {step === 2 
+                      ? `Please check your phone and enter your M-Pesa PIN to complete your order of KES ${getTotalPrice().toLocaleString()}.`
+                      : 'Connecting to secure payment gateway...'}
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Cart Items */}
             <div className="lg:col-span-7 space-y-6">
               <h1 className="font-serif text-3xl font-bold text-[#232320]">Order Summary</h1>
@@ -265,11 +308,7 @@ export default function CheckoutPage() {
                   </div>
 
                   <button type="submit" disabled={loading} className="w-full py-4 mt-4 bg-[#232320] text-white font-sans text-sm font-bold rounded-lg shadow-md hover:bg-[#6B4A34] transition-all flex items-center justify-center space-x-2 disabled:opacity-70">
-                    {loading ? (
-                      <><Loader2 className="w-4 h-4 animate-spin" /><span>Processing...</span></>
-                    ) : (
-                      <span>Pay KES {getTotalPrice().toLocaleString()}</span>
-                    )}
+                    <span>Pay KES {getTotalPrice().toLocaleString()}</span>
                   </button>
                 </form>
               </div>
@@ -277,19 +316,7 @@ export default function CheckoutPage() {
           </div>
         )}
 
-        {/* Polling State (GREEN LOADER) */}
-        {step === 2 && (
-          <div className="bg-white rounded-2xl border border-[#6B4A34]/10 shadow-sm p-12 text-center max-w-lg mx-auto mt-10">
-            <div className="relative w-20 h-20 mx-auto mb-6">
-              <div className="absolute inset-0 border-4 border-emerald-100 rounded-full"></div>
-              <div className="absolute inset-0 border-4 border-emerald-500 rounded-full border-t-transparent animate-spin"></div>
-            </div>
-            <h3 className="font-serif text-2xl font-bold text-[#232320] mb-2">Processing Payment</h3>
-            <p className="font-sans text-sm text-[#232320]/70">
-              Please check your phone and enter your M-Pesa PIN to complete your order of KES {getTotalPrice().toLocaleString()}.
-            </p>
-          </div>
-        )}
+        {/* Polling State is now handled by the overlay above */}
 
         {/* Success State */}
         {step === 3 && (
@@ -419,7 +446,7 @@ export default function CheckoutPage() {
               
               <div className="text-right font-sans text-xs text-gray-400">
                 <p className="mb-1 font-semibold text-gray-500">Jumuiya Chess Initiative</p>
-                <p>For questions about your order, please contact info@jumuiyachess.org</p>
+                <p>For questions about your order, please contact {settings.org_email}</p>
                 <p>Thank you for shopping with us.</p>
               </div>
             </div>
