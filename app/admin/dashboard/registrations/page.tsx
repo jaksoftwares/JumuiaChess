@@ -14,6 +14,25 @@ export default function AdminRegistrations() {
   const [selectedTournamentId, setSelectedTournamentId] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
 
+  // Modal State
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    type: 'confirm' | 'alert' | 'error' | 'success';
+    title: string;
+    message: string;
+    onConfirm?: () => void;
+  }>({ isOpen: false, type: 'alert', title: '', message: '' });
+
+  const closeModal = () => setModalState(prev => ({ ...prev, isOpen: false }));
+
+  const showConfirm = (title: string, message: string, onConfirm: () => void) => {
+    setModalState({ isOpen: true, type: 'confirm', title, message, onConfirm });
+  };
+
+  const showAlert = (title: string, message: string, type: 'success' | 'error' | 'alert' = 'alert') => {
+    setModalState({ isOpen: true, type, title, message });
+  };
+
   const loadTournaments = async () => {
     const tourneyRes = await apiRequest<Tournament[]>('/tournaments').catch(() => ({ success: false, data: [] }));
     if (tourneyRes?.success && Array.isArray(tourneyRes.data)) {
@@ -56,26 +75,30 @@ export default function AdminRegistrations() {
       ? tournaments.find((t) => t.id === selectedTournamentId)?.name || 'this tournament'
       : 'ALL tournaments';
 
-    if (!confirm(`⚠️ ARE YOU SURE YOU WANT TO CLEAR ALL REGISTRATIONS FOR ${currentTourneyName.toUpperCase()}?\n\nThis action cannot be undone.`)) {
-      return;
-    }
-
-    setLoading(true);
-    try {
-      let endpoint = '/registrations/clear';
-      if (selectedTournamentId) endpoint += `?tournamentId=${selectedTournamentId}`;
-      const res = await apiRequest(endpoint, { method: 'DELETE' });
-      if (res.success) {
-        alert('Registrations roster cleared successfully!');
-        loadData();
-      } else {
-        alert(res.error || 'Failed to clear roster.');
+    showConfirm(
+      'Clear Registrations',
+      `⚠️ ARE YOU SURE YOU WANT TO CLEAR ALL REGISTRATIONS FOR ${currentTourneyName.toUpperCase()}?\n\nThis action cannot be undone.`,
+      async () => {
+        closeModal();
+        setLoading(true);
+        try {
+          let endpoint = '/registrations/clear';
+          if (selectedTournamentId) endpoint += `?tournamentId=${selectedTournamentId}`;
+          const res = await apiRequest(endpoint, { method: 'DELETE' });
+          if (res.success) {
+            showAlert('Success', 'Registrations roster cleared successfully!', 'success');
+            loadData();
+          } else {
+            showAlert('Error', res.error || 'Failed to clear roster.', 'error');
+          }
+        } catch (err) {
+          console.error('Clear roster error:', err);
+          showAlert('Error', 'Network error while clearing roster.', 'error');
+        } finally {
+          setLoading(false);
+        }
       }
-    } catch (err) {
-      console.error('Clear roster error:', err);
-    } finally {
-      setLoading(false);
-    }
+    );
   };
 
   const toggleCheckIn = async (id: string, currentStatus: string) => {
@@ -88,10 +111,10 @@ export default function AdminRegistrations() {
       if (res.success) {
         setRegistrations(registrations.map(r => r.id === id ? { ...r, attendance_status: newStatus as any } : r));
       } else {
-        alert(res.error || 'Failed to update attendance status.');
+        showAlert('Check-In Error', res.error || 'Failed to update attendance status.', 'error');
       }
     } catch (err) {
-      alert('Network error.');
+      showAlert('Check-In Error', 'Network error while updating check-in.', 'error');
     }
   };
 
@@ -145,6 +168,50 @@ export default function AdminRegistrations() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Custom UI Modal */}
+      {modalState.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 print:hidden">
+          <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl transform transition-all border border-[#6B4A34]/20">
+            <h3 className={`font-serif text-xl font-bold mb-3 ${
+              modalState.type === 'error' ? 'text-red-900' :
+              modalState.type === 'success' ? 'text-emerald-700' :
+              'text-[#232320]'
+            }`}>
+              {modalState.title}
+            </h3>
+            <p className="font-sans text-sm text-[#232320]/70 mb-8 whitespace-pre-wrap">
+              {modalState.message}
+            </p>
+            <div className="flex justify-end space-x-3">
+              {modalState.type === 'confirm' && (
+                <button
+                  onClick={closeModal}
+                  className="px-4 py-2 bg-[#FAF7F2] text-[#232320] text-xs font-bold rounded-lg border border-[#6B4A34]/20 hover:bg-[#6B4A34]/10 transition-colors"
+                >
+                  Cancel
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  if (modalState.type === 'confirm' && modalState.onConfirm) {
+                    modalState.onConfirm();
+                  } else {
+                    closeModal();
+                  }
+                }}
+                className={`px-4 py-2 text-white text-xs font-bold rounded-lg transition-colors ${
+                  modalState.type === 'error' || modalState.type === 'confirm'
+                    ? 'bg-red-900 hover:bg-red-800'
+                    : 'bg-[#232320] hover:bg-[#6B4A34]'
+                }`}
+              >
+                {modalState.type === 'confirm' ? 'Confirm' : 'OK'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* PRINTABLE PDF ROSTER CONTAINER (Only visible during print/PDF saving) */}
       <div id="printable-roster" className="hidden print:block w-full bg-white text-black font-sans @page { size: A4; margin: 10mm; }">
         <div className="border-b-2 border-black pb-4 mb-6 flex justify-between items-center break-inside-avoid">

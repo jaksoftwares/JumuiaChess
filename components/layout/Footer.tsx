@@ -1,7 +1,13 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
+import { useSiteSettings } from '@/components/providers/SettingsProvider';
+import { Instagram, Facebook, Youtube } from 'lucide-react';
 
 export default function Footer() {
+  const { settings, loading } = useSiteSettings();
+
   return (
     <footer className="bg-charcoal text-offwhite border-t border-stone/20 py-12 px-6">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0">
@@ -32,7 +38,25 @@ export default function Footer() {
             </span>
           </div>
           
-
+          {!loading && (
+            <div className="flex space-x-4">
+              {settings.instagram_url && (
+                <a href={settings.instagram_url} target="_blank" rel="noopener noreferrer" className="text-stone hover:text-white transition-colors">
+                  <Instagram className="w-5 h-5" />
+                </a>
+              )}
+              {settings.facebook_url && (
+                <a href={settings.facebook_url} target="_blank" rel="noopener noreferrer" className="text-stone hover:text-white transition-colors">
+                  <Facebook className="w-5 h-5" />
+                </a>
+              )}
+              {settings.youtube_url && (
+                <a href={settings.youtube_url} target="_blank" rel="noopener noreferrer" className="text-stone hover:text-white transition-colors">
+                  <Youtube className="w-5 h-5" />
+                </a>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </footer>
