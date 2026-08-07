@@ -41,7 +41,7 @@ export default function AdminSettings() {
         if (res.data.our_story_paragraph_1) setOurStoryParagraph1(res.data.our_story_paragraph_1);
         if (res.data.our_story_paragraph_2) setOurStoryParagraph2(res.data.our_story_paragraph_2);
       } else {
-        setEmail('info@giftofchess.org');
+        setEmail('info@jumuiyachess.org');
         setPhone('+254700000000');
         setPaybill('174379');
         setInstagram('https://instagram.com/giftofchess');
@@ -132,7 +132,7 @@ export default function AdminSettings() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="info@giftofchess.org"
+                  placeholder="info@jumuiyachess.org"
                   className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
                 />
               </div>

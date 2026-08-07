@@ -78,6 +78,23 @@ export default function AdminRegistrations() {
     }
   };
 
+  const toggleCheckIn = async (id: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'checked-in' ? 'registered' : 'checked-in';
+    try {
+      const res = await apiRequest(`/admin/registrations/${id}/checkin`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (res.success) {
+        setRegistrations(registrations.map(r => r.id === id ? { ...r, attendance_status: newStatus as any } : r));
+      } else {
+        alert(res.error || 'Failed to update attendance status.');
+      }
+    } catch (err) {
+      alert('Network error.');
+    }
+  };
+
   const exportCsv = () => {
     const headers = ['Player Name', 'Tournament', 'Age', 'Category', 'Phone', 'Amount (KES)', 'Status', 'M-Pesa Receipt', 'Date'];
     const rows = registrations.map((r) => [
@@ -129,46 +146,52 @@ export default function AdminRegistrations() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* PRINTABLE PDF ROSTER CONTAINER (Only visible during print/PDF saving) */}
-      <div id="printable-roster" className="hidden print:block p-8 bg-white text-black font-sans">
-        <div className="border-b-2 border-[#6B4A34] pb-4 mb-6 flex justify-between items-center">
+      <div id="printable-roster" className="hidden print:block w-full bg-white text-black font-sans @page { size: A4; margin: 10mm; }">
+        <div className="border-b-2 border-black pb-4 mb-6 flex justify-between items-center break-inside-avoid">
           <div>
-            <h1 className="font-serif text-2xl font-bold text-[#6B4A34]">JUMUIYA CHESS INITIATIVE</h1>
-            <p className="font-mono text-xs font-bold text-stone-600 uppercase tracking-widest mt-1">
-              OFFICIAL PLAYER ROSTER & PAIRING SHEET
+            <h1 className="font-serif text-3xl font-black text-black">JUMUIYA CHESS INITIATIVE</h1>
+            <p className="font-mono text-sm font-bold text-stone-700 uppercase tracking-widest mt-1">
+              OFFICIAL EVENT ROSTER
             </p>
           </div>
           <div className="text-right text-xs">
-            <p className="font-bold text-[#6B4A34]">{selectedTournamentId ? tournaments.find(t => t.id === selectedTournamentId)?.name : 'All Tournaments'}</p>
-            <p className="text-stone-500 font-mono text-[10px]">Generated: {new Date().toLocaleString()}</p>
+            <p className="font-bold text-black text-lg">{selectedTournamentId ? tournaments.find(t => t.id === selectedTournamentId)?.name : 'All Events'}</p>
+            <p className="text-stone-600 font-mono text-[10px]">Generated: {new Date().toLocaleString()}</p>
           </div>
         </div>
 
-        <table className="w-full text-left border-collapse text-xs">
+        <table className="w-full text-left border-collapse text-[10px]">
           <thead>
-            <tr className="border-b-2 border-stone-800 text-stone-700 font-bold uppercase">
-              <th className="py-2">#</th>
-              <th className="py-2">Player Name</th>
-              <th className="py-2">Age</th>
-              <th className="py-2">Category</th>
-              <th className="py-2">Phone</th>
-              <th className="py-2">Status</th>
-              <th className="py-2">M-Pesa Receipt</th>
+            <tr className="border-b-2 border-black text-black font-black uppercase break-inside-avoid">
+              <th className="py-3 px-1">#</th>
+              <th className="py-3 px-1">Player Name</th>
+              <th className="py-3 px-1">Category</th>
+              <th className="py-3 px-1">Phone</th>
+              <th className="py-3 px-1">Ticket #</th>
+              <th className="py-3 px-1">Payment</th>
+              <th className="py-3 px-1 text-center">Attend</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-stone-200">
+          <tbody className="divide-y divide-stone-300">
             {registrations.map((reg, index) => (
-              <tr key={reg.id}>
-                <td className="py-2.5 font-mono">{index + 1}</td>
-                <td className="py-2.5 font-bold">{reg.player_name}</td>
-                <td className="py-2.5">{reg.age}</td>
-                <td className="py-2.5 font-semibold">{reg.category}</td>
-                <td className="py-2.5">{reg.phone_number}</td>
-                <td className="py-2.5 uppercase font-bold">{reg.payment_status}</td>
-                <td className="py-2.5 font-mono text-[10px]">{reg.mpesa_receipt || '—'}</td>
+              <tr key={reg.id} className="break-inside-avoid">
+                <td className="py-3 px-1 font-mono text-stone-500">{index + 1}</td>
+                <td className="py-3 px-1 font-bold text-[11px] text-black uppercase">{reg.player_name}</td>
+                <td className="py-3 px-1 font-semibold text-stone-800">{reg.category}</td>
+                <td className="py-3 px-1 font-mono">{reg.phone_number}</td>
+                <td className="py-3 px-1 font-mono font-bold text-stone-600">{reg.ticket_number || '—'}</td>
+                <td className="py-3 px-1 font-bold">{reg.payment_status === 'completed' ? 'PAID' : reg.payment_status.toUpperCase()}</td>
+                <td className="py-3 px-1 text-center">
+                  <div className={`w-4 h-4 border border-black mx-auto ${reg.attendance_status === 'checked-in' ? 'bg-black' : 'bg-white'}`}></div>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
+        
+        <div className="mt-8 text-center text-[10px] text-stone-500 font-mono border-t border-stone-200 pt-4 break-inside-avoid">
+          End of Roster • Jumuiya Chess Initiative
+        </div>
       </div>
 
       {/* Main Admin UI Screen */}
@@ -278,13 +301,15 @@ export default function AdminRegistrations() {
                 <tr className="border-b border-[#6B4A34]/10 text-[#6B4A34] font-bold uppercase tracking-wider text-[10px]">
                   <th className="pb-3">Player Name</th>
                   <th className="pb-3">Tournament</th>
-                  <th className="pb-3">Age</th>
+                  <th className="pb-3">Age/Gender</th>
                   <th className="pb-3">Category</th>
+                  <th className="pb-3">FIDE / Country</th>
+                  <th className="pb-3">Ticket</th>
                   <th className="pb-3">Phone</th>
-                  <th className="pb-3">Amount</th>
-                  <th className="pb-3">Status</th>
-                  <th className="pb-3">Receipt</th>
+                  <th className="pb-3">Payment</th>
+                  <th className="pb-3 text-center">Attendance</th>
                   <th className="pb-3">Date</th>
+                  <th className="pb-3 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#6B4A34]/10">
@@ -296,19 +321,64 @@ export default function AdminRegistrations() {
                         ? reg.tournaments[0]?.name
                         : (typeof reg.tournaments === 'object' && reg.tournaments !== null ? reg.tournaments.name : 'Tournament')}
                     </td>
-                    <td className="py-3.5 text-[#232320]/70">{reg.age}</td>
                     <td className="py-3.5">
-                      <span className="inline-flex items-center text-[10px] bg-[#FAF7F2] text-[#6B4A34] px-2 py-0.5 rounded font-bold border border-[#6B4A34]/20">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[10px] text-[#232320]/70">Age: {reg.age}</span>
+                        <span className="text-[10px] text-[#232320]/70">{reg.gender || '—'}</span>
+                      </div>
+                    </td>
+                    <td className="py-3.5">
+                      <span className="inline-flex w-fit items-center text-[10px] bg-[#FAF7F2] text-[#6B4A34] px-2 py-0.5 rounded font-bold border border-[#6B4A34]/20">
                         <Award className="h-3 w-3 mr-1 text-[#6B4A34]" />
                         {reg.category}
                       </span>
                     </td>
+                    <td className="py-3.5">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-mono font-bold">{reg.fide_id || '00'}</span>
+                        <span className="text-[10px] text-[#232320]/70">{reg.country || 'Kenya'}</span>
+                      </div>
+                    </td>
+                    <td className="py-3.5">
+                      <span className="font-mono text-xs font-bold text-[#6B4A34] bg-[#FAF7F2] px-2 py-1 rounded border border-[#6B4A34]/20">
+                        {reg.ticket_number || '—'}
+                      </span>
+                    </td>
                     <td className="py-3.5 text-[#232320]/70">{reg.phone_number}</td>
-                    <td className="py-3.5 font-bold text-[#6B4A34]">KES {reg.amount}</td>
-                    <td className="py-3.5">{getStatusBadge(reg.payment_status)}</td>
-                    <td className="py-3.5 font-mono text-[10px] text-[#232320]/70">{reg.mpesa_receipt || '—'}</td>
+                    <td className="py-3.5">
+                      <div className="flex flex-col gap-1">
+                        <span className="font-bold text-[#6B4A34]">KES {reg.amount}</span>
+                        {getStatusBadge(reg.payment_status)}
+                        <span className="font-mono text-[10px] text-[#232320]/70 truncate max-w-[100px]">{reg.mpesa_receipt || '—'}</span>
+                      </div>
+                    </td>
+                    <td className="py-3.5 text-center">
+                      <button 
+                        onClick={() => toggleCheckIn(reg.id, reg.attendance_status || 'registered')}
+                        className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition-colors ${
+                          reg.attendance_status === 'checked-in'
+                            ? 'bg-green-100 text-green-800 border border-green-300'
+                            : 'bg-gray-100 text-gray-600 border border-gray-300 hover:bg-[#6B4A34] hover:text-white'
+                        }`}
+                      >
+                        {reg.attendance_status === 'checked-in' ? 'Checked In ✓' : 'Check In'}
+                      </button>
+                    </td>
                     <td className="py-3.5 text-[10px] text-[#232320]/50">
-                      {reg.created_at ? new Date(reg.created_at).toLocaleString() : '—'}
+                      {reg.created_at ? new Date(reg.created_at).toLocaleDateString() : '—'}
+                    </td>
+                    <td className="py-3.5 text-right">
+                      {reg.ticket_number && (
+                        <a 
+                          href={`/tickets/${reg.ticket_number}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center justify-center p-2 bg-[#FAF7F2] text-[#6B4A34] hover:bg-[#6B4A34] hover:text-white rounded-lg transition-colors border border-[#6B4A34]/20 shadow-sm"
+                          title="View/Print Ticket"
+                        >
+                          <Printer className="w-4 h-4" />
+                        </a>
+                      )}
                     </td>
                   </tr>
                 ))}

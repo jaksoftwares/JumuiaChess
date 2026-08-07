@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { sendRegistrationConfirmation, sendDonationReceipt, notifyAdminOfDonation, sendOrderReceipt, notifyAdminOfOrder } from '@/lib/email';
+import { sendRegistrationConfirmation, notifyAdminOfRegistration, sendDonationReceipt, notifyAdminOfDonation, sendOrderReceipt, notifyAdminOfOrder } from '@/lib/email';
 
 // POST /api/mpesa/callback
 export async function POST(request: NextRequest) {
@@ -39,14 +39,32 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true, message: 'Already processed' });
       }
 
-      await supabaseAdmin.from('registrations').update({ payment_status: paymentStatus, mpesa_receipt: mpesaReceipt }).eq('id', registration.id);
+      let ticketNumber = null;
+      if (ResultCode === 0) {
+        ticketNumber = `JUM-TKT-${registration.id.substring(0, 6).toUpperCase()}`;
+      }
 
-      if (ResultCode === 0 && registration.email) {
-        await sendRegistrationConfirmation(registration.email, {
+      await supabaseAdmin.from('registrations').update({ 
+        payment_status: paymentStatus, 
+        mpesa_receipt: mpesaReceipt,
+        ticket_number: ticketNumber 
+      }).eq('id', registration.id);
+
+      if (ResultCode === 0 && ticketNumber) {
+        if (registration.email) {
+          await sendRegistrationConfirmation(registration.email, {
+            playerName: registration.player_name,
+            tournamentName: registration.tournaments?.name || 'Tournament',
+            amount: parseFloat(registration.amount),
+            category: registration.category,
+            ticketNumber: ticketNumber
+          });
+        }
+        await notifyAdminOfRegistration({
           playerName: registration.player_name,
           tournamentName: registration.tournaments?.name || 'Tournament',
           amount: parseFloat(registration.amount),
-          category: registration.category
+          ticketNumber: ticketNumber
         });
       }
       return NextResponse.json({ success: true, type: 'registration' });

@@ -32,9 +32,21 @@ export default function AdminTournaments() {
   const [entryFee, setEntryFee] = useState('');
   const [categories, setCategories] = useState<string[]>([]);
   const [description, setDescription] = useState('');
+  const [maxParticipants, setMaxParticipants] = useState('100');
+  const [registrationDeadline, setRegistrationDeadline] = useState('');
+  const [termsUrl, setTermsUrl] = useState('');
   const [posterUrl, setPosterUrl] = useState<File | string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [customCategoryInput, setCustomCategoryInput] = useState('');
+
+  const handleAddCustomCategory = () => {
+    const cat = customCategoryInput.trim();
+    if (cat && !categories.includes(cat)) {
+      setCategories([...categories, cat]);
+    }
+    setCustomCategoryInput('');
+  };
 
   const loadTournaments = async () => {
     setLoading(true);
@@ -59,6 +71,9 @@ export default function AdminTournaments() {
     setEntryFee('');
     setCategories([]);
     setDescription('');
+    setMaxParticipants('100');
+    setRegistrationDeadline('');
+    setTermsUrl('');
     setPosterUrl(null);
     setMessage(null);
     setIsModalOpen(true);
@@ -72,6 +87,9 @@ export default function AdminTournaments() {
     setEntryFee(t.entry_fee.toString());
     setCategories(t.categories || []);
     setDescription(t.description);
+    setMaxParticipants(t.max_participants ? t.max_participants.toString() : '100');
+    setRegistrationDeadline(t.registration_deadline ? new Date(t.registration_deadline).toISOString().slice(0, 16) : '');
+    setTermsUrl(t.terms_url || '');
     setPosterUrl(t.poster_url || null);
     setMessage(null);
     setIsModalOpen(true);
@@ -98,6 +116,9 @@ export default function AdminTournaments() {
       event_date: new Date(eventDate).toISOString(),
       venue,
       entry_fee: parseFloat(entryFee),
+      max_participants: parseInt(maxParticipants, 10),
+      registration_deadline: registrationDeadline ? new Date(registrationDeadline).toISOString() : null,
+      terms_url: termsUrl || null,
       categories,
       description,
       poster_url: finalPosterUrl || undefined,
@@ -191,6 +212,7 @@ export default function AdminTournaments() {
                   <th className="pb-3">Date</th>
                   <th className="pb-3">Venue</th>
                   <th className="pb-3">Fee</th>
+                  <th className="pb-3">Capacity</th>
                   <th className="pb-3 text-right">Actions</th>
                 </tr>
               </thead>
@@ -201,6 +223,7 @@ export default function AdminTournaments() {
                     <td className="py-3.5 text-stone-600">{new Date(t.event_date).toLocaleDateString()}</td>
                     <td className="py-3.5 max-w-[140px] truncate text-stone-600">{t.venue}</td>
                     <td className="py-3.5 font-bold text-[#6B4A34]">KES {t.entry_fee}</td>
+                    <td className="py-3.5 font-bold text-stone-600">{t.registrations_count || 0} / {t.max_participants || 100}</td>
                     <td className="py-3.5 text-right space-x-1">
                       <button
                         onClick={() => handleEditClick(t)}
@@ -287,26 +310,87 @@ export default function AdminTournaments() {
             />
           </div>
 
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">Max Participants</label>
+              <input
+                type="number"
+                value={maxParticipants}
+                onChange={(e) => setMaxParticipants(e.target.value)}
+                placeholder="100"
+                className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">Registration Deadline</label>
+              <input
+                type="datetime-local"
+                value={registrationDeadline}
+                onChange={(e) => setRegistrationDeadline(e.target.value)}
+                className="w-full bg-white border border-stone-300 p-2 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
+              />
+            </div>
+          </div>
+
           <div>
             <label className="block text-xs font-semibold text-stone-700 mb-2">Tournament Categories *</label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-stone-50 p-3 rounded-xl border border-stone-200">
-              {GRAND_PRIX_CATEGORIES.map((cat) => (
-                <label key={cat} className="flex items-center space-x-2 text-xs text-stone-700 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={categories.includes(cat)}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setCategories([...categories, cat]);
-                      } else {
-                        setCategories(categories.filter((c) => c !== cat));
-                      }
-                    }}
-                    className="rounded border-stone-300 text-[#6B4A34] focus:ring-[#6B4A34]"
-                  />
-                  <span>{cat}</span>
-                </label>
-              ))}
+            
+            {/* Custom Category Input */}
+            <div className="flex gap-2 mb-3">
+              <input
+                type="text"
+                value={customCategoryInput}
+                onChange={(e) => setCustomCategoryInput(e.target.value)}
+                placeholder="e.g. Corporate Teams"
+                className="flex-1 bg-white border border-stone-300 p-2 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddCustomCategory();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                onClick={handleAddCustomCategory}
+                className="px-4 py-2 bg-[#6B4A34] text-white text-xs font-bold rounded-xl hover:bg-[#573b29] transition-colors"
+              >
+                Add
+              </button>
+            </div>
+
+            {/* Selected Categories Display */}
+            {categories.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-4 p-3 bg-[#FAF7F2] rounded-xl border border-stone-200">
+                {categories.map(cat => (
+                  <span key={cat} className="inline-flex items-center gap-1 bg-white border border-[#6B4A34]/20 px-2.5 py-1.5 rounded-full text-[10px] font-bold text-[#6B4A34] shadow-sm">
+                    {cat}
+                    <button type="button" onClick={() => setCategories(categories.filter(c => c !== cat))} className="text-red-400 hover:text-red-600 font-bold ml-1 text-sm leading-none">&times;</button>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Quick Add Suggestions */}
+            <div className="text-[10px] font-bold text-stone-500 uppercase mb-2">Quick Add Presets:</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {GRAND_PRIX_CATEGORIES.map((cat) => {
+                const isSelected = categories.includes(cat);
+                return (
+                  <label key={cat} className={`flex items-center space-x-2 text-xs cursor-pointer p-2 rounded-lg border transition-colors ${isSelected ? 'bg-[#6B4A34]/10 border-[#6B4A34]/30' : 'bg-stone-50 border-stone-200 hover:bg-stone-100'}`}>
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={(e) => {
+                        if (e.target.checked) setCategories([...categories, cat]);
+                        else setCategories(categories.filter((c) => c !== cat));
+                      }}
+                      className="rounded border-stone-300 text-[#6B4A34] focus:ring-[#6B4A34]"
+                    />
+                    <span className={isSelected ? 'text-[#6B4A34] font-bold' : 'text-stone-700'}>{cat}</span>
+                  </label>
+                );
+              })}
             </div>
           </div>
 
