@@ -76,7 +76,7 @@ export const sendRegistrationConfirmation = async (
 export const notifyAdminOfRegistration = async (
   details: { playerName: string; tournamentName: string; amount: number; ticketNumber: string }
 ): Promise<void> => {
-  let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'iykekonzolaw21@gmail.com';
+  let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'info@jumuiyachess.org';
   try {
     const { data } = await supabaseAdmin.from('site_settings').select('org_email').single();
     if (data && data.org_email) recipientEmail = data.org_email;
@@ -123,7 +123,7 @@ export const sendContactNotification = async (
     </html>
   `;
 
-  let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'iykekonzolaw21@gmail.com';
+  let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'info@jumuiyachess.org';
   try {
     const { data } = await supabaseAdmin.from('site_settings').select('org_email').single();
     if (data && data.org_email) {
@@ -216,7 +216,7 @@ export const sendDonationReceipt = async (
 export const notifyAdminOfDonation = async (
   details: { donorName: string; amount: number; receipt: string; message: string }
 ): Promise<void> => {
-  let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'iykekonzolaw21@gmail.com';
+  let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'info@jumuiyachess.org';
   try {
     const { data } = await supabaseAdmin.from('site_settings').select('org_email').single();
     if (data && data.org_email) {
@@ -323,7 +323,7 @@ export const sendOrderReceipt = async (
 export const notifyAdminOfOrder = async (
   details: { customerName: string; amount: number; receipt: string; items: any[], address: string, email: string, phone: string }
 ): Promise<void> => {
-  let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'iykekonzolaw21@gmail.com';
+  let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'info@jumuiyachess.org';
   try {
     const { data } = await supabaseAdmin.from('site_settings').select('org_email').single();
     if (data && data.org_email) recipientEmail = data.org_email;
