@@ -1,6 +1,7 @@
 export interface Tournament {
   id: string;
   name: string;
+  slug?: string;
   poster_url?: string;
   event_date: string;
   venue: string;
@@ -8,6 +9,10 @@ export interface Tournament {
   entry_fee: number;
   description: string;
   status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
+  max_participants?: number;
+  registration_deadline?: string;
+  terms_url?: string;
+  registrations_count?: number;
   created_at?: string;
 }
 
@@ -15,11 +20,19 @@ export interface Registration {
   id: string;
   tournament_id: string;
   player_name: string;
+  first_name?: string;
+  last_name?: string;
   email?: string;
   age: number;
+  date_of_birth?: string;
+  gender?: string;
+  country?: string;
+  fide_id?: string;
   school?: string;
   category: string;
   phone_number: string;
+  accompanying_person?: string;
+  consent_given?: boolean;
   amount: number;
   payment_status: 'pending' | 'completed' | 'failed';
   checkout_request_id?: string;

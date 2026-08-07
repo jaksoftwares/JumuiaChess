@@ -165,8 +165,9 @@ export default function AdminRegistrations() {
             <tr className="border-b-2 border-stone-800 text-stone-700 font-bold uppercase">
               <th className="py-2">#</th>
               <th className="py-2">Player Name</th>
-              <th className="py-2">Age</th>
+              <th className="py-2">Age/Gender</th>
               <th className="py-2">Category</th>
+              <th className="py-2">FIDE ID / Country</th>
               <th className="py-2">Ticket #</th>
               <th className="py-2">Phone</th>
               <th className="py-2">Status</th>
@@ -178,8 +179,9 @@ export default function AdminRegistrations() {
               <tr key={reg.id}>
                 <td className="py-2.5 font-mono">{index + 1}</td>
                 <td className="py-2.5 font-bold">{reg.player_name}</td>
-                <td className="py-2.5">{reg.age}</td>
+                <td className="py-2.5">{reg.age} / {reg.gender || 'N/A'}</td>
                 <td className="py-2.5 font-semibold">{reg.category}</td>
+                <td className="py-2.5">{reg.fide_id || '00'} / {reg.country || 'Kenya'}</td>
                 <td className="py-2.5 font-mono text-[10px]">{reg.ticket_number || '—'}</td>
                 <td className="py-2.5">{reg.phone_number}</td>
                 <td className="py-2.5 uppercase font-bold">{reg.payment_status}</td>
@@ -297,7 +299,9 @@ export default function AdminRegistrations() {
                 <tr className="border-b border-[#6B4A34]/10 text-[#6B4A34] font-bold uppercase tracking-wider text-[10px]">
                   <th className="pb-3">Player Name</th>
                   <th className="pb-3">Tournament</th>
-                  <th className="pb-3">Age/Cat</th>
+                  <th className="pb-3">Age/Gender</th>
+                  <th className="pb-3">Category</th>
+                  <th className="pb-3">FIDE / Country</th>
                   <th className="pb-3">Ticket</th>
                   <th className="pb-3">Phone</th>
                   <th className="pb-3">Payment</th>
@@ -317,10 +321,19 @@ export default function AdminRegistrations() {
                     <td className="py-3.5">
                       <div className="flex flex-col gap-1">
                         <span className="text-[10px] text-[#232320]/70">Age: {reg.age}</span>
-                        <span className="inline-flex w-fit items-center text-[10px] bg-[#FAF7F2] text-[#6B4A34] px-2 py-0.5 rounded font-bold border border-[#6B4A34]/20">
-                          <Award className="h-3 w-3 mr-1 text-[#6B4A34]" />
-                          {reg.category}
-                        </span>
+                        <span className="text-[10px] text-[#232320]/70">{reg.gender || '—'}</span>
+                      </div>
+                    </td>
+                    <td className="py-3.5">
+                      <span className="inline-flex w-fit items-center text-[10px] bg-[#FAF7F2] text-[#6B4A34] px-2 py-0.5 rounded font-bold border border-[#6B4A34]/20">
+                        <Award className="h-3 w-3 mr-1 text-[#6B4A34]" />
+                        {reg.category}
+                      </span>
+                    </td>
+                    <td className="py-3.5">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-mono font-bold">{reg.fide_id || '00'}</span>
+                        <span className="text-[10px] text-[#232320]/70">{reg.country || 'Kenya'}</span>
                       </div>
                     </td>
                     <td className="py-3.5">
