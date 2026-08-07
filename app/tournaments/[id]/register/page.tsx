@@ -220,21 +220,21 @@ export default function RegisterTournamentPage({ params }: { params: Promise<{ i
           ) : statusMessage ? (
             <div className={`p-8 rounded-2xl mb-6 shadow-sm border ${
               statusMessage.type === 'pending'
-                ? 'bg-amber-50/90 border-amber-300 text-amber-950'
+                ? 'bg-[#FAF7F2] border-[#C8B195] text-[#232320]'
                 : statusMessage.type === 'success' 
-                ? 'bg-emerald-50/90 border-emerald-300 text-emerald-950'
-                : 'bg-red-50/90 border-red-300 text-red-950'
+                ? 'bg-[#FAF7F2] border-[#6B4A34] text-[#232320]'
+                : 'bg-red-50 border-red-200 text-red-900'
             }`}>
               <div className="flex items-center space-x-3 mb-4">
                 {statusMessage.type === 'pending' ? (
-                  <Loader2 className="w-6 h-6 animate-spin text-amber-700" />
+                  <Loader2 className="w-6 h-6 animate-spin text-[#6B4A34]" />
                 ) : statusMessage.type === 'success' ? (
-                  <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+                  <CheckCircle2 className="w-6 h-6 text-[#6B4A34]" />
                 ) : (
                   <ShieldCheck className="w-6 h-6 text-red-600" />
                 )}
-                <h4 className="font-bold text-lg">
-                  {statusMessage.type === 'pending' ? 'Waiting for Payment...' : statusMessage.type === 'success' ? 'Registration Complete!' : 'Payment Error'}
+                <h4 className="font-serif font-bold text-lg text-[#6B4A34]">
+                  {statusMessage.type === 'pending' ? 'Processing Payment...' : statusMessage.type === 'success' ? 'Registration Complete!' : 'Payment Error'}
                 </h4>
               </div>
               <p className="text-sm leading-relaxed opacity-90 mb-4">{statusMessage.text}</p>
@@ -243,9 +243,9 @@ export default function RegisterTournamentPage({ params }: { params: Promise<{ i
                 <button
                   type="button"
                   onClick={() => checkPaymentStatus(checkoutRequestId)}
-                  className="py-2.5 px-6 bg-amber-700 hover:bg-amber-800 text-white font-sans text-xs font-bold rounded-xl transition-all shadow-sm"
+                  className="py-3 px-6 bg-[#6B4A34] hover:bg-[#232320] text-white font-sans text-xs font-bold rounded-xl transition-all shadow-sm"
                 >
-                  Re-check Payment Status Now
+                  Verify Payment Status
                 </button>
               )}
 
@@ -253,7 +253,7 @@ export default function RegisterTournamentPage({ params }: { params: Promise<{ i
                 <button
                   type="button"
                   onClick={() => setStatusMessage(null)}
-                  className="py-2.5 px-6 bg-red-800 hover:bg-red-900 text-white font-sans text-xs font-bold rounded-xl transition-all shadow-sm"
+                  className="py-3 px-6 bg-[#232320] hover:bg-red-900 text-white font-sans text-xs font-bold rounded-xl transition-all shadow-sm"
                 >
                   Try Again
                 </button>
