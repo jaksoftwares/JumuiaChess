@@ -231,7 +231,7 @@ export default function RegisterTournamentPage({ params }: { params: Promise<{ i
                 ) : statusMessage.type === 'success' ? (
                   <CheckCircle2 className="w-6 h-6 text-emerald-600" />
                 ) : (
-                  <span className="text-2xl">⚠️</span>
+                  <ShieldCheck className="w-6 h-6 text-red-600" />
                 )}
                 <h4 className="font-bold text-lg">
                   {statusMessage.type === 'pending' ? 'Waiting for Payment...' : statusMessage.type === 'success' ? 'Registration Complete!' : 'Payment Error'}
@@ -245,7 +245,7 @@ export default function RegisterTournamentPage({ params }: { params: Promise<{ i
                   onClick={() => checkPaymentStatus(checkoutRequestId)}
                   className="py-2.5 px-6 bg-amber-700 hover:bg-amber-800 text-white font-sans text-xs font-bold rounded-xl transition-all shadow-sm"
                 >
-                  🔄 Re-check Payment Status Now
+                  Re-check Payment Status Now
                 </button>
               )}
 
