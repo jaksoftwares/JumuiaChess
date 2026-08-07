@@ -28,7 +28,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           fideId: registration.fide_id || '00',
           tournamentName: registration.tournaments?.name || 'Tournament',
           amount: registration.amount,
-          id: registration.id.slice(-6)
+          id: registration.id,
+          ticket_number: registration.ticket_number
         }
       });
     }

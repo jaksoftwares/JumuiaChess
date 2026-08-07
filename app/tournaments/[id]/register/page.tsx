@@ -68,7 +68,7 @@ export default function RegisterTournamentPage({ params }: { params: Promise<{ i
         if (res.paymentStatus === 'completed') {
           setStatusMessage({
             type: 'success',
-            text: 'Payment received! Redirecting to your ticket...',
+            text: 'Payment received! Redirecting to your ticket... A copy has also been sent to your email.',
             receipt: res.mpesaReceipt || 'M-PESA CONFIRMED',
             ticketId: res.registration?.ticket_number || res.registration?.id
           });

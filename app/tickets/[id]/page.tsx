@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { apiRequest } from '@/lib/api';
 import Barcode from 'react-barcode';
-import { Loader2, Download, AlertCircle } from 'lucide-react';
+import { Loader2, Download, AlertCircle, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { use } from 'react';
 
@@ -100,7 +100,11 @@ export default function TicketPage({ params }: { params: Promise<{ id: string }>
       <div className="max-w-5xl w-full flex justify-between items-center mb-8">
         <div>
           <h1 className="font-serif text-3xl font-bold text-[#232320]">Your Event Ticket</h1>
-          <p className="font-sans text-sm text-[#6B4A34]">Download and present this ticket at the venue.</p>
+          <p className="font-sans text-sm text-[#6B4A34] mb-1">Download and present this ticket at the venue.</p>
+          <div className="flex items-center space-x-2 text-xs text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full w-fit">
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>A copy of this ticket has been sent to your email.</span>
+          </div>
         </div>
         <button
           onClick={downloadPDF}
