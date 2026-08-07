@@ -7,6 +7,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE IF NOT EXISTS tournaments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
+    slug TEXT UNIQUE,
     poster_url TEXT,
     event_date TIMESTAMP WITH TIME ZONE NOT NULL,
     venue TEXT NOT NULL,
@@ -14,6 +15,9 @@ CREATE TABLE IF NOT EXISTS tournaments (
     entry_fee NUMERIC(10, 2) NOT NULL,
     description TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'upcoming' CHECK (status IN ('upcoming', 'ongoing', 'completed', 'cancelled')),
+    max_participants INTEGER DEFAULT 100,
+    registration_deadline TIMESTAMP WITH TIME ZONE,
+    terms_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -179,15 +183,25 @@ CREATE TABLE IF NOT EXISTS registrations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tournament_id UUID REFERENCES tournaments(id) ON DELETE CASCADE,
     player_name TEXT NOT NULL,
+    first_name TEXT,
+    last_name TEXT,
     email TEXT, -- email to send Resend confirmations
     age INTEGER NOT NULL,
+    date_of_birth DATE,
+    gender TEXT,
+    country TEXT DEFAULT 'Kenya',
+    fide_id TEXT,
     school TEXT,
     category TEXT NOT NULL,
     phone_number TEXT NOT NULL,
+    accompanying_person TEXT,
+    consent_given BOOLEAN DEFAULT false,
     amount NUMERIC(10, 2) NOT NULL,
     payment_status TEXT NOT NULL DEFAULT 'pending' CHECK (payment_status IN ('pending', 'completed', 'failed')),
     checkout_request_id TEXT UNIQUE,
     mpesa_receipt TEXT,
+    ticket_number TEXT UNIQUE,
+    attendance_status TEXT NOT NULL DEFAULT 'registered' CHECK (attendance_status IN ('registered', 'checked-in')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 

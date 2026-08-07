@@ -1,0 +1,1 @@
+ALTER TABLE registrations ADD COLUMN IF NOT EXISTS ticket_number TEXT UNIQUE; ALTER TABLE registrations ADD COLUMN IF NOT EXISTS email TEXT;

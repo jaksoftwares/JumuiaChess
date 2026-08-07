@@ -7,13 +7,56 @@ import { sendRegistrationConfirmation } from '@/lib/email';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { tournamentId, playerName, email, age, school, category, phoneNumber, amount } = body;
+    const { 
+      tournamentId, 
+      playerName, 
+      surname,
+      otherNames,
+      email, 
+      gender,
+      country,
+      dob,
+      age, 
+      school, 
+      category, 
+      fideId,
+      phoneNumber, 
+      accompanyingPerson,
+      consentGiven,
+      amount 
+    } = body;
 
     const parsedAge = age !== undefined && age !== null ? parseInt(age.toString()) : 0;
     const parsedAmount = amount !== undefined && amount !== null ? parseFloat(amount.toString()) : 0;
+    
+    // First, let's establish first_name and last_name
+    const first_name = surname || playerName?.split(' ')[0] || '';
+    const last_name = otherNames || (playerName ? playerName.substring(first_name.length).trim() : '');
+    const full_player_name = playerName || `${first_name} ${last_name}`.trim();
 
-    if (!tournamentId || !playerName || !category || !phoneNumber) {
+    if (!tournamentId || !full_player_name || !category || !phoneNumber) {
       return NextResponse.json({ error: 'Missing required registration details' }, { status: 400 });
+    }
+
+    // Capacity Check
+    const { data: tournament, error: tourneyError } = await supabaseAdmin
+      .from('tournaments')
+      .select('name, max_participants')
+      .eq('id', tournamentId)
+      .single();
+
+    if (tourneyError || !tournament) {
+      return NextResponse.json({ error: 'Tournament not found' }, { status: 404 });
+    }
+
+    const { count, error: countError } = await supabaseAdmin
+      .from('registrations')
+      .select('*', { count: 'exact', head: true })
+      .eq('tournament_id', tournamentId)
+      .in('payment_status', ['completed', 'pending']);
+
+    if (!countError && tournament.max_participants && (count || 0) >= tournament.max_participants) {
+      return NextResponse.json({ error: 'Sorry, this tournament has reached its maximum capacity.' }, { status: 400 });
     }
 
     const isFree = parsedAmount === 0;
@@ -22,33 +65,47 @@ export async function POST(request: NextRequest) {
       .from('registrations')
       .insert([{
         tournament_id: tournamentId,
-        player_name: playerName,
+        player_name: full_player_name,
+        first_name: first_name,
+        last_name: last_name,
         email,
+        gender,
+        country: country || 'Kenya',
+        date_of_birth: dob || null,
+        fide_id: fideId,
         age: parsedAge,
         school,
         category,
         phone_number: phoneNumber,
+        accompanying_person: accompanyingPerson,
+        consent_given: consentGiven || false,
         amount: parsedAmount,
-        payment_status: isFree ? 'completed' : 'pending'
+        payment_status: isFree ? 'completed' : 'pending',
+        ticket_number: isFree ? `JUM-TKT-FREE-${Math.random().toString(36).substring(2, 6).toUpperCase()}` : null
       }])
       .select()
       .single();
 
     if (regError) throw regError;
 
-    const { data: tournament } = await supabaseAdmin.from('tournaments').select('name').eq('id', tournamentId).single();
-    const tournamentName = tournament?.name || 'Tournament';
+    const tournamentName = tournament.name;
 
     if (isFree) {
       if (email) {
         sendRegistrationConfirmation(email, {
-          playerName,
+          playerName: full_player_name,
           tournamentName,
           amount: 0,
-          category
+          category,
+          ticketNumber: registration.ticket_number
         }).catch((err) => console.error('Email error:', err));
       }
-      return NextResponse.json({ success: true, message: 'Free registration completed successfully.' });
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Free registration completed successfully.',
+        ticketNumber: registration.ticket_number,
+        registrationId: registration.id
+      });
     }
 
     try {
@@ -67,7 +124,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         message: 'STK push initiated successfully.',
-        checkoutRequestId: stkResult.checkoutRequestId
+        checkoutRequestId: stkResult.checkoutRequestId,
+        registrationId: registration.id
       });
     } catch (stkError: any) {
       await supabaseAdmin.from('registrations').update({ payment_status: 'failed' }).eq('id', registration.id);

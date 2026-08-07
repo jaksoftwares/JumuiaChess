@@ -32,6 +32,9 @@ export default function AdminTournaments() {
   const [entryFee, setEntryFee] = useState('');
   const [categories, setCategories] = useState<string[]>([]);
   const [description, setDescription] = useState('');
+  const [maxParticipants, setMaxParticipants] = useState('100');
+  const [registrationDeadline, setRegistrationDeadline] = useState('');
+  const [termsUrl, setTermsUrl] = useState('');
   const [posterUrl, setPosterUrl] = useState<File | string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -59,6 +62,9 @@ export default function AdminTournaments() {
     setEntryFee('');
     setCategories([]);
     setDescription('');
+    setMaxParticipants('100');
+    setRegistrationDeadline('');
+    setTermsUrl('');
     setPosterUrl(null);
     setMessage(null);
     setIsModalOpen(true);
@@ -72,6 +78,9 @@ export default function AdminTournaments() {
     setEntryFee(t.entry_fee.toString());
     setCategories(t.categories || []);
     setDescription(t.description);
+    setMaxParticipants(t.max_participants ? t.max_participants.toString() : '100');
+    setRegistrationDeadline(t.registration_deadline ? new Date(t.registration_deadline).toISOString().slice(0, 16) : '');
+    setTermsUrl(t.terms_url || '');
     setPosterUrl(t.poster_url || null);
     setMessage(null);
     setIsModalOpen(true);
@@ -98,6 +107,9 @@ export default function AdminTournaments() {
       event_date: new Date(eventDate).toISOString(),
       venue,
       entry_fee: parseFloat(entryFee),
+      max_participants: parseInt(maxParticipants, 10),
+      registration_deadline: registrationDeadline ? new Date(registrationDeadline).toISOString() : null,
+      terms_url: termsUrl || null,
       categories,
       description,
       poster_url: finalPosterUrl || undefined,
@@ -191,6 +203,7 @@ export default function AdminTournaments() {
                   <th className="pb-3">Date</th>
                   <th className="pb-3">Venue</th>
                   <th className="pb-3">Fee</th>
+                  <th className="pb-3">Capacity</th>
                   <th className="pb-3 text-right">Actions</th>
                 </tr>
               </thead>
@@ -201,6 +214,7 @@ export default function AdminTournaments() {
                     <td className="py-3.5 text-stone-600">{new Date(t.event_date).toLocaleDateString()}</td>
                     <td className="py-3.5 max-w-[140px] truncate text-stone-600">{t.venue}</td>
                     <td className="py-3.5 font-bold text-[#6B4A34]">KES {t.entry_fee}</td>
+                    <td className="py-3.5 font-bold text-stone-600">{t.registrations_count || 0} / {t.max_participants || 100}</td>
                     <td className="py-3.5 text-right space-x-1">
                       <button
                         onClick={() => handleEditClick(t)}
@@ -285,6 +299,28 @@ export default function AdminTournaments() {
               placeholder="Kibera Community Center"
               className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">Max Participants</label>
+              <input
+                type="number"
+                value={maxParticipants}
+                onChange={(e) => setMaxParticipants(e.target.value)}
+                placeholder="100"
+                className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">Registration Deadline</label>
+              <input
+                type="datetime-local"
+                value={registrationDeadline}
+                onChange={(e) => setRegistrationDeadline(e.target.value)}
+                className="w-full bg-white border border-stone-300 p-2 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
+              />
+            </div>
           </div>
 
           <div>
