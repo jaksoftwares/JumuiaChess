@@ -9,13 +9,22 @@ export async function GET(
   try {
     const { id } = await params;
     
-    // Can search by ID or ticket_number
-    const queryCol = id.startsWith('JUM-TKT-') ? 'ticket_number' : 'id';
+    // Can search by ID (UUID), full ticket_number (JUM-TKT-XXXXXX), or 6-char short ID (XXXXXX)
+    let queryCol = 'id';
+    let queryValue = id;
+
+    if (id.startsWith('JUM-TKT-')) {
+      queryCol = 'ticket_number';
+      queryValue = id.toUpperCase();
+    } else if (id.length === 6) {
+      queryCol = 'ticket_number';
+      queryValue = `JUM-TKT-${id.toUpperCase()}`;
+    }
 
     const { data, error } = await supabaseAdmin
       .from('registrations')
       .select('*, tournaments(name, event_date, venue)')
-      .eq(queryCol, id)
+      .eq(queryCol, queryValue)
       .single();
 
     if (error) {
