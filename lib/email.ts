@@ -133,10 +133,13 @@ export const sendContactNotification = async (
 
   if (resend) {
     try {
+      // Create a unique array of recipients to avoid duplicate sending if recipientEmail is already info@
+      const recipients = Array.from(new Set([recipientEmail, 'info@jumuiyachess.org']));
+      
       await resend.emails.send({
         from: RESEND_FROM_EMAIL,
         reply_to: senderEmail,
-        to: recipientEmail,
+        to: recipients,
         subject,
         html,
       });
