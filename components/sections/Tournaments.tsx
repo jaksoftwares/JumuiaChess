@@ -46,16 +46,28 @@ export default function Tournaments() {
     <section id="tournaments" className="py-24 px-6 bg-white relative scroll-mt-24 lg:scroll-mt-28">
       <div className="max-w-7xl mx-auto space-y-16">
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto space-y-4">
-          <span className="font-sans text-xs font-semibold tracking-widest text-[#6B4A34] uppercase">
-            Compete & Grow
-          </span>
-          <h2 className="font-serif text-4xl md:text-5xl font-bold text-[#232320]">
-            Upcoming Tournaments
-          </h2>
-          <p className="font-sans text-[#232320]/70">
-            Participate in our chess tournaments. Every entry fee directly supports board donations and chess-in-school curriculums.
-          </p>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="space-y-3 max-w-2xl">
+            <span className="font-sans text-xs font-semibold tracking-widest text-[#6B4A34] uppercase">
+              Compete & Grow
+            </span>
+            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-[#232320] leading-tight">
+              Upcoming Tournaments
+            </h2>
+            <p className="font-sans text-xs md:text-sm text-[#232320]/70 leading-relaxed">
+              Participate in our chess tournaments. Every entry fee directly supports board donations and chess-in-school curriculums.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-4 self-start md:self-auto">
+            <Link 
+              href="/tournaments"
+              className="group inline-flex items-center text-[#6B4A34] font-sans text-sm font-bold hover:text-[#2A170F] transition-colors duration-300 whitespace-nowrap hover:underline underline-offset-4"
+            >
+              See All
+              <ArrowRight className="w-4 h-4 ml-1.5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
         </div>
 
         {loading ? (

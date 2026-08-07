@@ -47,8 +47,11 @@ export default function Gallery() {
 
   const scrollContainer = (direction: 'up' | 'down') => {
     if (scrollRef.current) {
+      const firstCard = scrollRef.current.querySelector('.grid > div');
+      const rowStep = firstCard ? firstCard.clientHeight + 12 : 268;
       const { scrollTop } = scrollRef.current;
-      const step = direction === 'up' ? -260 : 260;
+      const step = direction === 'up' ? -rowStep : rowStep;
+
       scrollRef.current.scrollTo({
         top: scrollTop + step,
         behavior: 'smooth',
@@ -78,23 +81,23 @@ export default function Gallery() {
           </div>
 
           {/* Container Scroll Controls */}
-          {images.length > 8 && (
-            <div className="lg:col-span-4 flex justify-start lg:justify-end gap-2 pt-1">
+          {images.length > 4 && (
+            <div className="lg:col-span-4 flex justify-start lg:justify-end gap-3 pt-1">
               <button
                 onClick={() => scrollContainer('up')}
-                className="p-2.5 px-4 rounded-xl bg-white/5 border border-white/10 text-stone-300 hover:text-[#C8B195] hover:border-[#C8B195]/50 transition-colors text-xs font-bold flex items-center gap-1.5"
-                title="Scroll Up"
+                className="px-5 py-3 rounded-xl bg-white/5 border border-white/10 text-stone-300 hover:text-[#C8B195] hover:bg-white/10 hover:border-[#C8B195]/50 transition-all text-xs font-bold flex items-center gap-2 shadow-md active:scale-95"
+                title="Scroll Up 1 Row"
               >
                 <ChevronLeft className="w-4 h-4 rotate-90" />
-                <span>Prev Rows</span>
+                <span>Prev Row</span>
               </button>
               <button
                 onClick={() => scrollContainer('down')}
-                className="p-2.5 px-4 rounded-xl bg-white/5 border border-white/10 text-stone-300 hover:text-[#C8B195] hover:border-[#C8B195]/50 transition-colors text-xs font-bold flex items-center gap-1.5"
-                title="Scroll Down"
+                className="px-5 py-3 rounded-xl bg-[#6B4A34] text-white hover:bg-[#523826] transition-all text-xs font-bold flex items-center gap-2 shadow-md active:scale-95"
+                title="Scroll Down 1 Row"
               >
+                <span>Next Row</span>
                 <ChevronRight className="w-4 h-4 rotate-90" />
-                <span>Next Rows</span>
               </button>
             </div>
           )}
@@ -109,11 +112,11 @@ export default function Gallery() {
             No gallery images published yet. Upload photos from the admin dashboard to showcase them here.
           </div>
         ) : (
-          /* TIGHT BORDERLESS PHOTO GRID DIRECTLY ON SECTION CANVAS */
+          /* FIXED 2-ROW VIEWPORT CANVAS WITH 1-ROW STEPPING */
           <div
             ref={scrollRef}
-            className="max-h-[520px] sm:max-h-[560px] md:max-h-[600px] overflow-y-auto pr-1 sm:pr-2 scroll-smooth"
-            style={{ scrollbarWidth: 'thin', scrollbarColor: '#C8B195 #141518' }}
+            className="h-[428px] sm:h-[492px] md:h-[528px] overflow-hidden scroll-smooth"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 md:gap-3">
               {images.map((img, index) => (
@@ -137,7 +140,6 @@ export default function Gallery() {
 
                   {/* Dark Vignette Overlay & Caption on Hover */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-90 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3.5 text-white z-10">
-
                     <h4 className="font-serif text-xs md:text-sm font-bold leading-tight mt-1 line-clamp-2 text-white">
                       {img.caption}
                     </h4>
