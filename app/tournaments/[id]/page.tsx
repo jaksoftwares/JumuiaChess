@@ -123,31 +123,6 @@ export default function TournamentDetailsPage({ params }: { params: Promise<{ id
 
         {/* Sidebar Info */}
         <div className="space-y-6">
-          {/* Capacity Card */}
-          <div className="bg-white border border-[#6B4A34]/20 p-6 rounded-2xl shadow-sm">
-            <h3 className="flex items-center space-x-2 font-sans font-bold text-[#6B4A34] uppercase tracking-wider text-xs mb-4">
-              <Users className="w-4 h-4" />
-              <span>Capacity Status</span>
-            </h3>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm font-bold text-[#232320]">
-                <span>{isFull ? 'Fully Booked' : 'Spots Taken'}</span>
-                <span>{registered} / {capacity}</span>
-              </div>
-              <div className="w-full h-2 bg-stone-100 rounded-full overflow-hidden">
-                <div 
-                  className={`h-full rounded-full transition-all duration-1000 ${isFull ? 'bg-red-500' : 'bg-[#6B4A34]'}`} 
-                  style={{ width: `${capacityPercentage}%` }}
-                />
-              </div>
-              {!isFull && (
-                <p className="text-xs text-stone-500 font-sans mt-2">
-                  Only {capacity - registered} spots remaining!
-                </p>
-              )}
-            </div>
-          </div>
-
           {/* Logistics Card */}
           <div className="bg-white border border-[#6B4A34]/20 p-6 rounded-2xl shadow-sm space-y-6">
             <div>

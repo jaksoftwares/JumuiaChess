@@ -164,7 +164,7 @@ INSERT INTO site_settings (
 )
 VALUES (
     1, 
-    'info@giftofchess.org', 
+    'info@jumuiyachess.org', 
     '+254700000000', 
     '174379', 
     true,

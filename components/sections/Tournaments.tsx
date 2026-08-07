@@ -102,19 +102,6 @@ export default function Tournaments() {
                       </div>
                     </div>
 
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-[10px] font-sans font-bold uppercase tracking-wider text-white/60">
-                        <span>{isFull ? 'Sold Out' : 'Capacity'}</span>
-                        <span>{registered} / {capacity}</span>
-                      </div>
-                      <div className="w-full h-1.5 bg-white/20 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full rounded-full ${isFull ? 'bg-red-500' : 'bg-[#C8B195]'}`} 
-                          style={{ width: `${capacityPercentage}%` }}
-                        />
-                      </div>
-                    </div>
-
                     <div className="flex items-center justify-between pt-4 border-t border-white/20">
                       <div>
                         <span className="text-[10px] text-white/60 uppercase tracking-wider block font-sans font-bold">Entry Fee</span>

@@ -65,7 +65,7 @@ export default function TicketPage({ params }: { params: Promise<{ id: string }>
       });
       
       const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('l', 'mm', 'a4'); // Landscape for side-by-side
+      const pdf = new jsPDF('l', 'mm', 'a4'); 
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
       
