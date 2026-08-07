@@ -81,7 +81,7 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen bg-[#FAF7F2] text-[#2C2A29] flex flex-col md:flex-row font-sans">
       {/* Mobile Top Bar */}
-      <div className="md:hidden sticky top-0 z-40 bg-white border-b border-stone-200 px-5 py-3.5 flex justify-between items-center shadow-sm">
+      <div className="md:hidden print:hidden sticky top-0 z-40 bg-white border-b border-stone-200 px-5 py-3.5 flex justify-between items-center shadow-sm">
         <div className="flex items-center space-x-2.5">
           <div className="w-8 h-8 rounded-lg bg-[#6B4A34] text-[#F3ECE2] flex items-center justify-center font-bold font-serif text-sm">
             JC
@@ -104,7 +104,7 @@ export default function DashboardLayout({
       <aside
         className={`${
           sidebarOpen ? 'block' : 'hidden'
-        } md:block bg-[#1E1C1B] text-[#F3ECE2] w-full md:w-64 shrink-0 border-r border-stone-800 flex flex-col justify-between p-5 transition-all duration-300 z-30 sticky top-0 h-screen overflow-y-auto`}
+        } md:block print:hidden bg-[#1E1C1B] text-[#F3ECE2] w-full md:w-64 shrink-0 border-r border-stone-800 flex flex-col justify-between p-5 transition-all duration-300 z-30 sticky top-0 h-screen overflow-y-auto`}
       >
         <div className="space-y-6">
           {/* Header Brand */}
@@ -193,7 +193,7 @@ export default function DashboardLayout({
       </aside>
 
       {/* Main Content Area (Light Mode) */}
-      <main className="flex-grow p-6 md:p-10 max-w-7xl mx-auto w-full overflow-y-auto bg-[#FAF7F2]">
+      <main className="flex-grow p-6 md:p-10 max-w-7xl mx-auto w-full overflow-y-auto print:overflow-visible print:h-auto print:p-0 bg-[#FAF7F2] print:bg-white">
         {children}
       </main>
     </div>
