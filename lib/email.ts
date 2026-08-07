@@ -297,30 +297,63 @@ export const notifyAdminOfOrder = async (
   console.log(`[EMAIL MOCK] Admin notified of order: ${details.receipt}`);
 };
 
-export const sendOrderShippedNotification = async (
+export const sendDeliveryStatusUpdate = async (
   email: string,
-  details: { customerName: string; receipt: string; deliveryNotes?: string }
+  details: { customerName: string; receipt: string; status: string; deliveryNotes?: string }
 ): Promise<void> => {
-  const subject = `Your Order Has Shipped! 🚀 (${details.receipt})`;
+  let statusTitle = 'Update on Your Order';
+  let statusMessage = `There is an update regarding your Jumuiya Chess order <strong>(${details.receipt})</strong>.`;
+
+  switch(details.status) {
+    case 'processing':
+      statusTitle = 'Your Order is Being Processed ⚙️';
+      statusMessage = `Great news! We are currently processing your order <strong>(${details.receipt})</strong>.`;
+      break;
+    case 'shipped':
+      statusTitle = 'Your Order Has Shipped! 🚀';
+      statusMessage = `Your order <strong>(${details.receipt})</strong> has been marked as shipped and is currently on its way to you.`;
+      break;
+    case 'delivered':
+      statusTitle = 'Your Order Has Been Delivered! 🎉';
+      statusMessage = `Your order <strong>(${details.receipt})</strong> has been successfully delivered. We hope you enjoy it!`;
+      break;
+  }
+
+  const subject = `${statusTitle} (${details.receipt})`;
   const html = `
-    <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
-      <h2 style="color: #6B4A34;">Great News, ${details.customerName}!</h2>
-      <p>Your Jumuiya Chess order <strong>(${details.receipt})</strong> has been marked as shipped and is currently on its way to you.</p>
-      ${details.deliveryNotes ? `<hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" /><p><strong>Tracking / Delivery Notes:</strong></p><p style="padding: 10px; background-color: #FAF7F2; border-radius: 4px;">${details.deliveryNotes}</p>` : ''}
-      <p style="margin-top: 20px;">If you have any questions, feel free to reply to this email.</p>
-      <p>Thank you for supporting our mission!</p>
-      <p style="font-size: 0.8em; color: #888; margin-top: 40px;">This is an automated notification from Jumuiya Chess.</p>
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 30px; border: 1px solid #e5e7eb; border-radius: 8px; color: #111827;">
+      <h1 style="color: #6B4A34; margin-top: 0;">Jumuiya Chess</h1>
+      <p style="color: #4b5563; font-size: 14px;">Logistics Update</p>
+      
+      <p>Hello <strong>${details.customerName}</strong>,</p>
+      <p>${statusMessage}</p>
+      
+      ${details.deliveryNotes ? `
+        <div style="background-color: #f9fafb; padding: 15px; border-radius: 6px; font-size: 14px; margin-top: 20px; border-left: 4px solid #6B4A34;">
+          <p style="margin: 0 0 5px 0; color: #6B4A34;"><strong>Tracking / Delivery Notes:</strong></p>
+          <p style="margin: 0; color: #4b5563;">${details.deliveryNotes}</p>
+        </div>
+      ` : ''}
+      
+      <p style="font-size: 14px; margin-top: 30px;">
+        If you have any questions about this update, feel free to reply directly to this email.
+      </p>
+
+      <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
+      <p style="font-size: 12px; color: #9ca3af; text-align: center;">
+        This is an automated notification from Jumuiya Chess.
+      </p>
     </div>
   `;
 
   if (resend) {
     try {
       await resend.emails.send({ from: RESEND_FROM_EMAIL, to: email, subject, html });
-      console.log(`[Resend] Order shipped notification sent to ${email}`);
+      console.log(`[Resend] Delivery update sent to ${email}`);
       return;
     } catch (error) {
-      console.error('[Resend Error] Failed to send order shipped notification:', error);
+      console.error('[Resend Error] Failed to send delivery update:', error);
     }
   }
-  console.log(`[EMAIL MOCK] Order shipped notification to ${email}`);
+  console.log(`[EMAIL MOCK] Delivery update to ${email} - Status: ${details.status}`);
 };
