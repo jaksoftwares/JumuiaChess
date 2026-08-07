@@ -146,50 +146,52 @@ export default function AdminRegistrations() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* PRINTABLE PDF ROSTER CONTAINER (Only visible during print/PDF saving) */}
-      <div id="printable-roster" className="hidden print:block p-8 bg-white text-black font-sans">
-        <div className="border-b-2 border-[#6B4A34] pb-4 mb-6 flex justify-between items-center">
+      <div id="printable-roster" className="hidden print:block w-full bg-white text-black font-sans @page { size: A4; margin: 10mm; }">
+        <div className="border-b-2 border-black pb-4 mb-6 flex justify-between items-center break-inside-avoid">
           <div>
-            <h1 className="font-serif text-2xl font-bold text-[#6B4A34]">JUMUIYA CHESS INITIATIVE</h1>
-            <p className="font-mono text-xs font-bold text-stone-600 uppercase tracking-widest mt-1">
-              OFFICIAL PLAYER ROSTER & PAIRING SHEET
+            <h1 className="font-serif text-3xl font-black text-black">JUMUIYA CHESS INITIATIVE</h1>
+            <p className="font-mono text-sm font-bold text-stone-700 uppercase tracking-widest mt-1">
+              OFFICIAL EVENT ROSTER
             </p>
           </div>
           <div className="text-right text-xs">
-            <p className="font-bold text-[#6B4A34]">{selectedTournamentId ? tournaments.find(t => t.id === selectedTournamentId)?.name : 'All Tournaments'}</p>
-            <p className="text-stone-500 font-mono text-[10px]">Generated: {new Date().toLocaleString()}</p>
+            <p className="font-bold text-black text-lg">{selectedTournamentId ? tournaments.find(t => t.id === selectedTournamentId)?.name : 'All Events'}</p>
+            <p className="text-stone-600 font-mono text-[10px]">Generated: {new Date().toLocaleString()}</p>
           </div>
         </div>
 
-        <table className="w-full text-left border-collapse text-xs">
+        <table className="w-full text-left border-collapse text-[10px]">
           <thead>
-            <tr className="border-b-2 border-stone-800 text-stone-700 font-bold uppercase">
-              <th className="py-2">#</th>
-              <th className="py-2">Player Name</th>
-              <th className="py-2">Age/Gender</th>
-              <th className="py-2">Category</th>
-              <th className="py-2">FIDE ID / Country</th>
-              <th className="py-2">Ticket #</th>
-              <th className="py-2">Phone</th>
-              <th className="py-2">Status</th>
-              <th className="py-2">M-Pesa Receipt</th>
+            <tr className="border-b-2 border-black text-black font-black uppercase break-inside-avoid">
+              <th className="py-3 px-1">#</th>
+              <th className="py-3 px-1">Player Name</th>
+              <th className="py-3 px-1">Category</th>
+              <th className="py-3 px-1">Phone</th>
+              <th className="py-3 px-1">Ticket #</th>
+              <th className="py-3 px-1">Payment</th>
+              <th className="py-3 px-1 text-center">Attend</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-stone-200">
+          <tbody className="divide-y divide-stone-300">
             {registrations.map((reg, index) => (
-              <tr key={reg.id}>
-                <td className="py-2.5 font-mono">{index + 1}</td>
-                <td className="py-2.5 font-bold">{reg.player_name}</td>
-                <td className="py-2.5">{reg.age} / {reg.gender || 'N/A'}</td>
-                <td className="py-2.5 font-semibold">{reg.category}</td>
-                <td className="py-2.5">{reg.fide_id || '00'} / {reg.country || 'Kenya'}</td>
-                <td className="py-2.5 font-mono text-[10px]">{reg.ticket_number || '—'}</td>
-                <td className="py-2.5">{reg.phone_number}</td>
-                <td className="py-2.5 uppercase font-bold">{reg.payment_status}</td>
-                <td className="py-2.5 font-mono text-[10px]">{reg.mpesa_receipt || '—'}</td>
+              <tr key={reg.id} className="break-inside-avoid">
+                <td className="py-3 px-1 font-mono text-stone-500">{index + 1}</td>
+                <td className="py-3 px-1 font-bold text-[11px] text-black uppercase">{reg.player_name}</td>
+                <td className="py-3 px-1 font-semibold text-stone-800">{reg.category}</td>
+                <td className="py-3 px-1 font-mono">{reg.phone_number}</td>
+                <td className="py-3 px-1 font-mono font-bold text-stone-600">{reg.ticket_number || '—'}</td>
+                <td className="py-3 px-1 font-bold">{reg.payment_status === 'completed' ? 'PAID' : reg.payment_status.toUpperCase()}</td>
+                <td className="py-3 px-1 text-center">
+                  <div className={`w-4 h-4 border border-black mx-auto ${reg.attendance_status === 'checked-in' ? 'bg-black' : 'bg-white'}`}></div>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
+        
+        <div className="mt-8 text-center text-[10px] text-stone-500 font-mono border-t border-stone-200 pt-4 break-inside-avoid">
+          End of Roster • Jumuiya Chess Initiative
+        </div>
       </div>
 
       {/* Main Admin UI Screen */}
@@ -307,6 +309,7 @@ export default function AdminRegistrations() {
                   <th className="pb-3">Payment</th>
                   <th className="pb-3 text-center">Attendance</th>
                   <th className="pb-3">Date</th>
+                  <th className="pb-3 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#6B4A34]/10">
@@ -363,6 +366,19 @@ export default function AdminRegistrations() {
                     </td>
                     <td className="py-3.5 text-[10px] text-[#232320]/50">
                       {reg.created_at ? new Date(reg.created_at).toLocaleDateString() : '—'}
+                    </td>
+                    <td className="py-3.5 text-right">
+                      {reg.ticket_number && (
+                        <a 
+                          href={`/tickets/${reg.ticket_number}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center justify-center p-2 bg-[#FAF7F2] text-[#6B4A34] hover:bg-[#6B4A34] hover:text-white rounded-lg transition-colors border border-[#6B4A34]/20 shadow-sm"
+                          title="View/Print Ticket"
+                        >
+                          <Printer className="w-4 h-4" />
+                        </a>
+                      )}
                     </td>
                   </tr>
                 ))}

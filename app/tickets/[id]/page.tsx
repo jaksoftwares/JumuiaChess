@@ -180,7 +180,7 @@ export default function TicketPage({ params }: { params: Promise<{ id: string }>
             <div className="flex justify-between items-start">
               <div>
                 <p className="font-sans text-[10px] font-bold text-white bg-[#6B4A34] px-3 py-1 rounded-full uppercase tracking-widest inline-block mb-3">Event Ticket</p>
-                <h1 className="font-serif text-2xl font-black text-[#232320] leading-tight mb-2 max-w-[300px] truncate">{data.tournaments.name}</h1>
+                <h1 className="font-serif text-2xl font-black text-[#232320] leading-normal pb-1 mb-1 max-w-[300px] line-clamp-2">{data.tournaments.name}</h1>
                 <p className="font-sans font-bold text-[#6B4A34] text-sm">Category: {data.category}</p>
               </div>
               <div className="text-right bg-[#FAF7F2] p-3 rounded-lg border border-[#6B4A34]/20">
@@ -192,11 +192,11 @@ export default function TicketPage({ params }: { params: Promise<{ id: string }>
             <div className="grid grid-cols-2 gap-6 my-6 font-sans border-y border-gray-100 py-6">
               <div>
                 <p className="text-gray-400 text-xs uppercase font-bold mb-1">Player Name</p>
-                <p className="font-bold text-xl text-[#232320] truncate">{data.player_name}</p>
+                <p className="font-bold text-xl text-[#232320] leading-normal pb-1 line-clamp-1">{data.player_name}</p>
               </div>
               <div>
                 <p className="text-gray-400 text-xs uppercase font-bold mb-1">Date & Time</p>
-                <p className="font-semibold text-[#232320] truncate">{new Date(data.tournaments.event_date).toLocaleString()}</p>
+                <p className="font-semibold text-[#232320] leading-normal pb-1 line-clamp-1">{new Date(data.tournaments.event_date).toLocaleString()}</p>
               </div>
               <div className="col-span-2">
                 <p className="text-gray-400 text-xs uppercase font-bold mb-1">Venue</p>
