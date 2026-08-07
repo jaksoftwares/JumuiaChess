@@ -3,9 +3,8 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import Link from 'next/link';
 import { apiRequest } from '@/lib/api';
-import { Calendar, MapPin, Loader2, ArrowRight, ArrowRight } from 'lucide-react';
+import { Calendar, MapPin, Loader2, ArrowRight } from 'lucide-react';
 
 const TOURNAMENT_CONFIGS = [
   { image: '/images/kids.jpg', isDark: false },
