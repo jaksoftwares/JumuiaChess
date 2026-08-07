@@ -87,7 +87,7 @@ export default function AdminLogin() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@giftofchess.org"
+              placeholder="admin@jumuiyachess.org"
               className="w-full bg-offwhite border border-stone/30 p-2.5 rounded text-sm text-charcoal focus:outline-none focus:border-wood"
             />
           </div>

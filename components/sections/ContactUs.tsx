@@ -111,7 +111,7 @@ export default function ContactUs() {
                   </div>
                   <div>
                     <span className="text-[10px] text-stone-400 font-mono uppercase block">Email Address</span>
-                    <span className="font-semibold text-white">info@giftofchess.org</span>
+                    <span className="font-semibold text-white">info@jumuiyachess.org</span>
                   </div>
                 </div>
 
