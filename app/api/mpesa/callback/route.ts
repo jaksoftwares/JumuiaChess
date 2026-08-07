@@ -64,7 +64,13 @@ export async function POST(request: NextRequest) {
           playerName: registration.player_name,
           tournamentName: registration.tournaments?.name || 'Tournament',
           amount: parseFloat(registration.amount),
-          ticketNumber: ticketNumber
+          ticketNumber: ticketNumber,
+          category: registration.category,
+          gender: registration.gender,
+          fideId: registration.fide_id,
+          phone: registration.phone_number,
+          age: registration.date_of_birth ? new Date().getFullYear() - new Date(registration.date_of_birth).getFullYear() : undefined,
+          mpesaReceipt: mpesaReceipt
         });
       }
       return NextResponse.json({ success: true, type: 'registration' });

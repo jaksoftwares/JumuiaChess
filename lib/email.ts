@@ -74,7 +74,18 @@ export const sendRegistrationConfirmation = async (
 };
 
 export const notifyAdminOfRegistration = async (
-  details: { playerName: string; tournamentName: string; amount: number; ticketNumber: string }
+  details: { 
+    playerName: string; 
+    tournamentName: string; 
+    amount: number; 
+    ticketNumber: string;
+    category?: string;
+    gender?: string;
+    fideId?: string;
+    phone?: string;
+    mpesaReceipt?: string;
+    age?: number;
+  }
 ): Promise<void> => {
   let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'info@jumuiyachess.org';
   try {
@@ -82,14 +93,65 @@ export const notifyAdminOfRegistration = async (
     if (data && data.org_email) recipientEmail = data.org_email;
   } catch (err) { }
 
-  const subject = `🎫 New Registration: ${details.tournamentName}`;
+  const subject = `🎫 INTERNAL ALERT: New Registration - ${details.tournamentName}`;
   const html = `
-    <div style="font-family: sans-serif; max-width: 600px; padding: 20px;">
-      <h2 style="color: #6B4A34;">New Tournament Registration</h2>
-      <p><strong>Player:</strong> ${details.playerName}</p>
-      <p><strong>Tournament:</strong> ${details.tournamentName}</p>
-      <p><strong>Amount Paid:</strong> KES ${details.amount}</p>
-      <p><strong>Ticket Number:</strong> ${details.ticketNumber}</p>
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 30px; border: 1px solid #e5e7eb; border-radius: 8px; color: #111827; background-color: #ffffff;">
+      <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #6B4A34; padding-bottom: 20px;">
+        <h1 style="color: #6B4A34; margin: 0; font-size: 24px;">Jumuiya Chess Administration</h1>
+        <p style="color: #ef4444; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-top: 8px;">Internal Administrative Alert</p>
+      </div>
+      
+      <p style="font-size: 15px; line-height: 1.5; color: #374151;">
+        <strong>Executive Summary:</strong> A new player, <strong>${details.playerName}</strong>, has successfully registered and paid for the <strong>${details.tournamentName}</strong> tournament.
+      </p>
+      
+      <div style="background-color: #FAF7F2; border-radius: 6px; margin: 25px 0; overflow: hidden; border: 1px solid #e5e7eb;">
+        <div style="background-color: #6B4A34; color: white; padding: 12px 15px; font-weight: bold; font-size: 14px; text-transform: uppercase;">Player Demographics</div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <tr>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #4b5563; width: 40%;">Full Name</td>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #111827;">${details.playerName}</td>
+          </tr>
+          <tr style="background-color: #f9fafb;">
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #4b5563;">Category</td>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #111827;">${details.category || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #4b5563;">Gender / Age</td>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #111827;">${details.gender || 'N/A'} ${details.age ? `(Age: ${details.age})` : ''}</td>
+          </tr>
+          <tr style="background-color: #f9fafb;">
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #4b5563;">FIDE ID</td>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #111827;">${details.fideId || 'None'}</td>
+          </tr>
+          <tr>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #4b5563;">Contact Phone</td>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #111827;">${details.phone || 'N/A'}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="background-color: #FAF7F2; border-radius: 6px; margin: 25px 0; overflow: hidden; border: 1px solid #e5e7eb;">
+        <div style="background-color: #6B4A34; color: white; padding: 12px 15px; font-weight: bold; font-size: 14px; text-transform: uppercase;">Financial & Logistics</div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <tr>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #4b5563; width: 40%;">Amount Paid</td>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #059669;">KES ${details.amount.toLocaleString()}</td>
+          </tr>
+          <tr style="background-color: #f9fafb;">
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #4b5563;">M-Pesa Receipt</td>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #111827; font-family: monospace;">${details.mpesaReceipt || 'Pending'}</td>
+          </tr>
+          <tr>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #4b5563;">Ticket Number</td>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #111827; font-family: monospace;">${details.ticketNumber}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="background-color: #f3f4f6; padding: 15px; border-radius: 6px; text-align: center; margin-top: 30px;">
+        <p style="margin: 0; font-size: 12px; color: #6b7280;">System Timestamp: ${new Date().toISOString()}</p>
+      </div>
     </div>
   `;
 
@@ -109,18 +171,42 @@ export const sendContactNotification = async (
   senderEmail: string,
   message: string
 ): Promise<void> => {
-  const subject = `New Contact Inquiry from ${senderName} (${senderEmail})`;
+  const subject = `INTERNAL ALERT: New Contact Inquiry from ${senderName}`;
   const html = `
-    <!DOCTYPE html>
-    <html>
-    <body>
-      <p><strong>Sender Details</strong></p>
-      <p>Name: ${senderName}</p>
-      <p>Email: ${senderEmail}</p>
-      <p>Message:</p>
-      <p>${message}</p>
-    </body>
-    </html>
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 30px; border: 1px solid #e5e7eb; border-radius: 8px; color: #111827; background-color: #ffffff;">
+      <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #6B4A34; padding-bottom: 20px;">
+        <h1 style="color: #6B4A34; margin: 0; font-size: 24px;">Jumuiya Chess Administration</h1>
+        <p style="color: #ef4444; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-top: 8px;">Support Ticket Alert</p>
+      </div>
+      
+      <p style="font-size: 15px; line-height: 1.5; color: #374151;">
+        <strong>Executive Summary:</strong> A new contact inquiry has been submitted by <strong>${senderName}</strong> via the storefront.
+      </p>
+      
+      <div style="background-color: #FAF7F2; border-radius: 6px; margin: 25px 0; overflow: hidden; border: 1px solid #e5e7eb;">
+        <div style="background-color: #6B4A34; color: white; padding: 12px 15px; font-weight: bold; font-size: 14px; text-transform: uppercase;">Sender Details</div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <tr>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #4b5563; width: 30%;">Name</td>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #111827;">${senderName}</td>
+          </tr>
+          <tr style="background-color: #f9fafb;">
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #4b5563;">Email Address</td>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #0284c7;"><a href="mailto:${senderEmail}">${senderEmail}</a></td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="margin: 25px 0;">
+        <h3 style="color: #6B4A34; font-size: 14px; text-transform: uppercase; margin-bottom: 10px;">Inquiry Message:</h3>
+        <div style="background-color: #f9fafb; padding: 20px; border-left: 4px solid #6B4A34; border-radius: 0 6px 6px 0; font-size: 15px; line-height: 1.6; color: #1f2937; white-space: pre-wrap;">${message}</div>
+      </div>
+
+      <div style="background-color: #f3f4f6; padding: 15px; border-radius: 6px; text-align: center; margin-top: 30px;">
+        <p style="margin: 0; font-size: 12px; color: #6b7280;">System Timestamp: ${new Date().toISOString()}</p>
+        <p style="margin: 8px 0 0 0; font-size: 12px; color: #6b7280;">Reply directly to this email to respond to the sender.</p>
+      </div>
+    </div>
   `;
 
   let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'info@jumuiyachess.org';
@@ -227,14 +313,46 @@ export const notifyAdminOfDonation = async (
     }
   } catch (err) { }
 
-  const subject = `🎉 New Donation Received: KES ${details.amount}`;
+  const subject = `INTERNAL ALERT: New Donation Received - KES ${details.amount.toLocaleString()}`;
   const html = `
-    <div style="font-family: sans-serif; max-width: 600px; padding: 20px;">
-      <h2 style="color: #6B4A34;">New Donation Alert</h2>
-      <p><strong>Donor:</strong> ${details.donorName || 'Anonymous'}</p>
-      <p><strong>Amount:</strong> KES ${details.amount.toLocaleString()}</p>
-      <p><strong>Receipt:</strong> ${details.receipt}</p>
-      ${details.message ? `<p><strong>Message:</strong> <em>"${details.message}"</em></p>` : ''}
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 30px; border: 1px solid #e5e7eb; border-radius: 8px; color: #111827; background-color: #ffffff;">
+      <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #6B4A34; padding-bottom: 20px;">
+        <h1 style="color: #6B4A34; margin: 0; font-size: 24px;">Jumuiya Chess Administration</h1>
+        <p style="color: #ef4444; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-top: 8px;">Finance & Donation Alert</p>
+      </div>
+      
+      <p style="font-size: 15px; line-height: 1.5; color: #374151;">
+        <strong>Executive Summary:</strong> A new donation of <strong>KES ${details.amount.toLocaleString()}</strong> has been successfully received from <strong>${details.donorName || 'an anonymous supporter'}</strong>.
+      </p>
+      
+      <div style="background-color: #FAF7F2; border-radius: 6px; margin: 25px 0; overflow: hidden; border: 1px solid #e5e7eb;">
+        <div style="background-color: #6B4A34; color: white; padding: 12px 15px; font-weight: bold; font-size: 14px; text-transform: uppercase;">Transaction Details</div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <tr>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #4b5563; width: 40%;">Donor Name</td>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #111827;">${details.donorName || 'Anonymous'}</td>
+          </tr>
+          <tr style="background-color: #f9fafb;">
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #4b5563;">Donation Amount</td>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #059669;">KES ${details.amount.toLocaleString()}</td>
+          </tr>
+          <tr>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #4b5563;">M-Pesa Reference</td>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #111827; font-family: monospace;">${details.receipt}</td>
+          </tr>
+        </table>
+      </div>
+
+      ${details.message ? `
+      <div style="margin: 25px 0;">
+        <h3 style="color: #6B4A34; font-size: 14px; text-transform: uppercase; margin-bottom: 10px;">Accompanying Message:</h3>
+        <div style="background-color: #f9fafb; padding: 20px; border-left: 4px solid #6B4A34; border-radius: 0 6px 6px 0; font-size: 15px; line-height: 1.6; color: #1f2937; font-style: italic;">"${details.message}"</div>
+      </div>
+      ` : ''}
+
+      <div style="background-color: #f3f4f6; padding: 15px; border-radius: 6px; text-align: center; margin-top: 30px;">
+        <p style="margin: 0; font-size: 12px; color: #6b7280;">System Timestamp: ${new Date().toISOString()}</p>
+      </div>
     </div>
   `;
 
@@ -332,17 +450,78 @@ export const notifyAdminOfOrder = async (
     if (data && data.org_email) recipientEmail = data.org_email;
   } catch (err) { }
 
-  const subject = `📦 New Store Order: KES ${details.amount}`;
-  const itemsHtml = details.items.map(item => `<li>${item.quantity}x ${item.name}</li>`).join('');
+  const subject = `INTERNAL ALERT: New Store Order - KES ${details.amount.toLocaleString()}`;
+  
+  const itemsHtml = details.items.map(item => `
+    <tr>
+      <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #111827;">${item.name}</td>
+      <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #4b5563; text-align: center;">${item.quantity}</td>
+      <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #111827; text-align: right;">KES ${(item.price * item.quantity).toLocaleString()}</td>
+    </tr>
+  `).join('');
+
   const html = `
-    <div style="font-family: sans-serif; max-width: 600px; padding: 20px;">
-      <h2 style="color: #6B4A34;">New Store Order</h2>
-      <p><strong>Customer:</strong> ${details.customerName} (${details.email} | ${details.phone})</p>
-      <p><strong>Amount:</strong> KES ${details.amount.toLocaleString()}</p>
-      <p><strong>Receipt:</strong> ${details.receipt}</p>
-      <p><strong>Shipping Address:</strong> ${details.address}</p>
-      <p><strong>Items:</strong></p>
-      <ul>${itemsHtml}</ul>
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 30px; border: 1px solid #e5e7eb; border-radius: 8px; color: #111827; background-color: #ffffff;">
+      <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #6B4A34; padding-bottom: 20px;">
+        <h1 style="color: #6B4A34; margin: 0; font-size: 24px;">Jumuiya Chess Administration</h1>
+        <p style="color: #ef4444; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-top: 8px;">Logistics & Fulfillment Alert</p>
+      </div>
+      
+      <p style="font-size: 15px; line-height: 1.5; color: #374151;">
+        <strong>Executive Summary:</strong> A new store order totaling <strong>KES ${details.amount.toLocaleString()}</strong> has been successfully paid for by <strong>${details.customerName}</strong>.
+      </p>
+      
+      <div style="background-color: #FAF7F2; border-radius: 6px; margin: 25px 0; overflow: hidden; border: 1px solid #e5e7eb;">
+        <div style="background-color: #6B4A34; color: white; padding: 12px 15px; font-weight: bold; font-size: 14px; text-transform: uppercase;">Customer & Shipping Details</div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <tr>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #4b5563; width: 35%;">Customer Name</td>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #111827;">${details.customerName}</td>
+          </tr>
+          <tr style="background-color: #f9fafb;">
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #4b5563;">Contact Phone</td>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #111827;">${details.phone}</td>
+          </tr>
+          <tr>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #4b5563;">Email Address</td>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #0284c7;"><a href="mailto:${details.email}">${details.email}</a></td>
+          </tr>
+          <tr style="background-color: #f9fafb;">
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #4b5563;">Shipping Address</td>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #111827;">${details.address}</td>
+          </tr>
+          <tr>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #4b5563;">M-Pesa Receipt</td>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #111827; font-family: monospace;">${details.receipt}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="background-color: #FAF7F2; border-radius: 6px; margin: 25px 0; overflow: hidden; border: 1px solid #e5e7eb;">
+        <div style="background-color: #6B4A34; color: white; padding: 12px 15px; font-weight: bold; font-size: 14px; text-transform: uppercase;">Order Manifest</div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <thead>
+            <tr style="background-color: #f3f4f6;">
+              <th style="padding: 12px 15px; text-align: left; border-bottom: 1px solid #e5e7eb; color: #4b5563;">Item</th>
+              <th style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #e5e7eb; color: #4b5563;">Qty</th>
+              <th style="padding: 12px 15px; text-align: right; border-bottom: 1px solid #e5e7eb; color: #4b5563;">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsHtml}
+          </tbody>
+          <tfoot>
+            <tr style="background-color: #f9fafb;">
+              <td colspan="2" style="padding: 12px 15px; text-align: right; font-weight: bold; color: #4b5563; border-top: 2px solid #e5e7eb;">Total Paid</td>
+              <td style="padding: 12px 15px; text-align: right; font-weight: bold; color: #059669; border-top: 2px solid #e5e7eb;">KES ${details.amount.toLocaleString()}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div style="background-color: #f3f4f6; padding: 15px; border-radius: 6px; text-align: center; margin-top: 30px;">
+        <p style="margin: 0; font-size: 12px; color: #6b7280;">System Timestamp: ${new Date().toISOString()}</p>
+      </div>
     </div>
   `;
 
