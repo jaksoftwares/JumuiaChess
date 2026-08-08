@@ -25,7 +25,7 @@ export async function generateMetadata(
   }
 
   const previousImages = (await parent).openGraph?.images || [];
-  const posterUrl = tournament.poster_url || '/images/og-default.jpg';
+  const posterUrl = tournament.poster_url || '/images/og-default.png';
 
   return {
     title: `${tournament.name} | Jumuiya Chess Tournaments`,

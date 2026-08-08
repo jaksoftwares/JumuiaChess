@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     siteName: "Jumuiya Chess",
     images: [
       {
-        url: "/images/og-default.jpg", 
+        url: "/images/og-default.png", 
         width: 1200,
         height: 630,
         alt: "Jumuiya Chess - Transforming Lives",
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Jumuiya Chess | Transforming Lives Globally",
     description: "Transforming lives globally through the power of chess.",
-    images: ["/images/og-default.jpg"],
+    images: ["/images/og-default.png"],
     creator: "@jumuiyachess",
   },
   robots: {

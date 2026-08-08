@@ -27,7 +27,7 @@ export async function generateMetadata(
   }
 
   const previousImages = (await parent).openGraph?.images || [];
-  const imageUrl = product.image_url || '/images/og-default.jpg';
+  const imageUrl = product.image_url || '/images/og-default.png';
 
   return {
     title: `${product.name} | Jumuiya Chess Store`,
