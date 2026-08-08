@@ -128,7 +128,7 @@ export default function TicketPage({ params }: { params: Promise<{ id: string }>
       <div className="w-full max-w-[1000px] overflow-x-auto shadow-2xl rounded-xl bg-white border border-[#6B4A34]/20 p-2">
         
         {/* The actual element captured by html2canvas (explicitly sized to force a good PDF ratio) */}
-        <div id="printable-ticket" className="w-[1000px] h-[400px] bg-white flex relative text-black overflow-hidden border-2 border-dashed border-[#6B4A34]/30">
+        <div id="printable-ticket" className="w-[1000px] h-[450px] bg-white flex relative text-black overflow-hidden border-2 border-dashed border-[#6B4A34]/30">
           
           {/* PAID WATERMARK ON RECEIPT SIDE */}
           <div className="absolute left-10 top-20 flex items-center justify-center opacity-[0.03] pointer-events-none -rotate-12 z-0">
