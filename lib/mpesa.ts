@@ -6,15 +6,9 @@ const MPESA_CONSUMER_SECRET = process.env.MPESA_CONSUMER_SECRET || '';
 const MPESA_PASSKEY = process.env.MPESA_PASSKEY || '';
 const MPESA_CALLBACK_URL = process.env.MPESA_CALLBACK_URL || '';
 
-import { supabaseAdmin } from './supabase/admin';
-
-async function getMpesaShortcode() {
-  try {
-    const { data } = await supabaseAdmin.from('site_settings').select('mpesa_paybill').single();
-    if (data && data.mpesa_paybill) return data.mpesa_paybill;
-  } catch (err) { }
-  return process.env.MPESA_SHORTCODE || '';
-}
+const getMpesaShortcode = () => {
+  return process.env.MPESA_SHORTCODE || '174379';
+};
 
 const getBaseUrl = () => {
   return MPESA_ENV.toLowerCase() === 'production'
@@ -82,7 +76,7 @@ export const initiateStkPush = async (
     };
   }
 
-  const shortcode = await getMpesaShortcode();
+  const shortcode = getMpesaShortcode();
   
   const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14); // YYYYMMDDHHMMSS
   const password = Buffer.from(

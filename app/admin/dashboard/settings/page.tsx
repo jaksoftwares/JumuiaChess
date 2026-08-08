@@ -13,7 +13,6 @@ export default function AdminSettings() {
   // Form State
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [paybill, setPaybill] = useState('');
   const [instagram, setInstagram] = useState('');
   const [facebook, setFacebook] = useState('');
   const [youtube, setYoutube] = useState('');
@@ -31,7 +30,6 @@ export default function AdminSettings() {
       if (res.success && res.data) {
         setEmail(res.data.org_email || '');
         setPhone(res.data.org_phone || '');
-        setPaybill(res.data.mpesa_paybill || '');
         setInstagram(res.data.instagram_url || '');
         setFacebook(res.data.facebook_url || '');
         setYoutube(res.data.youtube_url || '');
@@ -43,7 +41,6 @@ export default function AdminSettings() {
       } else {
         setEmail('info@jumuiyachess.org');
         setPhone('+254700000000');
-        setPaybill('174379');
         setInstagram('https://instagram.com/giftofchess');
         setFacebook('https://facebook.com/giftofchess');
         setYoutube('https://youtube.com/giftofchess');
@@ -62,7 +59,6 @@ export default function AdminSettings() {
     const body = {
       org_email: email,
       org_phone: phone,
-      mpesa_paybill: paybill,
       instagram_url: instagram || undefined,
       facebook_url: facebook || undefined,
       youtube_url: youtube || undefined,
@@ -104,7 +100,7 @@ export default function AdminSettings() {
           Site Settings
         </h1>
         <p className="text-xs md:text-sm text-[#FAF7F2]/90 leading-relaxed font-sans max-w-3xl">
-          Configure organization contact details, M-Pesa Paybill shortcode, and social media handles.
+          Configure organization contact details and social media handles.
         </p>
       </div>
 
@@ -150,23 +146,7 @@ export default function AdminSettings() {
             </div>
           </div>
 
-          {/* Section: M-Pesa Details */}
-          <div className="space-y-4 pt-2">
-            <h3 className="font-serif font-bold text-charcoal border-b border-stone-100 pb-2 text-xs uppercase tracking-wider text-[#6B4A34]">
-              M-Pesa Gateway Config
-            </h3>
-            <div>
-              <label className="block text-xs font-semibold text-stone-700 mb-1">M-Pesa Paybill / Till Number *</label>
-              <input
-                type="text"
-                required
-                value={paybill}
-                onChange={(e) => setPaybill(e.target.value)}
-                placeholder="174379"
-                className="w-full bg-white border border-stone-300 p-2.5 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-[#6B4A34]"
-              />
-            </div>
-          </div>
+
 
           {/* Section: Social Links */}
           <div className="space-y-4 pt-2">
