@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${playfair.variable} ${inter.variable} scroll-smooth`}>
-      <body className="antialiased bg-offwhite text-charcoal min-h-screen flex flex-col">
+      <body className="antialiased bg-offwhite text-charcoal min-h-screen flex flex-col print:block print:min-h-0">
         <SettingsProvider>
           <NextTopLoader color="#6B4A34" showSpinner={false} />
           {children}
