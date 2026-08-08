@@ -167,7 +167,7 @@ export default function AdminRegistrations() {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 max-w-7xl mx-auto print:block">
       {/* Custom UI Modal */}
       {modalState.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 print:hidden">
@@ -213,51 +213,94 @@ export default function AdminRegistrations() {
       )}
 
       {/* PRINTABLE PDF ROSTER CONTAINER (Only visible during print/PDF saving) */}
-      <div id="printable-roster" className="hidden print:block w-full bg-white text-black font-sans @page { size: A4; margin: 10mm; }">
-        <div className="border-b-2 border-black pb-4 mb-6 flex justify-between items-center break-inside-avoid">
-          <div>
-            <h1 className="font-serif text-3xl font-black text-black">JUMUIYA CHESS INITIATIVE</h1>
-            <p className="font-mono text-sm font-bold text-stone-700 uppercase tracking-widest mt-1">
-              OFFICIAL EVENT ROSTER
-            </p>
+      <style>{`
+        @media print {
+          @page { size: A4; margin: 10mm; }
+          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          html, body, #__next, main, .print\\:block {
+            height: auto !important;
+            min-height: 0 !important;
+            overflow: visible !important;
+            display: block !important;
+            position: static !important;
+          }
+        }
+      `}</style>
+      <div id="printable-roster" className="hidden print:block w-full bg-white text-black font-sans">
+        {/* Professional Header */}
+        <div className="border-b-[3px] border-[#6B4A34] pb-4 mb-6 px-3 flex justify-between items-start break-inside-avoid">
+          <div className="flex items-center gap-4">
+            <img src="/images/chess_logo.png" alt="Logo" className="w-16 h-16 object-contain" />
+            <div>
+              <h1 className="font-serif text-3xl font-black text-[#232320]">JUMUIYA CHESS INITIATIVE</h1>
+              <p className="font-mono text-[11px] font-bold text-[#6B4A34] uppercase tracking-[0.2em] mt-1">
+                Official Event Roster & Check-In Sheet
+              </p>
+            </div>
           </div>
-          <div className="text-right text-xs">
-            <p className="font-bold text-black text-lg">{selectedTournamentId ? tournaments.find(t => t.id === selectedTournamentId)?.name : 'All Events'}</p>
-            <p className="text-stone-600 font-mono text-[10px]">Generated: {new Date().toLocaleString()}</p>
+          <div className="text-right flex flex-col justify-between h-full">
+            <div>
+              <p className="font-bold text-[#232320] text-xl uppercase tracking-tight">
+                {selectedTournamentId ? tournaments.find(t => t.id === selectedTournamentId)?.name : 'All Events'}
+              </p>
+              <p className="text-stone-500 font-mono text-[10px] uppercase mt-0.5">Total Players: {registrations.length}</p>
+            </div>
+            <p className="text-stone-400 font-mono text-[9px] mt-2">Printed: {new Date().toLocaleString()}</p>
           </div>
         </div>
 
-        <table className="w-full text-left border-collapse text-[10px]">
+        {/* Roster Table */}
+        <table className="w-full text-left border-collapse text-[10px] font-sans">
           <thead>
-            <tr className="border-b-2 border-black text-black font-black uppercase break-inside-avoid">
-              <th className="py-3 px-1">#</th>
-              <th className="py-3 px-1">Player Name</th>
-              <th className="py-3 px-1">Category</th>
-              <th className="py-3 px-1">Phone</th>
-              <th className="py-3 px-1">Ticket #</th>
-              <th className="py-3 px-1">Payment</th>
-              <th className="py-3 px-1 text-center">Attend</th>
+            <tr className="bg-[#6B4A34] text-white uppercase tracking-wider">
+              <th className="py-2.5 px-3 font-bold rounded-tl-sm w-12">#</th>
+              <th className="py-2.5 px-3 font-bold">Player Name</th>
+              <th className="py-2.5 px-3 font-bold">Profile</th>
+              <th className="py-2.5 px-3 font-bold">FIDE / Country</th>
+              <th className="py-2.5 px-3 font-bold">Category</th>
+              <th className="py-2.5 px-3 font-bold">Payment</th>
+              <th className="py-2.5 px-3 font-bold text-center rounded-tr-sm w-20">Check-In</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-stone-300">
+          <tbody className="divide-y divide-stone-200 border-b border-stone-300">
             {registrations.map((reg, index) => (
-              <tr key={reg.id} className="break-inside-avoid">
-                <td className="py-3 px-1 font-mono text-stone-500">{index + 1}</td>
-                <td className="py-3 px-1 font-bold text-[11px] text-black uppercase">{reg.player_name}</td>
-                <td className="py-3 px-1 font-semibold text-stone-800">{reg.category}</td>
-                <td className="py-3 px-1 font-mono">{reg.phone_number}</td>
-                <td className="py-3 px-1 font-mono font-bold text-stone-600">{reg.ticket_number || '—'}</td>
-                <td className="py-3 px-1 font-bold">{reg.payment_status === 'completed' ? 'PAID' : reg.payment_status.toUpperCase()}</td>
-                <td className="py-3 px-1 text-center">
-                  <div className={`w-4 h-4 border border-black mx-auto ${reg.attendance_status === 'checked-in' ? 'bg-black' : 'bg-white'}`}></div>
+              <tr key={reg.id} className="even:bg-stone-50 transition-colors">
+                <td className="py-2.5 px-3 font-mono text-stone-500 text-[10px] align-middle">{index + 1}</td>
+                <td className="py-2.5 px-3 font-bold text-[11px] text-[#232320] uppercase align-middle">
+                  {reg.player_name}
+                  {reg.ticket_number && (
+                    <span className="block font-mono text-[9px] text-stone-400 font-normal mt-0.5">TK: {reg.ticket_number}</span>
+                  )}
+                </td>
+                <td className="py-2.5 px-3 text-stone-700 align-middle">
+                  <span className="block font-semibold">Age: {reg.age}</span>
+                  <span className="block text-[9px] uppercase tracking-wider">{reg.gender || '—'}</span>
+                </td>
+                <td className="py-2.5 px-3 font-mono text-stone-700 align-middle">
+                  <span className="block font-bold">{reg.fide_id || 'N/A'}</span>
+                  <span className="block text-[9px] uppercase font-sans tracking-wider">{reg.country || 'KENYA'}</span>
+                </td>
+                <td className="py-2.5 px-3 font-bold text-[#6B4A34] align-middle">{reg.category}</td>
+                <td className="py-2.5 px-3 align-middle">
+                  <span className={`font-bold ${reg.payment_status === 'completed' ? 'text-emerald-700' : 'text-rose-700'}`}>
+                    {reg.payment_status === 'completed' ? 'PAID' : reg.payment_status.toUpperCase()}
+                  </span>
+                  {reg.amount && <span className="block text-[9px] text-stone-500 font-mono">KES {reg.amount}</span>}
+                </td>
+                <td className="py-2.5 px-3 text-center align-middle">
+                  <div className="w-5 h-5 border-[1.5px] border-[#6B4A34] rounded-sm mx-auto flex items-center justify-center bg-white shadow-inner">
+                    {reg.attendance_status === 'checked-in' && <span className="text-[#6B4A34] font-black text-sm block leading-none -mt-0.5">✓</span>}
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
         
-        <div className="mt-8 text-center text-[10px] text-stone-500 font-mono border-t border-stone-200 pt-4 break-inside-avoid">
-          End of Roster • Jumuiya Chess Initiative
+        {/* Professional Footer */}
+        <div className="mt-8 text-center text-[10px] text-stone-500 font-sans border-t border-stone-200 pt-4 pb-4 break-inside-avoid">
+          <p className="font-bold uppercase tracking-widest text-[#232320] mb-1">End of Official Roster</p>
+          <p>Jumuiya Chess Initiative • Printed by Admin Console</p>
         </div>
       </div>
 

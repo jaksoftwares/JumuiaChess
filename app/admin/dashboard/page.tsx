@@ -4,22 +4,14 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { apiRequest } from '@/lib/api';
 import { 
-  Trophy, 
-  Users, 
-  DollarSign, 
-  BookOpen, 
   Loader2, 
-  UserCheck, 
-  Image as ImageIcon, 
-  ShoppingBag, 
-  Sparkles,
   ChevronRight,
-  ShieldCheck,
-  Activity,
   CheckCircle2,
   ArrowUpRight,
-  Zap,
-  TrendingUp
+  HeartHandshake,
+  Video,
+  Handshake,
+  Target
 } from 'lucide-react';
 
 export default function DashboardHome() {
@@ -31,13 +23,21 @@ export default function DashboardHome() {
     teamCount: 0,
     galleryCount: 0,
     shopCount: 0,
+    donationsCount: 0,
+    impactCount: 0,
+    partnersCount: 0,
+    videosCount: 0,
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadStats() {
       try {
-        const [tournamentsRes, regsRes, blogRes, ordersRes, teamRes, galleryRes, shopRes] = await Promise.all([
+        const [
+          tournamentsRes, regsRes, blogRes, ordersRes, 
+          teamRes, galleryRes, shopRes, donationsRes, 
+          impactRes, partnersRes, videosRes
+        ] = await Promise.all([
           apiRequest('/tournaments').catch(() => ({ success: false, data: [] })),
           apiRequest('/registrations').catch(() => ({ success: false, data: [] })),
           apiRequest('/blog/all').catch(() => ({ success: false, data: [] })),
@@ -45,6 +45,10 @@ export default function DashboardHome() {
           apiRequest('/team').catch(() => ({ success: false, data: [] })),
           apiRequest('/gallery').catch(() => ({ success: false, data: [] })),
           apiRequest('/shop/products').catch(() => ({ success: false, data: [] })),
+          apiRequest('/donations').catch(() => ({ success: false, data: [] })),
+          apiRequest('/impact').catch(() => ({ success: false, data: [] })),
+          apiRequest('/partners').catch(() => ({ success: false, data: [] })),
+          apiRequest('/videos').catch(() => ({ success: false, data: [] })),
         ]);
 
         let liveCount = 0;
@@ -54,6 +58,10 @@ export default function DashboardHome() {
         let teamTotal = 0;
         let galleryTotal = 0;
         let shopTotal = 0;
+        let donationsTotal = 0;
+        let impactTotal = 0;
+        let partnersTotal = 0;
+        let videosTotal = 0;
 
         if (tournamentsRes?.success && Array.isArray(tournamentsRes.data)) {
           liveCount = tournamentsRes.data.filter((t: any) => t && (t.status === 'upcoming' || t.status === 'ongoing')).length;
@@ -72,6 +80,13 @@ export default function DashboardHome() {
             .reduce((sum: number, o: any) => sum + (parseFloat(o.amount) || 0), 0);
         }
 
+        if (donationsRes?.success && Array.isArray(donationsRes.data)) {
+          donationsTotal = donationsRes.data.length;
+          paymentsTotal += donationsRes.data
+            .filter((d: any) => d && d.payment_status === 'completed')
+            .reduce((sum: number, d: any) => sum + (parseFloat(d.amount) || 0), 0);
+        }
+
         if (blogRes?.success && Array.isArray(blogRes.data) && blogRes.data.length > 0) {
           latestTitle = blogRes.data[0]?.title || 'None';
         }
@@ -88,6 +103,18 @@ export default function DashboardHome() {
           shopTotal = shopRes.data.length;
         }
 
+        if (impactRes?.success && Array.isArray(impactRes.data)) {
+          impactTotal = impactRes.data.length;
+        }
+
+        if (partnersRes?.success && Array.isArray(partnersRes.data)) {
+          partnersTotal = partnersRes.data.length;
+        }
+
+        if (videosRes?.success && Array.isArray(videosRes.data)) {
+          videosTotal = videosRes.data.length;
+        }
+
         setStats({
           liveTournaments: liveCount,
           registrationsThisMonth: regCount,
@@ -96,6 +123,10 @@ export default function DashboardHome() {
           teamCount: teamTotal,
           galleryCount: galleryTotal,
           shopCount: shopTotal,
+          donationsCount: donationsTotal,
+          impactCount: impactTotal,
+          partnersCount: partnersTotal,
+          videosCount: videosTotal,
         });
       } catch (err) {
         console.error('[Dashboard] Error calculating dashboard stats:', err);
@@ -123,7 +154,7 @@ export default function DashboardHome() {
           Overview & Management Center
         </h1>
         <p className="text-xs md:text-sm text-[#FAF7F2]/90 leading-relaxed font-sans max-w-3xl">
-          Control site content, publish news, manage registered players, and upload media directly from your device.
+          Control site content, publish news, manage registered players, track global revenue, and upload media directly from your device.
         </p>
       </div>
 
@@ -132,64 +163,64 @@ export default function DashboardHome() {
         {/* KPI 1 */}
         <Link
           href="/admin/dashboard/tournaments"
-          className="bg-white border border-stone-200/90 p-5 rounded-2xl shadow-sm hover:shadow-md hover:border-[#6B4A34] transition-all flex flex-col justify-between group"
+          className="bg-white border border-[#6B4A34]/20 p-5 rounded-2xl shadow-sm hover:shadow-md hover:border-[#6B4A34] transition-all flex flex-col justify-between group"
         >
-          <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">
+          <span className="text-[10px] font-bold text-[#6B4A34] uppercase tracking-wider">
             Active Tournaments
           </span>
           <div className="mt-3">
-            <span className="font-serif text-2xl font-bold text-charcoal block">
+            <span className="font-serif text-2xl font-bold text-[#232320] block">
               {stats.liveTournaments}
             </span>
-            <p className="text-[11px] text-stone-400 mt-1">Competitions open for entry</p>
+            <p className="text-[11px] text-[#232320]/60 mt-1 font-mono">Competitions open for entry</p>
           </div>
         </Link>
 
         {/* KPI 2 */}
         <Link
           href="/admin/dashboard/registrations"
-          className="bg-white border border-stone-200/90 p-5 rounded-2xl shadow-sm hover:shadow-md hover:border-[#6B4A34] transition-all flex flex-col justify-between group"
+          className="bg-white border border-[#6B4A34]/20 p-5 rounded-2xl shadow-sm hover:shadow-md hover:border-[#6B4A34] transition-all flex flex-col justify-between group"
         >
-          <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">
+          <span className="text-[10px] font-bold text-[#6B4A34] uppercase tracking-wider">
             Registrations
           </span>
           <div className="mt-3">
-            <span className="font-serif text-2xl font-bold text-charcoal block">
+            <span className="font-serif text-2xl font-bold text-[#232320] block">
               {stats.registrationsThisMonth}
             </span>
-            <p className="text-[11px] text-stone-400 mt-1">Player signups received</p>
+            <p className="text-[11px] text-[#232320]/60 mt-1 font-mono">Total player signups received</p>
           </div>
         </Link>
 
         {/* KPI 3 */}
         <Link
-          href="/admin/dashboard/registrations"
-          className="bg-white border border-stone-200/90 p-5 rounded-2xl shadow-sm hover:shadow-md hover:border-[#6B4A34] transition-all flex flex-col justify-between group"
+          href="/admin/dashboard/donations"
+          className="bg-white border border-[#6B4A34]/20 p-5 rounded-2xl shadow-sm hover:shadow-md hover:border-[#6B4A34] transition-all flex flex-col justify-between group"
         >
-          <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">
-            M-Pesa Collections
+          <span className="text-[10px] font-bold text-[#6B4A34] uppercase tracking-wider flex items-center gap-1.5">
+            <HeartHandshake className="w-3.5 h-3.5" /> Global Revenue
           </span>
           <div className="mt-3">
-            <span className="font-serif text-xl font-bold text-charcoal block truncate">
+            <span className="font-serif text-xl font-bold text-emerald-700 block truncate">
               KES {stats.paymentsReceived.toLocaleString()}
             </span>
-            <p className="text-[11px] text-stone-400 mt-1">Completed STK payments</p>
+            <p className="text-[11px] text-[#232320]/60 mt-1 font-mono">Regs + Shop + Donations</p>
           </div>
         </Link>
 
         {/* KPI 4 */}
         <Link
           href="/admin/dashboard/blog"
-          className="bg-white border border-stone-200/90 p-5 rounded-2xl shadow-sm hover:shadow-md hover:border-[#6B4A34] transition-all flex flex-col justify-between group"
+          className="bg-white border border-[#6B4A34]/20 p-5 rounded-2xl shadow-sm hover:shadow-md hover:border-[#6B4A34] transition-all flex flex-col justify-between group"
         >
-          <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">
+          <span className="text-[10px] font-bold text-[#6B4A34] uppercase tracking-wider">
             Latest News
           </span>
           <div className="mt-3">
-            <p className="font-serif text-sm font-bold text-charcoal line-clamp-1">
+            <p className="font-serif text-sm font-bold text-[#232320] line-clamp-1">
               {stats.latestPostTitle}
             </p>
-            <p className="text-[11px] text-stone-400 mt-1">Press releases & news</p>
+            <p className="text-[11px] text-[#232320]/60 mt-1 font-mono">Press releases & news</p>
           </div>
         </Link>
       </div>
@@ -198,86 +229,11 @@ export default function DashboardHome() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column (2 Cols wide): Shortcuts & Management Grids */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Content Management Cards */}
-          <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-4">
-            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-              <h3 className="font-serif text-base font-bold text-charcoal">
-                Content Management Hub
-              </h3>
-              <span className="text-[11px] text-stone-400 font-mono">Device Upload Ready</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Meet the Team */}
-              <Link
-                href="/admin/dashboard/team"
-                className="p-4 rounded-xl bg-[#FAF7F2] border border-stone-200/70 hover:border-[#6B4A34] transition-all flex items-start justify-between group"
-              >
-                <div className="space-y-1">
-                  <span className="text-xs font-bold text-charcoal group-hover:text-[#6B4A34] transition-colors block">
-                    Meet the Team
-                  </span>
-                  <p className="text-[11px] text-stone-500">
-                    {stats.teamCount} members active on website
-                  </p>
-                </div>
-                <ArrowUpRight className="w-4 h-4 text-stone-400 group-hover:text-[#6B4A34] transition-colors" />
-              </Link>
-
-              {/* Media Gallery */}
-              <Link
-                href="/admin/dashboard/gallery"
-                className="p-4 rounded-xl bg-[#FAF7F2] border border-stone-200/70 hover:border-[#6B4A34] transition-all flex items-start justify-between group"
-              >
-                <div className="space-y-1">
-                  <span className="text-xs font-bold text-charcoal group-hover:text-[#6B4A34] transition-colors block">
-                    Media Gallery
-                  </span>
-                  <p className="text-[11px] text-stone-500">
-                    {stats.galleryCount} impact photos published
-                  </p>
-                </div>
-                <ArrowUpRight className="w-4 h-4 text-stone-400 group-hover:text-[#6B4A34] transition-colors" />
-              </Link>
-
-              {/* Charity Shop */}
-              <Link
-                href="/admin/dashboard/shop"
-                className="p-4 rounded-xl bg-[#FAF7F2] border border-stone-200/70 hover:border-[#6B4A34] transition-all flex items-start justify-between group"
-              >
-                <div className="space-y-1">
-                  <span className="text-xs font-bold text-charcoal group-hover:text-[#6B4A34] transition-colors block">
-                    Charity Shop Catalog
-                  </span>
-                  <p className="text-[11px] text-stone-500">
-                    {stats.shopCount} products listed in store
-                  </p>
-                </div>
-                <ArrowUpRight className="w-4 h-4 text-stone-400 group-hover:text-[#6B4A34] transition-colors" />
-              </Link>
-
-              {/* Blog & News */}
-              <Link
-                href="/admin/dashboard/blog"
-                className="p-4 rounded-xl bg-[#FAF7F2] border border-stone-200/70 hover:border-[#6B4A34] transition-all flex items-start justify-between group"
-              >
-                <div className="space-y-1">
-                  <span className="text-xs font-bold text-charcoal group-hover:text-[#6B4A34] transition-colors block">
-                    Blog Articles & News
-                  </span>
-                  <p className="text-[11px] text-stone-500">
-                    Write press reports & releases
-                  </p>
-                </div>
-                <ArrowUpRight className="w-4 h-4 text-stone-400 group-hover:text-[#6B4A34] transition-colors" />
-              </Link>
-            </div>
-          </div>
-
+          
           {/* Tournament Overview Card */}
-          <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-4">
+          <div className="bg-white border border-[#6B4A34]/20 rounded-2xl p-6 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-serif text-base font-bold text-charcoal">
+              <h3 className="font-serif text-base font-bold text-[#232320]">
                 Tournament Management
               </h3>
               <Link
@@ -287,37 +243,177 @@ export default function DashboardHome() {
                 Manage Events <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
-            <p className="text-xs text-stone-600 leading-relaxed">
-              Create upcoming chess competitions, specify entry fees (KES), categories, venue locations, and poster images from your device.
+            <p className="text-xs text-[#232320]/70 leading-relaxed font-sans">
+              Create upcoming chess competitions, specify entry fees (KES), categories, venue locations, and poster images directly from your device.
             </p>
+          </div>
+
+          {/* Content Management Cards */}
+          <div className="bg-white border border-[#6B4A34]/20 rounded-2xl p-6 shadow-sm space-y-4">
+            <div className="flex items-center justify-between border-b border-[#6B4A34]/10 pb-3">
+              <h3 className="font-serif text-base font-bold text-[#232320]">
+                Content Management Hub
+              </h3>
+              <span className="text-[10px] font-bold text-[#6B4A34] uppercase tracking-wider hidden sm:inline-block">8 Modules Syncing</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Meet the Team */}
+              <Link
+                href="/admin/dashboard/team"
+                className="p-4 rounded-xl bg-[#FAF7F2] border border-[#6B4A34]/10 hover:border-[#6B4A34] transition-all flex items-start justify-between group"
+              >
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-[#232320] group-hover:text-[#6B4A34] transition-colors block">
+                    Meet the Team
+                  </span>
+                  <p className="text-[11px] text-[#232320]/60 font-mono">
+                    {stats.teamCount} members active
+                  </p>
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-[#232320]/40 group-hover:text-[#6B4A34] transition-colors" />
+              </Link>
+
+              {/* Media Gallery */}
+              <Link
+                href="/admin/dashboard/gallery"
+                className="p-4 rounded-xl bg-[#FAF7F2] border border-[#6B4A34]/10 hover:border-[#6B4A34] transition-all flex items-start justify-between group"
+              >
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-[#232320] group-hover:text-[#6B4A34] transition-colors block">
+                    Media Gallery
+                  </span>
+                  <p className="text-[11px] text-[#232320]/60 font-mono">
+                    {stats.galleryCount} impact photos
+                  </p>
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-[#232320]/40 group-hover:text-[#6B4A34] transition-colors" />
+              </Link>
+
+              {/* Videos Library */}
+              <Link
+                href="/admin/dashboard/videos"
+                className="p-4 rounded-xl bg-[#FAF7F2] border border-[#6B4A34]/10 hover:border-[#6B4A34] transition-all flex items-start justify-between group"
+              >
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-[#232320] group-hover:text-[#6B4A34] transition-colors flex items-center gap-1">
+                    <Video className="w-3.5 h-3.5" /> Video Library
+                  </span>
+                  <p className="text-[11px] text-[#232320]/60 font-mono mt-1">
+                    {stats.videosCount} embedded videos
+                  </p>
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-[#232320]/40 group-hover:text-[#6B4A34] transition-colors" />
+              </Link>
+
+              {/* Blog & News */}
+              <Link
+                href="/admin/dashboard/blog"
+                className="p-4 rounded-xl bg-[#FAF7F2] border border-[#6B4A34]/10 hover:border-[#6B4A34] transition-all flex items-start justify-between group"
+              >
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-[#232320] group-hover:text-[#6B4A34] transition-colors block">
+                    Blog Articles & News
+                  </span>
+                  <p className="text-[11px] text-[#232320]/60 font-mono">
+                    Write press reports & releases
+                  </p>
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-[#232320]/40 group-hover:text-[#6B4A34] transition-colors" />
+              </Link>
+
+              {/* Charity Shop */}
+              <Link
+                href="/admin/dashboard/shop"
+                className="p-4 rounded-xl bg-[#FAF7F2] border border-[#6B4A34]/10 hover:border-[#6B4A34] transition-all flex items-start justify-between group"
+              >
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-[#232320] group-hover:text-[#6B4A34] transition-colors block">
+                    Charity Shop Catalog
+                  </span>
+                  <p className="text-[11px] text-[#232320]/60 font-mono">
+                    {stats.shopCount} products listed in store
+                  </p>
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-[#232320]/40 group-hover:text-[#6B4A34] transition-colors" />
+              </Link>
+
+              {/* Donations */}
+              <Link
+                href="/admin/dashboard/donations"
+                className="p-4 rounded-xl bg-[#FAF7F2] border border-[#6B4A34]/10 hover:border-[#6B4A34] transition-all flex items-start justify-between group"
+              >
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-[#232320] group-hover:text-[#6B4A34] transition-colors flex items-center gap-1">
+                    <HeartHandshake className="w-3.5 h-3.5" /> Donations Hub
+                  </span>
+                  <p className="text-[11px] text-[#232320]/60 font-mono mt-1">
+                    {stats.donationsCount} donation records
+                  </p>
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-[#232320]/40 group-hover:text-[#6B4A34] transition-colors" />
+              </Link>
+
+              {/* Impact Framework */}
+              <Link
+                href="/admin/dashboard/impact"
+                className="p-4 rounded-xl bg-[#FAF7F2] border border-[#6B4A34]/10 hover:border-[#6B4A34] transition-all flex items-start justify-between group"
+              >
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-[#232320] group-hover:text-[#6B4A34] transition-colors flex items-center gap-1">
+                    <Target className="w-3.5 h-3.5" /> Impact Framework
+                  </span>
+                  <p className="text-[11px] text-[#232320]/60 font-mono mt-1">
+                    {stats.impactCount} active pillars
+                  </p>
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-[#232320]/40 group-hover:text-[#6B4A34] transition-colors" />
+              </Link>
+
+              {/* Official Partners */}
+              <Link
+                href="/admin/dashboard/partners"
+                className="p-4 rounded-xl bg-[#FAF7F2] border border-[#6B4A34]/10 hover:border-[#6B4A34] transition-all flex items-start justify-between group"
+              >
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-[#232320] group-hover:text-[#6B4A34] transition-colors flex items-center gap-1">
+                    <Handshake className="w-3.5 h-3.5" /> Official Partners
+                  </span>
+                  <p className="text-[11px] text-[#232320]/60 font-mono mt-1">
+                    {stats.partnersCount} partners showcased
+                  </p>
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-[#232320]/40 group-hover:text-[#6B4A34] transition-colors" />
+              </Link>
+            </div>
           </div>
         </div>
 
         {/* Right Column (1 Col wide): Status & Direct Quick Actions */}
         <div className="space-y-6">
           {/* System Connection Widget */}
-          <div className="bg-white border border-stone-200 rounded-2xl p-5 shadow-sm space-y-4">
-            <h3 className="font-serif text-sm font-bold text-charcoal">
+          <div className="bg-white border border-[#6B4A34]/20 rounded-2xl p-5 shadow-sm space-y-4">
+            <h3 className="font-serif text-sm font-bold text-[#232320]">
               Database & API Status
             </h3>
             
             <div className="space-y-2.5 text-xs">
-              <div className="flex justify-between items-center p-2.5 rounded-xl bg-[#FAF7F2] border border-stone-200/80">
-                <span className="text-stone-600 font-medium">Supabase Postgres DB</span>
+              <div className="flex justify-between items-center p-2.5 rounded-xl bg-[#FAF7F2] border border-[#6B4A34]/10">
+                <span className="text-[#232320]/80 font-bold">Supabase Postgres</span>
                 <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 flex items-center gap-1">
                   <CheckCircle2 className="w-3 h-3" /> Connected
                 </span>
               </div>
 
-              <div className="flex justify-between items-center p-2.5 rounded-xl bg-[#FAF7F2] border border-stone-200/80">
-                <span className="text-stone-600 font-medium">Express API (Port 5000)</span>
+              <div className="flex justify-between items-center p-2.5 rounded-xl bg-[#FAF7F2] border border-[#6B4A34]/10">
+                <span className="text-[#232320]/80 font-bold">Express API Auth</span>
                 <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 flex items-center gap-1">
                   <CheckCircle2 className="w-3 h-3" /> Active
                 </span>
               </div>
 
-              <div className="flex justify-between items-center p-2.5 rounded-xl bg-[#FAF7F2] border border-stone-200/80">
-                <span className="text-stone-600 font-medium">Device File Uploads</span>
+              <div className="flex justify-between items-center p-2.5 rounded-xl bg-[#FAF7F2] border border-[#6B4A34]/10">
+                <span className="text-[#232320]/80 font-bold">Device Uploads</span>
                 <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 flex items-center gap-1">
                   <CheckCircle2 className="w-3 h-3" /> Ready
                 </span>
@@ -326,31 +422,31 @@ export default function DashboardHome() {
           </div>
 
           {/* Direct Quick Actions Box */}
-          <div className="bg-[#FAF7F2] border border-stone-200/90 rounded-2xl p-5 shadow-sm space-y-3">
+          <div className="bg-[#FAF7F2] border border-[#6B4A34]/20 rounded-2xl p-5 shadow-sm space-y-3">
             <h3 className="font-serif text-sm font-bold text-[#6B4A34]">
               Direct Actions
             </h3>
             
             <div className="space-y-2">
               <Link
-                href="/admin/dashboard/team"
-                className="w-full text-left px-3.5 py-2.5 bg-white border border-stone-200 rounded-xl text-xs font-semibold text-charcoal hover:border-[#6B4A34] hover:text-[#6B4A34] transition-all flex items-center justify-between"
+                href="/admin/dashboard/donations"
+                className="w-full text-left px-3.5 py-2.5 bg-white border border-[#6B4A34]/10 rounded-xl text-xs font-bold text-[#232320] hover:border-[#6B4A34] hover:text-[#6B4A34] transition-all flex items-center justify-between"
               >
-                <span>Upload Team Member Photo</span>
+                <span>Review Pending Donations</span>
                 <ChevronRight className="w-3.5 h-3.5 text-[#6B4A34]" />
               </Link>
 
               <Link
                 href="/admin/dashboard/gallery"
-                className="w-full text-left px-3.5 py-2.5 bg-white border border-stone-200 rounded-xl text-xs font-semibold text-charcoal hover:border-[#6B4A34] hover:text-[#6B4A34] transition-all flex items-center justify-between"
+                className="w-full text-left px-3.5 py-2.5 bg-white border border-[#6B4A34]/10 rounded-xl text-xs font-bold text-[#232320] hover:border-[#6B4A34] hover:text-[#6B4A34] transition-all flex items-center justify-between"
               >
-                <span>Upload Gallery Impact Photo</span>
+                <span>Upload Impact Photo</span>
                 <ChevronRight className="w-3.5 h-3.5 text-[#6B4A34]" />
               </Link>
 
               <Link
                 href="/admin/dashboard/tournaments"
-                className="w-full text-left px-3.5 py-2.5 bg-[#FAF7F2] border border-stone-200 rounded-xl text-xs font-semibold text-charcoal hover:border-[#6B4A34] hover:text-[#6B4A34] transition-all flex items-center justify-between"
+                className="w-full text-left px-3.5 py-2.5 bg-white border border-[#6B4A34]/10 rounded-xl text-xs font-bold text-[#232320] hover:border-[#6B4A34] hover:text-[#6B4A34] transition-all flex items-center justify-between"
               >
                 <span>Post New Tournament</span>
                 <ChevronRight className="w-3.5 h-3.5 text-[#6B4A34]" />
@@ -358,10 +454,10 @@ export default function DashboardHome() {
 
               <Link
                 href="/admin/dashboard/settings"
-                className="w-full text-left px-3.5 py-2.5 bg-white border border-stone-200 rounded-xl text-xs font-semibold text-charcoal hover:border-[#6B4A34] hover:text-[#6B4A34] transition-all flex items-center justify-between"
+                className="w-full text-left px-3.5 py-2.5 bg-white border border-[#6B4A34]/10 rounded-xl text-xs font-bold text-[#232320] hover:border-[#6B4A34] hover:text-[#6B4A34] transition-all flex items-center justify-between"
               >
-                <span>Edit Paybill & Contact Settings</span>
-                <ChevronRight className="w-3.5 h-3.5 text-stone-400" />
+                <span>Edit Paybill Settings</span>
+                <ChevronRight className="w-3.5 h-3.5 text-[#232320]/40" />
               </Link>
             </div>
           </div>

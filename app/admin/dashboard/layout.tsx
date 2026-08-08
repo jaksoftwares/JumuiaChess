@@ -79,7 +79,7 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] text-[#2C2A29] flex flex-col md:flex-row font-sans">
+    <div className="min-h-screen bg-[#FAF7F2] text-[#2C2A29] flex flex-col md:flex-row font-sans print:block print:min-h-0">
       {/* Mobile Top Bar */}
       <div className="md:hidden print:hidden sticky top-0 z-40 bg-white border-b border-stone-200 px-5 py-3.5 flex justify-between items-center shadow-sm">
         <div className="flex items-center space-x-2.5">

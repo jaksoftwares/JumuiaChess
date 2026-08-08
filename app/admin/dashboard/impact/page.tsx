@@ -150,97 +150,112 @@ export default function AdminImpact() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-charcoal">Impact Framework</h1>
-          <p className="text-sm text-stone-500">Manage the core pillars on the homepage</p>
-        </div>
-        <button
-          onClick={openAddModal}
-          className="bg-[#6B4A34] text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-[#573b29] transition flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" /> Add Program
-        </button>
+    <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Brown Banner Card */}
+      <div className="bg-[#6B4A34] text-white p-6 md:p-8 rounded-2xl shadow-md border border-[#573b29] relative overflow-hidden space-y-2">
+        <h1 className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-white">
+          Impact Framework
+        </h1>
+        <p className="text-xs md:text-sm text-[#FAF7F2]/90 leading-relaxed font-sans max-w-3xl">
+          Manage the core organizational pillars showcased on the public homepage.
+        </p>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-4">
-        <div className="relative max-w-md mb-6">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
-          <input
-            type="text"
-            placeholder="Search programs..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 rounded-lg border border-stone-200 text-sm focus:outline-none focus:border-[#6B4A34]"
-          />
+      {/* Actions Toolbar */}
+      <div className="bg-white border border-[#6B4A34]/20 p-5 rounded-2xl space-y-4 shadow-sm">
+        <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+          <div className="w-full sm:w-auto relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B4A34]/50" />
+            <input
+              type="text"
+              placeholder="Search programs..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full sm:w-64 pl-9 pr-4 py-2 bg-[#FAF7F2] border border-[#6B4A34]/20 rounded-xl text-xs focus:outline-none focus:border-[#6B4A34] font-sans font-bold text-[#232320]"
+            />
+          </div>
+          <button
+            onClick={openAddModal}
+            className="w-full sm:w-auto px-4 py-2 bg-[#FAF7F2] hover:bg-[#6B4A34] hover:text-white text-[#232320] font-sans text-xs font-bold rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 border border-[#6B4A34]/20 hover:border-[#6B4A34] shadow-sm active:scale-95 group"
+          >
+            <Plus className="w-3.5 h-3.5 text-[#6B4A34] group-hover:text-white transition-colors" />
+            <span>Add Program</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Table Section */}
+      <div className="bg-white border border-[#6B4A34]/20 p-6 rounded-2xl shadow-sm overflow-x-auto flex flex-col">
+        <div className="flex items-center justify-between border-b border-[#6B4A34]/10 pb-4 mb-4">
+          <h2 className="font-serif text-base font-bold text-[#232320]">
+            Impact Programs
+          </h2>
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-[#6B4A34]" />
+          <div className="py-16 text-center text-[#6B4A34]">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" />
+            Loading programs...
           </div>
         ) : filteredPrograms.length === 0 ? (
-          <div className="text-center py-12 text-stone-500 text-sm">
+          <div className="py-16 text-center text-[#232320]/50 text-xs font-sans bg-[#FAF7F2] border border-[#6B4A34]/10 rounded-xl block w-full">
             No impact programs found.
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-stone-50 text-stone-600 font-semibold border-b border-stone-200">
-                <tr>
-                  <th className="px-4 py-3 rounded-tl-xl w-16">Reorder</th>
-                  <th className="px-4 py-3">Icon</th>
-                  <th className="px-4 py-3">Title</th>
-                  <th className="px-4 py-3 hidden md:table-cell">Description</th>
-                  <th className="px-4 py-3 rounded-tr-xl text-right">Actions</th>
+            <table className="w-full text-left border-collapse font-sans text-xs min-w-[600px]">
+              <thead>
+                <tr className="border-b border-[#6B4A34]/10 text-[#6B4A34] font-bold uppercase tracking-wider text-[10px]">
+                  <th className="pb-3 w-16">Sort</th>
+                  <th className="pb-3">Icon</th>
+                  <th className="pb-3">Title</th>
+                  <th className="pb-3 hidden md:table-cell">Description</th>
+                  <th className="pb-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-stone-100">
+              <tbody className="divide-y divide-[#6B4A34]/10">
                 {filteredPrograms.map((program, index) => (
-                  <tr key={program.id} className="hover:bg-stone-50/50">
-                    <td className="px-4 py-3">
-                      <div className="flex flex-col items-center gap-1 text-stone-400">
+                  <tr key={program.id} className="text-[#232320] hover:bg-[#FAF7F2] transition-colors">
+                    <td className="py-3.5">
+                      <div className="flex flex-col items-center gap-1 text-[#232320]/30">
                         <button 
                           onClick={() => handleMove(index, 'up')}
                           disabled={index === 0 || searchTerm !== ''}
-                          className="hover:text-charcoal disabled:opacity-30 disabled:cursor-not-allowed"
+                          className="hover:text-[#6B4A34] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
                           <ArrowUp className="w-4 h-4" />
                         </button>
                         <button 
                           onClick={() => handleMove(index, 'down')}
                           disabled={index === programs.length - 1 || searchTerm !== ''}
-                          className="hover:text-charcoal disabled:opacity-30 disabled:cursor-not-allowed"
+                          className="hover:text-[#6B4A34] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
                           <ArrowDown className="w-4 h-4" />
                         </button>
                       </div>
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="w-10 h-10 bg-stone-100 rounded-full flex items-center justify-center p-2">
+                    <td className="py-3.5">
+                      <div className="w-10 h-10 bg-[#FAF7F2] border border-[#6B4A34]/20 rounded-full flex items-center justify-center p-2 shadow-sm">
                         <img src={program.image_url} alt={program.title} className="w-full h-full object-contain" />
                       </div>
                     </td>
-                    <td className="px-4 py-3 font-medium text-charcoal">{program.title}</td>
-                    <td className="px-4 py-3 hidden md:table-cell text-stone-500 max-w-xs truncate">
-                      {program.description}
+                    <td className="py-3.5 font-bold text-[#232320] text-sm">{program.title}</td>
+                    <td className="py-3.5 hidden md:table-cell text-[#232320]/70 max-w-xs pr-4 text-xs">
+                      <div className="line-clamp-2">{program.description}</div>
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => openEditModal(program)}
-                          className="p-2 text-stone-400 hover:text-blue-600 transition"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(program.id)}
-                          className="p-2 text-stone-400 hover:text-red-600 transition"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                    <td className="py-3.5 text-right space-x-2">
+                      <button
+                        onClick={() => openEditModal(program)}
+                        className="inline-flex items-center justify-center p-2 bg-[#FAF7F2] text-[#6B4A34] hover:bg-[#6B4A34] hover:text-white rounded-lg transition-colors border border-[#6B4A34]/20 shadow-sm"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(program.id)}
+                        className="inline-flex items-center justify-center p-2 bg-red-900/10 text-red-900 hover:bg-[#232320] hover:text-white rounded-lg transition-colors border border-red-900/20 shadow-sm"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </td>
                   </tr>
                 ))}
