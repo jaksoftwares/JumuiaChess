@@ -216,8 +216,8 @@ export default function TicketPage({ params }: { params: Promise<{ id: string }>
                 <p>Present this ticket at the registration desk upon arrival.</p>
                 <p className="mt-1">Valid for one entry only.</p>
               </div>
-              <div className="bg-white p-2 border-2 border-gray-100 rounded">
-                <Barcode value={data.ticket_number || data.id} height={40} width={1.5} fontSize={12} background="#ffffff" lineColor="#232320" renderer="img" />
+              <div className="bg-white p-2 border-2 border-gray-100 rounded flex-shrink-0 min-w-[120px] flex items-center justify-center">
+                <Barcode value={data.ticket_number || data.id.substring(0, 8).toUpperCase()} height={40} width={1.5} fontSize={12} background="#ffffff" lineColor="#232320" renderer="img" />
               </div>
             </div>
 
