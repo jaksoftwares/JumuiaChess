@@ -37,10 +37,41 @@ export default async function Home() {
   const videos = (videosData || []) as Video[];
   const programs = (impactData || []) as ImpactProgram[];
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': 'https://jumuiyachess.org/#organization',
+        name: 'Jumuiya Chess Foundation',
+        url: 'https://jumuiyachess.org',
+        logo: 'https://jumuiyachess.org/images/logo.png',
+        description: 'Transforming lives globally through the power of chess. We distribute chess boards, organize local tournaments, and foster communities.',
+        sameAs: [
+          'https://twitter.com/jumuiyachess',
+          'https://instagram.com/jumuiyachess',
+        ],
+      },
+      {
+        '@type': 'WebSite',
+        '@id': 'https://jumuiyachess.org/#website',
+        url: 'https://jumuiyachess.org',
+        name: 'Jumuiya Chess',
+        publisher: {
+          '@id': 'https://jumuiyachess.org/#organization',
+        },
+      },
+    ],
+  };
+
   return (
     <>
       <Navbar />
       <main className="flex-grow pt-[72px]">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         {/* Sections ordered corresponding to anchor requirements */}
         <Hero />
         <OurStory />

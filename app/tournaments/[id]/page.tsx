@@ -1,40 +1,24 @@
-'use client';
-
-import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { apiRequest } from '@/lib/api';
-import { Calendar, MapPin, Loader2, ArrowLeft, ArrowRight, ShieldCheck, Users, Clock } from 'lucide-react';
-import { use } from 'react';
+import { Calendar, MapPin, ArrowLeft, ArrowRight, ShieldCheck, Clock } from 'lucide-react';
+import { supabaseAdmin } from '@/lib/supabase/admin';
+import { Metadata, ResolvingMetadata } from 'next';
 
-export default function TournamentDetailsPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
-  const [tournament, setTournament] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+type Props = {
+  params: Promise<{ id: string }>
+}
 
-  useEffect(() => {
-    async function fetchTournament() {
-      try {
-        const res = await apiRequest<any>(`/tournaments/${id}`);
-        if (res.success && res.data) {
-          setTournament(res.data);
-        }
-      } catch (error) {
-        console.error('Error fetching tournament:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchTournament();
-  }, [id]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center">
-        <Loader2 className="w-10 h-10 animate-spin text-[#6B4A34]" />
-      </div>
-    );
-  }
+
+export default async function TournamentDetailsPage({ params }: Props) {
+  const resolvedParams = await params;
+  const { id } = resolvedParams;
+  
+  const { data: tournament } = await supabaseAdmin
+    .from('tournaments')
+    .select('*')
+    .eq('id', id)
+    .single();
 
   if (!tournament) {
     return (
@@ -48,11 +32,48 @@ export default function TournamentDetailsPage({ params }: { params: Promise<{ id
   const capacity = tournament.max_participants || 100;
   const registered = tournament.registrations_count || 0;
   const isFull = registered >= capacity;
-  const capacityPercentage = Math.min((registered / capacity) * 100, 100);
   const posterImage = tournament.poster_url || '/images/kids.jpg';
+
+  // JSON-LD Structured Data for Event
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: tournament.name,
+    startDate: tournament.event_date,
+    endDate: tournament.event_date,
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    eventStatus: 'https://schema.org/EventScheduled',
+    location: {
+      '@type': 'Place',
+      name: tournament.venue,
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: tournament.venue,
+        addressCountry: 'KE',
+      },
+    },
+    image: [posterImage],
+    description: tournament.description,
+    offers: {
+      '@type': 'Offer',
+      url: `https://jumuiyachess.org/tournaments/${id}/register`,
+      price: tournament.entry_fee,
+      priceCurrency: 'KES',
+      availability: isFull ? 'https://schema.org/SoldOut' : 'https://schema.org/InStock',
+    },
+    organizer: {
+      '@type': 'Organization',
+      name: 'Jumuiya Chess',
+      url: 'https://jumuiyachess.org',
+    },
+  };
 
   return (
     <div className="min-h-screen bg-[#FAF7F2]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero Section */}
       <div className="relative h-[50vh] md:h-[60vh] w-full bg-[#232320] flex items-end">
         <div className="absolute inset-0 z-0">
@@ -85,14 +106,19 @@ export default function TournamentDetailsPage({ params }: { params: Promise<{ id
               <div className="font-serif text-3xl font-bold text-[#C8B195] mb-4">
                 KES {tournament.entry_fee.toLocaleString()}
               </div>
-              <Link 
-                href={isFull ? '#' : `/tournaments/${id}/register`}
-                className={`w-full py-3.5 flex items-center justify-center space-x-2 font-sans text-sm font-bold rounded-xl transition-all shadow-md ${isFull ? 'bg-stone-500 text-white cursor-not-allowed opacity-80' : 'bg-[#C8B195] hover:bg-white text-[#232320]'}`}
-                onClick={(e) => isFull && e.preventDefault()}
-              >
-                <span>{isFull ? 'Sold Out' : 'Register Now'}</span>
-                {!isFull && <ArrowRight className="w-4 h-4" />}
-              </Link>
+              {isFull ? (
+                <div className="w-full py-3.5 flex items-center justify-center space-x-2 font-sans text-sm font-bold rounded-xl shadow-md bg-stone-500 text-white opacity-80 cursor-not-allowed">
+                  <span>Sold Out</span>
+                </div>
+              ) : (
+                <Link 
+                  href={`/tournaments/${id}/register`}
+                  className="w-full py-3.5 flex items-center justify-center space-x-2 font-sans text-sm font-bold rounded-xl transition-all shadow-md bg-[#C8B195] hover:bg-white text-[#232320]"
+                >
+                  <span>Register Now</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              )}
             </div>
           </div>
         </div>

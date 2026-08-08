@@ -15,8 +15,49 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Jumuiya Chess",
-  description: "Transforming lives globally through the power of chess. We distribute chess boards, organize local tournaments, and foster communities.",
+  metadataBase: new URL('https://jumuiyachess.org'),
+  title: {
+    default: "Jumuiya Chess | Transforming Lives Globally",
+    template: "%s | Jumuiya Chess",
+  },
+  description: "Transforming lives globally through the power of chess. We distribute chess boards, organize local tournaments, and foster communities in Africa and beyond.",
+  keywords: ["Chess", "Jumuiya Chess", "Chess Tournaments", "Chess in Kenya", "African Chess", "Chess Charity", "Chess Community"],
+  authors: [{ name: "Jumuiya Chess Foundation" }],
+  creator: "Jumuiya Chess Foundation",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://jumuiyachess.org",
+    title: "Jumuiya Chess | Transforming Lives Globally",
+    description: "Transforming lives globally through the power of chess. We distribute chess boards, organize local tournaments, and foster communities.",
+    siteName: "Jumuiya Chess",
+    images: [
+      {
+        url: "/images/og-default.png", 
+        width: 1200,
+        height: 630,
+        alt: "Jumuiya Chess - Transforming Lives",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Jumuiya Chess | Transforming Lives Globally",
+    description: "Transforming lives globally through the power of chess.",
+    images: ["/images/og-default.png"],
+    creator: "@jumuiyachess",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 };
 
 import { SettingsProvider } from "@/components/providers/SettingsProvider";
