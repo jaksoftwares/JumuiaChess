@@ -14,6 +14,15 @@ async function getOrgEmail() {
   return 'info@jumuiyachess.org';
 }
 
+async function getAdminEmails() {
+  const orgEmail = await getOrgEmail();
+  const emails = [
+    process.env.ADMIN_NOTIFICATION_EMAIL || orgEmail,
+    process.env.BACKUP_ADMIN_EMAIL
+  ];
+  return Array.from(new Set(emails.filter(e => Boolean(e))));
+}
+
 export const sendRegistrationConfirmation = async (
   email: string,
   details: { playerName: string; tournamentName: string; amount: number; category: string; ticketNumber: string }
@@ -95,7 +104,7 @@ export const notifyAdminOfRegistration = async (
     age?: number;
   }
 ): Promise<void> => {
-  let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || await getOrgEmail();
+  const recipients = await getAdminEmails();
 
   const subject = `🎫 INTERNAL ALERT: New Registration - ${details.tournamentName}`;
   const html = `
@@ -161,13 +170,13 @@ export const notifyAdminOfRegistration = async (
 
   if (resend) {
     try {
-      await resend.emails.send({ from: RESEND_FROM_EMAIL, to: recipientEmail, subject, html });
+      await resend.emails.send({ from: RESEND_FROM_EMAIL, to: recipients, subject, html });
       return;
     } catch (error) {
       console.error('[Resend Error] Failed to notify admin of registration:', error);
     }
   }
-  console.log(`[EMAIL MOCK] Admin notified of registration: ${details.ticketNumber}`);
+  console.log(`[EMAIL MOCK] Admin notified of registration: ${details.ticketNumber} to ${recipients.join(', ')}`);
 };
 
 export const sendContactNotification = async (
@@ -213,13 +222,10 @@ export const sendContactNotification = async (
     </div>
   `;
 
-  let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || await getOrgEmail();
+  const recipients = await getAdminEmails();
 
   if (resend) {
     try {
-      const orgEmail = await getOrgEmail();
-      const recipients = Array.from(new Set([recipientEmail, orgEmail]));
-      
       await resend.emails.send({
         from: RESEND_FROM_EMAIL,
         reply_to: senderEmail,
@@ -227,14 +233,14 @@ export const sendContactNotification = async (
         subject,
         html,
       });
-      console.log(`[Resend Email] Contact notification sent to admin inbox: ${recipientEmail}`);
+      console.log(`[Resend Email] Contact notification sent to admin inboxes: ${recipients.join(', ')}`);
       return;
     } catch (error) {
       console.error('[Resend Error] Failed sending contact notification email:', error);
     }
   }
 
-  console.log(`[EMAIL MOCK] Notification for admin (${recipientEmail}):\nSender: ${senderName} (${senderEmail})\nSubject: ${subject}\nMessage: ${message}`);
+  console.log(`[EMAIL MOCK] Notification for admin (${recipients.join(', ')}):\nSender: ${senderName} (${senderEmail})\nSubject: ${subject}\nMessage: ${message}`);
 };
 
 export const sendDonationReceipt = async (
@@ -303,7 +309,7 @@ export const sendDonationReceipt = async (
 export const notifyAdminOfDonation = async (
   details: { donorName: string; amount: number; receipt: string; message: string }
 ): Promise<void> => {
-  let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || await getOrgEmail();
+  const recipients = await getAdminEmails();
 
   const subject = `INTERNAL ALERT: New Donation Received - KES ${details.amount.toLocaleString()}`;
   const html = `
@@ -352,7 +358,7 @@ export const notifyAdminOfDonation = async (
     try {
       await resend.emails.send({
         from: RESEND_FROM_EMAIL,
-        to: recipientEmail,
+        to: recipients,
         subject,
         html,
       });
@@ -361,7 +367,7 @@ export const notifyAdminOfDonation = async (
       console.error('[Resend Error] Failed to notify admin of donation:', error);
     }
   }
-  console.log(`[EMAIL MOCK] Admin notified of donation: ${details.receipt}`);
+  console.log(`[EMAIL MOCK] Admin notified of donation: ${details.receipt} to ${recipients.join(', ')}`);
 };
 
 export const sendOrderReceipt = async (
@@ -436,7 +442,7 @@ export const sendOrderReceipt = async (
 export const notifyAdminOfOrder = async (
   details: { customerName: string; amount: number; receipt: string; items: any[], address: string, email: string, phone: string }
 ): Promise<void> => {
-  let recipientEmail = process.env.ADMIN_NOTIFICATION_EMAIL || await getOrgEmail();
+  const recipients = await getAdminEmails();
 
   const subject = `INTERNAL ALERT: New Store Order - KES ${details.amount.toLocaleString()}`;
   
@@ -515,13 +521,13 @@ export const notifyAdminOfOrder = async (
 
   if (resend) {
     try {
-      await resend.emails.send({ from: RESEND_FROM_EMAIL, to: recipientEmail, subject, html });
+      await resend.emails.send({ from: RESEND_FROM_EMAIL, to: recipients, subject, html });
       return;
     } catch (error) {
       console.error('[Resend Error] Failed to notify admin of order:', error);
     }
   }
-  console.log(`[EMAIL MOCK] Admin notified of order: ${details.receipt}`);
+  console.log(`[EMAIL MOCK] Admin notified of order: ${details.receipt} to ${recipients.join(', ')}`);
 };
 
 export const sendDeliveryStatusUpdate = async (
