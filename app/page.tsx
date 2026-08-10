@@ -6,6 +6,7 @@ import { Product, BlogPost, Video, ImpactProgram } from '@/types';
 // Sections
 import Hero from '@/components/sections/Hero';
 import OurStory from '@/components/sections/OurStory';
+import HowItStarted from '@/components/sections/HowItStarted';
 import MeetTheTeam from '@/components/sections/MeetTheTeam';
 import Impact from '@/components/sections/Impact';
 import Gallery from '@/components/sections/Gallery';
@@ -75,6 +76,7 @@ export default async function Home() {
         {/* Sections ordered corresponding to anchor requirements */}
         <Hero />
         <OurStory />
+        <HowItStarted />
         <MeetTheTeam />
         <Impact programs={programs} />
         <Gallery />
