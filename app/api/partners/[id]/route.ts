@@ -5,10 +5,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const id = (await params).id;
     const body = await request.json();
-    const { name, logo_url, website_url, description, type } = body;
+    const { name, logo_url, website_url } = body;
     const { data, error } = await supabaseAdmin
       .from('partners')
-      .update({ name, logo_url, website_url, description, type })
+      .update({ name, logo_url, website_url })
       .eq('id', id).select().single();
     if (error) throw error;
     return NextResponse.json({ success: true, data });

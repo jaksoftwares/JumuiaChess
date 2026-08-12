@@ -110,15 +110,21 @@ export default async function TournamentDetailsPage({ params }: Props) {
                 <div className="w-full py-3.5 flex items-center justify-center space-x-2 font-sans text-sm font-bold rounded-xl shadow-md bg-stone-500 text-white opacity-80 cursor-not-allowed">
                   <span>Sold Out</span>
                 </div>
-              ) : (
-                <Link 
-                  href={`/tournaments/${id}/register`}
-                  className="w-full py-3.5 flex items-center justify-center space-x-2 font-sans text-sm font-bold rounded-xl transition-all shadow-md bg-[#C8B195] hover:bg-white text-[#232320]"
-                >
-                  <span>Register Now</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              )}
+              ) : (() => {
+                const isMashariki = tournament.name?.toLowerCase().includes('mashariki') || tournament.slug?.toLowerCase().includes('mashariki');
+                const registerHref = isMashariki ? 'https://forms.gle/pTNQTupnMBVUSENH7' : `/tournaments/${id}/register`;
+                return (
+                  <Link 
+                    href={registerHref}
+                    target={isMashariki ? '_blank' : undefined}
+                    rel={isMashariki ? 'noopener noreferrer' : undefined}
+                    className="w-full py-3.5 flex items-center justify-center space-x-2 font-sans text-sm font-bold rounded-xl transition-all shadow-md bg-[#C8B195] hover:bg-white text-[#232320]"
+                  >
+                    <span>Register Now</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                );
+              })()}
             </div>
           </div>
         </div>

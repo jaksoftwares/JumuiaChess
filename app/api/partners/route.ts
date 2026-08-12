@@ -14,10 +14,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, logo_url, website_url, description, type } = body;
+    const { name, logo_url, website_url } = body;
     const { data, error } = await supabaseAdmin
       .from('partners')
-      .insert([{ name, logo_url, website_url, description, type }])
+      .insert([{ name, logo_url, website_url }])
       .select().single();
     if (error) throw error;
     return NextResponse.json({ success: true, data }, { status: 201 });

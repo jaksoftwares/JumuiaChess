@@ -23,11 +23,11 @@ export default function Hero() {
       </div>
 
       <div className="relative max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-[480px_1fr] lg:grid-rows-[auto_auto] gap-8 lg:gap-x-16 xl:gap-x-24 lg:gap-y-6 items-center lg:-translate-y-16">
-        
+
         {/* Child 1: Subtitle & Title */}
         <div className="space-y-4 flex flex-col justify-center items-start text-left z-10 lg:max-w-[480px] w-full lg:col-start-1 lg:col-end-2 lg:row-start-1 lg:row-end-2">
-          <span className="font-sans text-[10px] md:text-xs font-bold tracking-[0.2em] text-charcoal/60 uppercase">
-            Strategic Empowerment &bull; Kenya
+          <span className="font-serif italic text-xs md:text-sm font-medium tracking-wide text-charcoal/70 whitespace-nowrap">
+            Powered by The Gift of Chess Africa &bull; Kenyan Chapter
           </span>
 
           <h1 className="font-serif text-5xl md:text-6xl lg:text-[4.5rem] xl:text-[5.5rem] font-bold tracking-tight text-charcoal leading-[0.98]">

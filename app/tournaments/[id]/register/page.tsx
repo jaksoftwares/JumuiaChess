@@ -44,6 +44,11 @@ export default function RegisterTournamentPage({ params }: { params: Promise<{ i
         const res = await apiRequest<any>(`/tournaments/${id}`);
         if (res.success && res.data) {
           setTournament(res.data);
+          const nameLower = (res.data.name || '').toLowerCase();
+          const slugLower = (res.data.slug || '').toLowerCase();
+          if (nameLower.includes('mashariki') || slugLower.includes('mashariki')) {
+            window.location.href = 'https://forms.gle/pTNQTupnMBVUSENH7';
+          }
         }
       } catch (error) {
         console.error('Error fetching tournament:', error);
@@ -190,53 +195,53 @@ export default function RegisterTournamentPage({ params }: { params: Promise<{ i
   const isFull = registered >= capacity;
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] py-16 px-4 md:px-8">
-      <div className="max-w-3xl mx-auto space-y-8">
-        <Link href={`/tournaments/${id}`} className="inline-flex items-center space-x-2 text-[#6B4A34] hover:underline font-bold font-sans text-sm">
-          <ArrowLeft className="w-4 h-4" />
+    <div className="min-h-screen bg-[#FAF7F2] py-6 px-4 flex flex-col justify-center items-center">
+      <div className="max-w-2xl w-full space-y-3">
+        <Link href={`/tournaments/${id}`} className="inline-flex items-center space-x-1.5 text-[#6B4A34] hover:underline font-bold font-sans text-xs">
+          <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to Event Details</span>
         </Link>
         
-        <div className="bg-white p-8 md:p-12 rounded-3xl shadow-xl border border-[#6B4A34]/10">
+        <div className="bg-white p-5 md:p-6 rounded-2xl shadow-lg border border-[#6B4A34]/10">
           
-          <div className="mb-8 border-b border-stone-100 pb-6 space-y-2">
-            <div className="flex justify-between items-start">
-              <h1 className="font-serif text-3xl font-bold text-[#232320]">Event Registration</h1>
-              <div className="text-right">
-                <span className="font-sans text-xs text-stone-500 uppercase tracking-widest block mb-1">Entry Fee</span>
-                <span className="font-serif text-2xl font-bold text-[#6B4A34]">
-                  {isPwdDap ? 'FREE' : `KES ${currentFee.toLocaleString()}`}
-                </span>
-              </div>
+          <div className="mb-4 border-b border-stone-100 pb-3 flex justify-between items-center">
+            <div>
+              <h1 className="font-serif text-2xl font-bold text-[#232320]">Event Registration</h1>
+              <h2 className="font-sans text-xs font-bold text-[#6B4A34]">{tournament.name}</h2>
             </div>
-            <h2 className="font-sans font-bold text-[#6B4A34]">{tournament.name}</h2>
+            <div className="text-right">
+              <span className="font-sans text-[10px] text-stone-500 uppercase tracking-widest block">Entry Fee</span>
+              <span className="font-serif text-xl font-bold text-[#6B4A34]">
+                {isPwdDap ? 'FREE' : `KES ${currentFee.toLocaleString()}`}
+              </span>
+            </div>
           </div>
 
           {isFull ? (
-             <div className="p-8 text-center bg-red-50 border border-red-200 rounded-2xl text-red-900">
-                <h3 className="text-xl font-bold mb-2">Registration Closed</h3>
-                <p>Sorry, this tournament has reached its maximum capacity of {capacity} players.</p>
+             <div className="p-6 text-center bg-red-50 border border-red-200 rounded-xl text-red-900">
+                <h3 className="text-lg font-bold mb-1">Registration Closed</h3>
+                <p className="text-xs">Sorry, this tournament has reached its maximum capacity of {capacity} players.</p>
              </div>
           ) : (
             <>
               {/* Overlay for Pending/Submitting/Success/Error */}
               {(formSubmitting || statusMessage) && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-                  <div className="bg-white rounded-3xl p-10 max-w-md w-full shadow-2xl text-center transform transition-all border border-[#6B4A34]/20 flex flex-col items-center">
+                  <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl text-center transform transition-all border border-[#6B4A34]/20 flex flex-col items-center">
                     
                     {(!statusMessage || statusMessage.type === 'pending') && (
                       <>
-                        <div className="relative w-24 h-24 mx-auto mb-6">
+                        <div className="relative w-20 h-20 mx-auto mb-4">
                           <div className="absolute inset-0 border-4 border-[#C8B195]/30 rounded-full"></div>
                           <div className="absolute inset-0 border-4 border-[#6B4A34] rounded-full border-t-transparent animate-spin"></div>
                           <div className="absolute inset-0 flex items-center justify-center">
-                            <ShieldCheck className="w-8 h-8 text-[#6B4A34] opacity-80" />
+                            <ShieldCheck className="w-7 h-7 text-[#6B4A34] opacity-80" />
                           </div>
                         </div>
-                        <h3 className="font-serif text-2xl font-bold text-[#232320] mb-3">
+                        <h3 className="font-serif text-xl font-bold text-[#232320] mb-2">
                           {statusMessage?.type === 'pending' ? 'Awaiting M-Pesa' : 'Processing...'}
                         </h3>
-                        <p className="font-sans text-[#232320]/70 text-sm leading-relaxed">
+                        <p className="font-sans text-[#232320]/70 text-xs leading-relaxed">
                           {statusMessage?.text || 'Securely transmitting your details...'}
                         </p>
                       </>
@@ -244,33 +249,33 @@ export default function RegisterTournamentPage({ params }: { params: Promise<{ i
 
                     {statusMessage?.type === 'success' && (
                       <>
-                        <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                          <CheckCircle2 className="w-12 h-12 text-emerald-600" />
+                        <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <CheckCircle2 className="w-10 h-10 text-emerald-600" />
                         </div>
-                        <h3 className="font-serif text-2xl font-bold text-[#232320] mb-3">Registration Complete!</h3>
-                        <p className="font-sans text-[#232320]/70 text-sm leading-relaxed mb-6">
+                        <h3 className="font-serif text-xl font-bold text-[#232320] mb-2">Registration Complete!</h3>
+                        <p className="font-sans text-[#232320]/70 text-xs leading-relaxed mb-4">
                           {statusMessage.text}
                         </p>
                         <div className="flex items-center justify-center space-x-2 text-emerald-600 font-bold">
                           <Loader2 className="w-4 h-4 animate-spin" />
-                          <span className="text-sm">Redirecting...</span>
+                          <span className="text-xs">Redirecting...</span>
                         </div>
                       </>
                     )}
 
                     {statusMessage?.type === 'error' && (
                       <>
-                        <div className="w-24 h-24 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                          <ShieldCheck className="w-12 h-12 text-red-600" />
+                        <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <ShieldCheck className="w-10 h-10 text-red-600" />
                         </div>
-                        <h3 className="font-serif text-2xl font-bold text-[#232320] mb-3">Payment Failed</h3>
-                        <p className="font-sans text-[#232320]/70 text-sm leading-relaxed mb-8">
+                        <h3 className="font-serif text-xl font-bold text-[#232320] mb-2">Payment Failed</h3>
+                        <p className="font-sans text-[#232320]/70 text-xs leading-relaxed mb-6">
                           {statusMessage.text}
                         </p>
                         <button
                           type="button"
                           onClick={() => setStatusMessage(null)}
-                          className="w-full py-4 bg-[#232320] hover:bg-red-900 text-white font-sans text-sm font-bold rounded-xl transition-colors shadow-md"
+                          className="w-full py-3 bg-[#232320] hover:bg-red-900 text-white font-sans text-xs font-bold rounded-xl transition-colors shadow-md"
                         >
                           Try Again
                         </button>
@@ -280,49 +285,30 @@ export default function RegisterTournamentPage({ params }: { params: Promise<{ i
                 </div>
               )}
 
-              <form onSubmit={handleRegisterSubmit} className="space-y-8">
+              <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
                 
-                {/* SECTION 1 */}
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3 border-b border-stone-100 pb-3">
-                    <div className="p-2 bg-[#FAF7F2] rounded-lg"><User className="w-5 h-5 text-[#6B4A34]" /></div>
-                    <h4 className="font-serif font-bold text-lg text-[#232320]">1. Player Details</h4>
+                {/* SECTION 1: Player Details */}
+                <div className="space-y-2.5">
+                  <div className="flex items-center space-x-2 border-b border-stone-100 pb-1.5">
+                    <div className="p-1 bg-[#FAF7F2] rounded"><User className="w-4 h-4 text-[#6B4A34]" /></div>
+                    <h4 className="font-serif font-bold text-sm text-[#232320]">1. Player Details</h4>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block font-sans text-xs font-semibold text-stone-500 mb-1.5 uppercase">Surname *</label>
-                      <input type="text" required value={surname} onChange={(e) => setSurname(e.target.value)} placeholder="e.g. Kimani" className="w-full bg-[#FAF7F2] border border-stone-200 p-3 rounded-xl text-sm text-[#232320] focus:outline-none focus:border-[#6B4A34]" />
+                      <label className="block font-sans text-[10px] font-semibold text-stone-500 mb-1 uppercase">Surname *</label>
+                      <input type="text" required value={surname} onChange={(e) => setSurname(e.target.value)} placeholder="e.g. Kimani" className="w-full bg-[#FAF7F2] border border-stone-200 py-1.5 px-3 rounded-lg text-xs text-[#232320] focus:outline-none focus:border-[#6B4A34]" />
                     </div>
                     <div>
-                      <label className="block font-sans text-xs font-semibold text-stone-500 mb-1.5 uppercase">Other Names *</label>
-                      <input type="text" required value={otherNames} onChange={(e) => setOtherNames(e.target.value)} placeholder="e.g. John Mwangi" className="w-full bg-[#FAF7F2] border border-stone-200 p-3 rounded-xl text-sm text-[#232320] focus:outline-none focus:border-[#6B4A34]" />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    <div>
-                      <label className="block font-sans text-xs font-semibold text-stone-500 mb-1.5 uppercase">Gender *</label>
-                      <select required value={gender} onChange={(e) => setGender(e.target.value)} className="w-full bg-[#FAF7F2] border border-stone-200 p-3 rounded-xl text-sm text-[#232320] focus:outline-none focus:border-[#6B4A34]">
-                        <option value="">Select</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block font-sans text-xs font-semibold text-stone-500 mb-1.5 uppercase">Country *</label>
-                      <input type="text" required value={country} onChange={(e) => setCountry(e.target.value)} className="w-full bg-[#FAF7F2] border border-stone-200 p-3 rounded-xl text-sm text-[#232320] focus:outline-none focus:border-[#6B4A34]" />
-                    </div>
-                    <div>
-                      <label className="block font-sans text-xs font-semibold text-stone-500 mb-1.5 uppercase">Date of Birth</label>
-                      <input type="date" value={dob} onChange={(e) => setDob(e.target.value)} className="w-full bg-[#FAF7F2] border border-stone-200 p-3 rounded-xl text-sm text-[#232320] focus:outline-none focus:border-[#6B4A34]" />
+                      <label className="block font-sans text-[10px] font-semibold text-stone-500 mb-1 uppercase">Other Names *</label>
+                      <input type="text" required value={otherNames} onChange={(e) => setOtherNames(e.target.value)} placeholder="e.g. John Mwangi" className="w-full bg-[#FAF7F2] border border-stone-200 py-1.5 px-3 rounded-lg text-xs text-[#232320] focus:outline-none focus:border-[#6B4A34]" />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block font-sans text-xs font-semibold text-stone-500 mb-1.5 uppercase">Category *</label>
-                      <select required value={category} onChange={(e) => setCategory(e.target.value)} className="w-full bg-[#FAF7F2] border border-stone-200 p-3 rounded-xl text-sm text-[#232320] focus:outline-none focus:border-[#6B4A34]">
+                      <label className="block font-sans text-[10px] font-semibold text-stone-500 mb-1 uppercase">Category *</label>
+                      <select required value={category} onChange={(e) => setCategory(e.target.value)} className="w-full bg-[#FAF7F2] border border-stone-200 py-1.5 px-3 rounded-lg text-xs text-[#232320] focus:outline-none focus:border-[#6B4A34]">
                         <option value="">Select Category</option>
                         {tournament.categories?.map((cat: string) => (
                           <option key={cat} value={cat}>{cat}</option>
@@ -330,70 +316,83 @@ export default function RegisterTournamentPage({ params }: { params: Promise<{ i
                       </select>
                     </div>
                     <div>
-                      <label className="block font-sans text-xs font-semibold text-stone-500 mb-1.5 uppercase">FIDE ID</label>
-                      <input type="text" value={fideId} onChange={(e) => setFideId(e.target.value)} placeholder="00" className="w-full bg-[#FAF7F2] border border-stone-200 p-3 rounded-xl text-sm text-[#232320] focus:outline-none focus:border-[#6B4A34]" />
+                      <label className="block font-sans text-[10px] font-semibold text-stone-500 mb-1 uppercase">Gender *</label>
+                      <select required value={gender} onChange={(e) => setGender(e.target.value)} className="w-full bg-[#FAF7F2] border border-stone-200 py-1.5 px-3 rounded-lg text-xs text-[#232320] focus:outline-none focus:border-[#6B4A34]">
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <label className="block font-sans text-[10px] font-semibold text-stone-500 mb-1 uppercase">Country *</label>
+                      <input type="text" required value={country} onChange={(e) => setCountry(e.target.value)} className="w-full bg-[#FAF7F2] border border-stone-200 py-1.5 px-3 rounded-lg text-xs text-[#232320] focus:outline-none focus:border-[#6B4A34]" />
+                    </div>
+                    <div>
+                      <label className="block font-sans text-[10px] font-semibold text-stone-500 mb-1 uppercase">Date of Birth</label>
+                      <input type="date" value={dob} onChange={(e) => setDob(e.target.value)} className="w-full bg-[#FAF7F2] border border-stone-200 py-1.5 px-3 rounded-lg text-xs text-[#232320] focus:outline-none focus:border-[#6B4A34]" />
+                    </div>
+                    <div>
+                      <label className="block font-sans text-[10px] font-semibold text-stone-500 mb-1 uppercase">FIDE ID</label>
+                      <input type="text" value={fideId} onChange={(e) => setFideId(e.target.value)} placeholder="00" className="w-full bg-[#FAF7F2] border border-stone-200 py-1.5 px-3 rounded-lg text-xs text-[#232320] focus:outline-none focus:border-[#6B4A34]" />
                     </div>
                   </div>
                 </div>
 
-                {/* SECTION 2 */}
-                <div className="space-y-4 pt-4">
-                  <div className="flex items-center space-x-3 border-b border-stone-100 pb-3">
-                    <div className="p-2 bg-[#FAF7F2] rounded-lg"><Trophy className="w-5 h-5 text-[#6B4A34]" /></div>
-                    <h4 className="font-serif font-bold text-lg text-[#232320]">2. Contact & Club</h4>
+                {/* SECTION 2: Contact & Details */}
+                <div className="space-y-2.5 pt-1">
+                  <div className="flex items-center space-x-2 border-b border-stone-100 pb-1.5">
+                    <div className="p-1 bg-[#FAF7F2] rounded"><Trophy className="w-4 h-4 text-[#6B4A34]" /></div>
+                    <h4 className="font-serif font-bold text-sm text-[#232320]">2. Contact & Details</h4>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block font-sans text-xs font-semibold text-stone-500 mb-1.5 uppercase">Club / School</label>
-                      <input type="text" value={school} onChange={(e) => setSchool(e.target.value)} placeholder="Optional" className="w-full bg-[#FAF7F2] border border-stone-200 p-3 rounded-xl text-sm text-[#232320] focus:outline-none focus:border-[#6B4A34]" />
+                      <label className="block font-sans text-[10px] font-semibold text-stone-500 mb-1 uppercase">Club / School</label>
+                      <input type="text" value={school} onChange={(e) => setSchool(e.target.value)} placeholder="Optional" className="w-full bg-[#FAF7F2] border border-stone-200 py-1.5 px-3 rounded-lg text-xs text-[#232320] focus:outline-none focus:border-[#6B4A34]" />
                     </div>
                     <div>
-                      <label className="block font-sans text-xs font-semibold text-stone-500 mb-1.5 uppercase">Email Address *</label>
-                      <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="For ticket delivery" className="w-full bg-[#FAF7F2] border border-stone-200 p-3 rounded-xl text-sm text-[#232320] focus:outline-none focus:border-[#6B4A34]" />
+                      <label className="block font-sans text-[10px] font-semibold text-stone-500 mb-1 uppercase">Email Address *</label>
+                      <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="For ticket delivery" className="w-full bg-[#FAF7F2] border border-stone-200 py-1.5 px-3 rounded-lg text-xs text-[#232320] focus:outline-none focus:border-[#6B4A34]" />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block font-sans text-xs font-semibold text-stone-500 mb-1.5 uppercase">M-Pesa Number *</label>
-                      <input type="tel" required value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="07XXXXXXXX" className="w-full bg-[#FAF7F2] border border-stone-200 p-3 rounded-xl text-sm text-[#232320] focus:outline-none focus:border-[#6B4A34]" />
-                      <p className="text-[10px] text-stone-500 mt-1 font-bold">This number will receive the payment prompt.</p>
+                      <label className="block font-sans text-[10px] font-semibold text-stone-500 mb-1 uppercase">M-Pesa Number *</label>
+                      <input type="tel" required value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="07XXXXXXXX" className="w-full bg-[#FAF7F2] border border-stone-200 py-1.5 px-3 rounded-lg text-xs text-[#232320] focus:outline-none focus:border-[#6B4A34]" />
                     </div>
                     <div>
-                      <label className="block font-sans text-xs font-semibold text-stone-500 mb-1.5 uppercase">Accompanying Person</label>
-                      <input type="text" value={accompanyingPerson} onChange={(e) => setAccompanyingPerson(e.target.value)} placeholder="Parent or Coach Name" className="w-full bg-[#FAF7F2] border border-stone-200 p-3 rounded-xl text-sm text-[#232320] focus:outline-none focus:border-[#6B4A34]" />
+                      <label className="block font-sans text-[10px] font-semibold text-stone-500 mb-1 uppercase">Accompanying Person</label>
+                      <input type="text" value={accompanyingPerson} onChange={(e) => setAccompanyingPerson(e.target.value)} placeholder="Parent/Coach Name" className="w-full bg-[#FAF7F2] border border-stone-200 py-1.5 px-3 rounded-lg text-xs text-[#232320] focus:outline-none focus:border-[#6B4A34]" />
                     </div>
                   </div>
                 </div>
 
-                {/* SECTION 3 */}
-                <div className="space-y-4 pt-4">
-                  <div className="flex items-center space-x-3 border-b border-stone-100 pb-3">
-                    <div className="p-2 bg-[#FAF7F2] rounded-lg"><ShieldCheck className="w-5 h-5 text-[#6B4A34]" /></div>
-                    <h4 className="font-serif font-bold text-lg text-[#232320]">3. Agreement</h4>
-                  </div>
-                  
-                  <div className="flex items-start space-x-3 bg-[#FAF7F2] p-4 rounded-xl border border-[#6B4A34]/20">
+                {/* SECTION 3: Agreement */}
+                <div className="pt-1">
+                  <div className="flex items-start space-x-2.5 bg-[#FAF7F2] p-2.5 rounded-lg border border-[#6B4A34]/20">
                     <input
                       type="checkbox"
                       id="consent"
                       required
                       checked={consentGiven}
                       onChange={(e) => setConsentGiven(e.target.checked)}
-                      className="mt-1 w-5 h-5 rounded text-[#6B4A34] focus:ring-[#6B4A34] cursor-pointer"
+                      className="mt-0.5 w-4 h-4 rounded text-[#6B4A34] focus:ring-[#6B4A34] cursor-pointer"
                     />
-                    <label htmlFor="consent" className="text-xs text-stone-700 leading-relaxed cursor-pointer">
-                      I confirm that the details provided are accurate. I have read and agreed to the <Link href="/tournaments/rules" target="_blank" className="font-bold text-[#6B4A34] hover:underline">Tournament Rules</Link> and <Link href="/terms" target="_blank" className="font-bold text-[#6B4A34] hover:underline">Terms of Service</Link>, including the media release policy.
+                    <label htmlFor="consent" className="text-[11px] text-stone-700 leading-tight cursor-pointer">
+                      I confirm the details provided are accurate and agree to the <Link href="/tournaments/rules" target="_blank" className="font-bold text-[#6B4A34] hover:underline">Tournament Rules</Link> and <Link href="/terms" target="_blank" className="font-bold text-[#6B4A34] hover:underline">Terms of Service</Link>.
                     </label>
                   </div>
                 </div>
 
-                <div className="pt-6">
+                <div className="pt-2">
                   <button
                     type="submit"
                     disabled={formSubmitting}
-                    className="w-full py-4 bg-[#232320] text-white font-sans text-sm font-bold rounded-xl shadow-xl hover:bg-[#6B4A34] active:scale-[0.99] transition-all duration-300 flex items-center justify-center space-x-3"
+                    className="w-full py-3 bg-[#232320] text-white font-sans text-xs md:text-sm font-bold rounded-xl shadow-md hover:bg-[#6B4A34] active:scale-[0.99] transition-all duration-300 flex items-center justify-center space-x-2"
                   >
                     <span>{isPwdDap ? 'Complete Free Registration' : `Pay KES ${currentFee.toLocaleString()} via M-Pesa`}</span>
                   </button>

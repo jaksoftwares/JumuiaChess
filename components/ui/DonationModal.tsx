@@ -409,7 +409,7 @@ export default function DonationModal({ isOpen, onClose }: { isOpen: boolean; on
                   <tr>
                     <td className="py-6 px-6 border-b border-gray-100">
                       <p className="font-bold text-gray-900 text-lg">General Donation</p>
-                      <p className="text-sm text-gray-500 mt-1">Processed via M-Pesa STK Push</p>
+                      <p className="text-sm text-gray-500 mt-1">Processed via M-Pesa</p>
                     </td>
                     <td className="py-6 px-6 border-b border-gray-100 text-right">
                       <p className="font-mono text-lg font-semibold text-gray-900">KES {finalAmount.toLocaleString()}</p>

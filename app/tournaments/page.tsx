@@ -308,6 +308,11 @@ export default function TournamentsPage() {
                         key={t.id}
                         className="relative overflow-hidden h-[450px] rounded-[24px] border border-stone-200/40 shadow-lg group hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 cursor-pointer"
                         onClick={() => {
+                          const isMashariki = t.name?.toLowerCase().includes('mashariki') || t.slug?.toLowerCase().includes('mashariki');
+                          if (isMashariki) {
+                            window.open('https://forms.gle/pTNQTupnMBVUSENH7', '_blank');
+                            return;
+                          }
                           setSelectedTournament(t);
                           setStatusMessage(null);
                           setCheckoutRequestId(null);

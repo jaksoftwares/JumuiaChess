@@ -89,7 +89,7 @@ export default function NewsPage() {
               No published articles are available yet. Check back soon for new field reports.
             </div>
           ) : (
-            <div id="articles" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 scroll-mt-28">
+            <div id="articles" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 scroll-mt-36">
               {posts.map((post) => (
                 <div
                   key={post.id}
@@ -144,7 +144,7 @@ export default function NewsPage() {
           )}
 
           {/* Videos Section */}
-          <div id="videos" className="pt-16 pb-8 border-t border-stone-200/50 scroll-mt-28">
+          <div id="videos" className="pt-16 pb-8 border-t border-stone-200/50 scroll-mt-36">
             <div className="flex items-center gap-3 mb-8">
               <Youtube className="w-6 h-6 text-[#6B4A34]" />
               <h2 className="font-serif text-2xl md:text-3xl font-bold text-[#2A2421]">Video Gallery & Live Streams</h2>

@@ -77,19 +77,18 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-          scrolled ? 'bg-offwhite/90 backdrop-blur-md shadow-md py-3' : 'bg-transparent py-4'
-        }`}
+        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${scrolled ? 'bg-offwhite/90 backdrop-blur-md shadow-md py-3' : 'bg-transparent py-4'
+          }`}
       >
-        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between -translate-y-5">
           {/* Logo */}
-          <Link href="#home" className="flex items-center space-x-2 text-wood hover:opacity-90 transition-opacity">
+          <Link href={isHome ? "#home" : "/"} className="flex items-center space-x-2 text-wood hover:opacity-90 transition-opacity">
             <Image
               src="/images/chess_logo.png"
               alt="Jumuiya Chess Logo"
-              width={40}
-              height={40}
-              className="h-10 w-10 object-contain"
+              width={155}
+              height={155}
+              className="h-16 w-16 md:h-20 md:w-20 object-contain"
             />
             <span className="font-serif text-xl font-bold tracking-tight text-charcoal">
               Jumuiya <span className="text-wood">Chess</span>
@@ -102,27 +101,26 @@ export default function Navbar() {
               const isActive = isHome && activeSection === link.href.slice(1);
               const finalHref = isHome ? link.href : `/${link.href}`;
               return (
-                <a
+                <Link
                   key={link.name}
                   href={finalHref}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`relative px-3.5 py-1.5 rounded-xl font-sans text-xs font-semibold transition-all duration-300 ${
-                    isActive
-                      ? 'bg-[#6B4A34] text-white shadow-sm font-bold scale-[1.02]'
-                      : 'text-charcoal/80 hover:text-[#6B4A34] hover:bg-[#6B4A34]/10 hover:scale-105 active:scale-95'
-                  }`}
+                  className={`relative px-3.5 py-1.5 rounded-xl font-sans text-xs font-semibold transition-all duration-300 ${isActive
+                    ? 'bg-[#6B4A34] text-white shadow-sm font-bold scale-[1.02]'
+                    : 'text-charcoal/80 hover:text-[#6B4A34] hover:bg-[#6B4A34]/10 hover:scale-105 active:scale-95'
+                    }`}
                   onClick={() => handleLinkClick(link.href)}
                 >
                   {link.name}
-                </a>
+                </Link>
               );
             })}
           </nav>
 
           <div className="flex items-center space-x-4 lg:space-x-0">
             {/* Cart Icon (Visible on both Mobile and Desktop) */}
-            <Link 
-              href="/store" 
+            <Link
+              href="/store"
               className={`relative p-2 transition-colors lg:ml-6 ${scrolled ? 'text-charcoal hover:text-[#6B4A34]' : 'text-charcoal hover:text-[#6B4A34]'}`}
             >
               <ShoppingBag className="w-5 h-5" />
@@ -150,7 +148,7 @@ export default function Navbar() {
         <div className="lg:hidden fixed inset-0 z-50 bg-[#16171A]/95 backdrop-blur-xl flex flex-col justify-between p-6 text-white animate-fade-in overflow-y-auto">
           {/* Mobile Menu Header */}
           <div className="flex items-center justify-between pb-6 border-b border-white/10">
-            <div className="flex items-center space-x-2">
+            <Link href={isHome ? "#home" : "/"} onClick={() => setIsOpen(false)} className="flex items-center space-x-2">
               <Image
                 src="/images/chess_logo.png"
                 alt="Jumuiya Chess Logo"
@@ -161,7 +159,7 @@ export default function Navbar() {
               <span className="font-serif text-lg font-bold tracking-tight text-white">
                 Jumuiya <span className="text-[#C8B195]">Chess</span>
               </span>
-            </div>
+            </Link>
 
             <button
               onClick={() => setIsOpen(false)}
@@ -178,20 +176,19 @@ export default function Navbar() {
               const isActive = isHome && activeSection === link.href.slice(1);
               const finalHref = isHome ? link.href : `/${link.href}`;
               return (
-                <a
+                <Link
                   key={link.name}
                   href={finalHref}
-                  onClick={() => handleLinkClick(finalHref)}
+                  onClick={() => handleLinkClick(link.href)}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`flex items-center justify-between p-3.5 rounded-2xl font-serif text-xl font-bold transition-all ${
-                    isActive
-                      ? 'bg-[#C8B195] text-[#16171A] shadow-lg pl-5'
-                      : 'text-stone-200 hover:text-[#C8B195] hover:bg-white/5'
-                  }`}
+                  className={`flex items-center justify-between p-3.5 rounded-2xl font-serif text-xl font-bold transition-all ${isActive
+                    ? 'bg-[#C8B195] text-[#16171A] shadow-lg pl-5'
+                    : 'text-stone-200 hover:text-[#C8B195] hover:bg-white/5'
+                    }`}
                 >
                   <span>{link.name}</span>
                   {isActive && <Sparkles className="w-5 h-5 text-[#16171A]" />}
-                </a>
+                </Link>
               );
             })}
           </div>

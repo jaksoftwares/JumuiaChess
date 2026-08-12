@@ -129,14 +129,22 @@ export default function Tournaments() {
                         </span>
                       </div>
 
-                      <Link
-                        href={`/tournaments/${t.slug || t.id}`}
-                        className={`px-5 py-2.5 flex items-center space-x-2 font-sans text-xs font-bold rounded-xl transition-all shadow-md ${isFull ? 'bg-stone-500 text-white cursor-not-allowed opacity-80' : 'bg-[#C8B195] hover:bg-white text-[#232320]'}`}
-                        onClick={(e) => isFull && e.preventDefault()}
-                      >
-                        <span>{isFull ? 'Sold Out' : 'Details & Register'}</span>
-                        {!isFull && <ArrowRight className="w-4 h-4" />}
-                      </Link>
+                      {(() => {
+                        const isMashariki = t.name?.toLowerCase().includes('mashariki') || t.slug?.toLowerCase().includes('mashariki');
+                        const targetHref = isMashariki ? 'https://forms.gle/pTNQTupnMBVUSENH7' : `/tournaments/${t.slug || t.id}`;
+                        return (
+                          <Link
+                            href={targetHref}
+                            target={isMashariki ? '_blank' : undefined}
+                            rel={isMashariki ? 'noopener noreferrer' : undefined}
+                            className={`px-5 py-2.5 flex items-center space-x-2 font-sans text-xs font-bold rounded-xl transition-all shadow-md ${isFull ? 'bg-stone-500 text-white cursor-not-allowed opacity-80' : 'bg-[#C8B195] hover:bg-white text-[#232320]'}`}
+                            onClick={(e) => isFull && e.preventDefault()}
+                          >
+                            <span>{isFull ? 'Sold Out' : 'Details & Register'}</span>
+                            {!isFull && <ArrowRight className="w-4 h-4" />}
+                          </Link>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>
