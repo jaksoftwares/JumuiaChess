@@ -15,6 +15,23 @@ export async function PUT(
       return NextResponse.json({ success: false, error: 'Invalid status' }, { status: 400 });
     }
 
+    // If attempting to check in, verify payment is completed
+    if (status === 'checked-in') {
+      const { data: reg, error: regError } = await supabaseAdmin
+        .from('registrations')
+        .select('payment_status')
+        .eq('id', id)
+        .single();
+        
+      if (regError) {
+        throw new Error('Failed to verify registration payment status.');
+      }
+      
+      if (reg.payment_status !== 'completed') {
+        return NextResponse.json({ success: false, error: 'Payment must be completed before check-in.' }, { status: 400 });
+      }
+    }
+
     const { data, error } = await supabaseAdmin
       .from('registrations')
       .update({ attendance_status: status })
