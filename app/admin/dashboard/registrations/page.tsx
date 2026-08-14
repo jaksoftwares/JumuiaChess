@@ -101,7 +101,11 @@ export default function AdminRegistrations() {
     );
   };
 
-  const toggleCheckIn = async (id: string, currentStatus: string) => {
+  const toggleCheckIn = async (id: string, currentStatus: string, paymentStatus: string) => {
+    if (currentStatus !== 'checked-in' && paymentStatus !== 'completed') {
+      showAlert('Check-In Error', 'Cannot check in a registration without a completed payment.', 'error');
+      return;
+    }
     const newStatus = currentStatus === 'checked-in' ? 'registered' : 'checked-in';
     try {
       const res = await apiRequest(`/admin/registrations/${id}/checkin`, {
@@ -235,6 +239,7 @@ export default function AdminRegistrations() {
               <h1 className="font-serif text-3xl font-black text-[#232320]">JUMUIYA CHESS INITIATIVE</h1>
               <p className="font-mono text-[11px] font-bold text-[#6B4A34] uppercase tracking-[0.2em] mt-1">
                 Official Event Roster & Check-In Sheet
+                {selectedStatus ? <span className="block mt-0.5 text-rose-800">({selectedStatus.toUpperCase()} PAYMENTS ONLY)</span> : ''}
               </p>
             </div>
           </div>
@@ -464,11 +469,15 @@ export default function AdminRegistrations() {
                     </td>
                     <td className="py-3.5 text-center">
                       <button 
-                        onClick={() => toggleCheckIn(reg.id, reg.attendance_status || 'registered')}
+                        onClick={() => toggleCheckIn(reg.id, reg.attendance_status || 'registered', reg.payment_status)}
+                        disabled={reg.payment_status !== 'completed' && reg.attendance_status !== 'checked-in'}
+                        title={reg.payment_status !== 'completed' && reg.attendance_status !== 'checked-in' ? "Payment must be completed to check in" : ""}
                         className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition-colors ${
                           reg.attendance_status === 'checked-in'
                             ? 'bg-green-100 text-green-800 border border-green-300'
-                            : 'bg-gray-100 text-gray-600 border border-gray-300 hover:bg-[#6B4A34] hover:text-white'
+                            : reg.payment_status !== 'completed'
+                              ? 'bg-stone-100 text-stone-400 border border-stone-200 cursor-not-allowed opacity-70'
+                              : 'bg-gray-100 text-gray-600 border border-gray-300 hover:bg-[#6B4A34] hover:text-white'
                         }`}
                       >
                         {reg.attendance_status === 'checked-in' ? 'Checked In ✓' : 'Check In'}
