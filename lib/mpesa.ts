@@ -76,22 +76,23 @@ export const initiateStkPush = async (
     };
   }
 
-  const shortcode = getMpesaShortcode();
+  const storeNumber = getMpesaShortcode();
+  const tillNumber = process.env.MPESA_TILL_NUMBER || storeNumber;
   
   const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14); // YYYYMMDDHHMMSS
   const password = Buffer.from(
-    `${shortcode}${MPESA_PASSKEY}${timestamp}`
+    `${storeNumber}${MPESA_PASSKEY}${timestamp}`
   ).toString('base64');
 
   const url = `${getBaseUrl()}/mpesa/stkpush/v1/processrequest`;
   const body = {
-    BusinessShortCode: shortcode,
+    BusinessShortCode: storeNumber,
     Password: password,
     Timestamp: timestamp,
-    TransactionType: 'CustomerPayBillOnline',
+    TransactionType: 'CustomerBuyGoodsOnline',
     Amount: Math.round(amount),
     PartyA: formattedPhone,
-    PartyB: shortcode,
+    PartyB: tillNumber,
     PhoneNumber: formattedPhone,
     CallBackURL: MPESA_CALLBACK_URL,
     AccountReference: reference,
