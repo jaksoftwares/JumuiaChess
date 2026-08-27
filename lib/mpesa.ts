@@ -47,11 +47,12 @@ export const getMpesaToken = async (): Promise<string> => {
       headers: {
         Authorization: `Basic ${auth}`,
       },
+      timeout: 10000, // 10 second timeout
     });
     return response.data.access_token;
   } catch (error: any) {
     console.error('Error fetching M-Pesa OAuth token:', error.response?.data || error.message);
-    throw new Error('Failed to generate M-Pesa access token');
+    throw new Error('Failed to generate M-Pesa access token. Safaricom API might be down or credentials invalid.');
   }
 };
 
@@ -78,6 +79,8 @@ export const initiateStkPush = async (
 
   const storeNumber = getMpesaShortcode();
   const tillNumber = process.env.MPESA_TILL_NUMBER || storeNumber;
+  // Some tills actually require PayBill logic for STK push. We allow override.
+  const transactionType = process.env.MPESA_TRANSACTION_TYPE || 'CustomerBuyGoodsOnline';
   
   const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14); // YYYYMMDDHHMMSS
   const password = Buffer.from(
@@ -89,7 +92,7 @@ export const initiateStkPush = async (
     BusinessShortCode: storeNumber,
     Password: password,
     Timestamp: timestamp,
-    TransactionType: 'CustomerBuyGoodsOnline',
+    TransactionType: transactionType,
     Amount: Math.round(amount),
     PartyA: formattedPhone,
     PartyB: tillNumber,
@@ -104,6 +107,7 @@ export const initiateStkPush = async (
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      timeout: 15000, // 15 second timeout for STK push
     });
 
     return {
@@ -113,6 +117,6 @@ export const initiateStkPush = async (
     };
   } catch (error: any) {
     console.error('Error initiating M-Pesa STK push:', error.response?.data || error.message);
-    throw new Error(error.response?.data?.errorMessage || 'Failed to initiate STK push via M-Pesa');
+    throw new Error(error.response?.data?.errorMessage || 'Failed to initiate STK push via M-Pesa. Safaricom API might be unreachable.');
   }
 };
