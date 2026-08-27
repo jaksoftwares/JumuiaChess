@@ -6,7 +6,6 @@ import { sendRegistrationConfirmation, notifyAdminOfRegistration, sendDonationRe
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    console.log('Received M-Pesa Callback:', JSON.stringify(body, null, 2));
 
     const { Body } = body;
     if (!Body || !Body.stkCallback) {

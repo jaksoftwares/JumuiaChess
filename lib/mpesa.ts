@@ -51,7 +51,6 @@ export const getMpesaToken = async (): Promise<string> => {
     });
     return response.data.access_token;
   } catch (error: any) {
-    console.error('Error fetching M-Pesa OAuth token:', error.response?.data || error.message);
     throw new Error('Failed to generate M-Pesa access token. Safaricom API might be down or credentials invalid.');
   }
 };
@@ -116,7 +115,6 @@ export const initiateStkPush = async (
       customerMessage: response.data.CustomerMessage,
     };
   } catch (error: any) {
-    console.error('Error initiating M-Pesa STK push:', error.response?.data || error.message);
     throw new Error(error.response?.data?.errorMessage || 'Failed to initiate STK push via M-Pesa. Safaricom API might be unreachable.');
   }
 };
